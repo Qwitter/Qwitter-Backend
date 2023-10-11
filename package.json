@@ -1,0 +1,26 @@
+{
+  "name": "qwitter-backend",
+  "version": "1.0.0",
+  "description": "Qwitter Backend",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/index.js",
+    "serve": "concurrently \"npx tsc -w\"  \"nomdemon dist/index.js\"",
+    "build": "rimraf dist && npx tsc",
+    "prestart": "npm run build",
+    "preserve": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.4",
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.19",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1"
+  }
+}
