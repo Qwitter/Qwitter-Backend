@@ -9,12 +9,16 @@
     "serve": "concurrently \"npx tsc -w\"  \"nomdemon dist/index.js\"",
     "build": "rimraf dist && npx tsc",
     "prestart": "npm run build",
-    "preserve": "npm run build"
+    "preserve": "npm run build",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:studio": "npx prisma studio"  
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@prisma/client": "^5.4.2",
     "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
