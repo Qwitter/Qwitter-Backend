@@ -8,11 +8,12 @@
     "start": "node dist/index.js",
     "serve": "concurrently \"npx tsc -w\"  \"nomdemon dist/index.js\"",
     "build": "rimraf dist && npx tsc",
+    "dev": "pm2-dev dist/index.js",
     "prestart": "npm run build",
     "preserve": "npm run build",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
-    "prisma:studio": "npx prisma studio"  
+    "prisma:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": "",
