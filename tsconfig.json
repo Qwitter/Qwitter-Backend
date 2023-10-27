@@ -12,6 +12,7 @@
     "baseUrl": ".",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "resolveJsonModule": true,
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
     }
