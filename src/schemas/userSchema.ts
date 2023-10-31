@@ -8,11 +8,11 @@ import { object, string, TypeOf } from 'zod';
  *    UserInteractionInput:
  *      type: object
  *      required:
- *        - target_user_id
+ *        - target_user_name
  *      properties:
- *        target_user_id:
- *          type: int
- *          default: 412423123
+ *        target_user_name:
+ *          type: string
+ *          default: jhondoe41123
  *    UserInteractionResponse:
  *      type: object
  *      properties:

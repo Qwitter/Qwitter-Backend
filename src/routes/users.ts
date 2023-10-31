@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/followers':
+ * '/api/v1/user/followers':
  *  get:
  *     tags:
  *     - User
@@ -37,7 +37,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/follow':
+ * '/api/v1/user/follow':
  *  get:
  *     tags:
  *     - User
@@ -68,17 +68,23 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/follow':
+ * '/api/v1/user/follow/{target_user_name}':
  *  post:
  *     tags:
  *     - User
  *     summary: follow a user
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/UserInteractionInput'
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: target_user_name
+ *         in: path
+ *         required: true         
+ *         schema:
+ *           type: string
  *     responses:
  *      200:
  *        description: Success
@@ -97,7 +103,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/users/follow/{target_user_id}:
+ * /api/v1/user/follow/{target_user_name}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -107,12 +113,12 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_id
+ *       - name: target_user_name
  *         in: path
- *         description: id of the target user 
+ *         description: username of the target user 
  *         required: true
  *         schema:
- *           type: int
+ *           type: string
  *     summary: unfollow a user
  *     responses:
  *      200:
@@ -136,7 +142,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/block':
+ * '/api/v1/user/block':
  *  get:
  *     tags:
  *     - User
@@ -154,7 +160,9 @@ const router = express.Router();
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserInteractionResponse'
+ *              type: array
+ *              items:
+ *                  $ref: '#/components/schemas/User'
  *      409:
  *        description: Conflict
  *      400:
@@ -164,17 +172,24 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/block':
+ * '/api/v1/user/block/{target_user_name}':
  *  post:
  *     tags:
  *     - User
  *     summary: block a user
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/UserInteractionInput'
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: target_user_name
+ *         in: path
+ *         description: username of the target user 
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *      200:
  *        description: Success
@@ -192,7 +207,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/users/block/{target_user_id}:
+ * /api/v1/user/block/{target_user_name}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -202,12 +217,12 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_id
+ *       - name: target_user_name
  *         in: path
- *         description: id of the target user 
+ *         description: username of the target user 
  *         required: true
  *         schema:
- *           type: int
+ *           type: string
  *     summary: unblock a user
  *     responses:
  *      200:
@@ -227,7 +242,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/mute':
+ * '/api/v1/user/mute':
  *  get:
  *     tags:
  *     - User
@@ -245,7 +260,9 @@ const router = express.Router();
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserInteractionResponse'
+ *              type: array
+ *              items:
+ *                  $ref: '#/components/schemas/User'
  *      409:
  *        description: Conflict
  *      400:
@@ -255,17 +272,18 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/mute':
+ * '/api/v1/user/mute/{target_user_name}':
  *  post:
  *     tags:
  *     - User
  *     summary: mute a user
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/UserInteractionInput'
+ *     parameters:
+ *       - name: target_user_name
+ *         in: path
+ *         description: username of the target user 
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *      200:
  *        description: Success
@@ -282,7 +300,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/users/mute/{target_user_id}:
+ * /api/v1/user/mute/{target_user_name}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -292,12 +310,12 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_id
+ *       - name: target_user_name
  *         in: path
- *         description: id of the target user 
+ *         description: usermane of the target user 
  *         required: true
  *         schema:
- *           type: int
+ *           type: string
  *     summary: unmute a user
  *     responses:
  *      200:
@@ -317,14 +335,20 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/user_lookup/{name}':
+ * '/api/v1/user/user_lookup?q={name}':
  *  get:
  *     tags:
  *     - User Profile
- *     summary: get list of user objects that follow the are contain the prompted name
+ *     summary: get list of user objects that contain the prompted name
  *     parameters:
- *       - name: name
- *         in: path
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: q
+ *         in: query
  *         description: name or user name of the user
  *         required: true
  *         schema:
@@ -350,11 +374,18 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/upload_profile_picture':
+ * '/api/v1/user/upload_profile_picture':
  *  post:
  *     tags:
  *     - User Profile
  *     summary: upload profile picture for the user
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *      required: true
  *      content:
@@ -378,7 +409,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users//upload_profile_picture':
+ * '/api/v1/user/upload_profile_picture':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
@@ -406,11 +437,18 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/upload_profile_banner':
+ * '/api/v1/user/upload_profile_banner':
  *  post:
  *     tags:
  *     - User Profile
  *     summary: upload profile banner for the user
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *      required: true
  *      content:
@@ -434,7 +472,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users//upload_profile_banner':
+ * '/api/v1/user/upload_profile_banner':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
@@ -463,7 +501,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/profile':
+ * '/api/v1/user/profile':
  *  get:
  *     tags:
  *     - User Profile
@@ -492,11 +530,18 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/users/user_profile':
+ * '/api/v1/user/user_profile':
  *  put:
  *     tags:
  *     - User Profile
  *     summary: update user profile
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *      content:
  *          object: 
