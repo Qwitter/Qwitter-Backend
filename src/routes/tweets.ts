@@ -1,3 +1,4 @@
+
 import express from 'express';
 const router = express.Router();
 
@@ -253,3 +254,23 @@ router.route('/:id/likes').get();
  *        description: Unauthorized
  */
 router.route('/:id/retweets').get();
+ /**
+ * @openapi
+ * '/api/tweets/toggle-like':
+ *  post:
+ *     tags:
+ *     - Tweets
+ *     summary: Like a Tweet
+ *              $ref: '#/components/schemas/TweetToggleLikeInput'
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/TweetToggleLikeResponse'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */

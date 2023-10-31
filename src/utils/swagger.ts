@@ -1,4 +1,4 @@
-import { Express, Response } from 'express';
+import { Express, Response, Request } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { version } from '../../package.json';
@@ -10,6 +10,7 @@ const options: swaggerJsdoc.Options = {
       title: 'REST API Docs',
       version,
     },
+    servers: [{ url: process.env.URL }],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -24,6 +25,43 @@ const options: swaggerJsdoc.Options = {
         bearerAuth: [],
       },
     ],
+    responses: {
+      400: {
+        description: 'Missing Credentials - Plese check the API documentation',
+        contents: 'application/json',
+      },
+      401: {
+        description: 'Unauthorized - incorrect API key or incorrect format',
+        contents: 'application/json',
+      },
+      403: {
+        description:
+          'Permission Denied. You do not have the rights to access this request',
+        contents: 'application/json',
+      },
+      404: {
+        description: 'Not found - the request Data was not found',
+        contents: 'application/json',
+      },
+      500: {
+        description: 'A problem has occurred. Sorry for inconvenience',
+        contents: 'application/json',
+      },
+      410: {
+        description: 'The requested data is not available',
+        contents: 'application/json',
+      },
+      408: {
+        description: 'The request timed out. Please try again',
+        contents: 'application/json',
+        schema: { error: 'The request timed out. Please try again' },
+      },
+      409: {
+        description: 'Conflict Occured. Check again ',
+        contents: 'application/json',
+        schema: { error: 'Conflict Occured. Check again' },
+      },
+    },
   },
   apis: ['./src/routes/*.ts', './src/schemas/*.ts'],
 };
@@ -35,7 +73,7 @@ function swaggerDocs(app: Express, port: number) {
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   // Docs in JSON format
-  app.get('/docs.json', (res: Response) => {
+  app.get('/docs.json', (_req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   });

@@ -5,7 +5,282 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int                   @default(autoincrement())
+  name                String
+  birthDate           DateTime              @db.Timestamp()
+  location            String
+  url                 String?
+  description         String?
+  protected           Boolean               @default(false)
+  verified            Boolean               @default(false)
+  followers_count     Int                   @default(0)
+  following_count     Int                   @default(0)
+  createdAt           DateTime              @db.Timestamp()
+  deletedAt           DateTime?             @db.Timestamp()
+  profileBannerUrl    String?
+  profileImageUrl     String?
+  email               String                @unique
+  userName            String                @unique
+  password            String
+  passwordChangedAt   DateTime              @db.Timestamp()
+  blocker             Block[]               @relation("blocker")
+  blocked             Block[]               @relation("blocked")
+  follower            Follow[]              @relation("follower")
+  followed            Follow[]              @relation("followed")
+  muter               Mute[]                @relation("muter")
+  muted               Mute[]                @relation("muted")
+  Tweet               Tweet[]
+  Like                Like[]                @relation("liker")
+  Mention             Mention[]
+  Message             Message[]
+  Notification        Notification[]
+  RecieveNotification RecieveNotification[]
+  UserConversations   UserConversations[]
+
+  @@id([id])
+}
+
+model Block {
+  blocker   User @relation("blocker", fields: [blockerId], references: [id])
+  blockerId Int
+  blocked   User @relation("blocked", fields: [blockedId], references: [id])
+  blockedId Int
+
+  @@id([blockerId, blockedId])
+}
+
+model Follow {
+  follower    User @relation("follower", fields: [folowererId], references: [id])
+  folowererId Int
+  followed    User @relation("followed", fields: [followedId], references: [id])
+  followedId  Int
+
+  @@id([folowererId, followedId])
+}
+
+model Mute {
+  muter   User @relation("muter", fields: [muterId], references: [id])
+  muterId Int
+  muted   User @relation("muted", fields: [mutedId], references: [id])
+  mutedId Int
+
+  @@id([muterId, mutedId])
+}
+
+model Tweet {
+  createdAt   DateTime @db.Timestamp()
+  id          Int      @default(autoincrement())
+  text        String?
+  source      String?
+  coordinates String?
+  author      User     @relation(fields: [userId], references: [id])
+  userId      Int
+
+  replyToTweet   Tweet?  @relation("replyTo", fields: [replyToTweetId], references: [id])
+  replies        Tweet[] @relation("replyTo")
+  replyToTweetId Int?
+  replyCount     Int     @default(0)
+
+  reTweet      Tweet?  @relation("retweetTo", fields: [retweetedId], references: [id])
+  retweeted    Tweet[] @relation("retweetTo")
+  retweetedId  Int?
+  retweetCount Int     @default(0)
+
+  qouteTweet     Tweet?  @relation("qouteTweetTo", fields: [qouteTweetedId], references: [id])
+  qouteTweeted   Tweet[] @relation("qouteTweetTo")
+  qouteTweetedId Int?
+  qouteCount     Int     @default(0)
+
+  likesCount Int @default(0)
+
+  sensitive Boolean  @default(false)
+  deletedAt DateTime @db.Timestamp()
+  likes     Like[]   @relation("liked")
+
+  tweetEntity TweetEntity @relation(fields: [entityId], references: [id])
+  entityId    Int
+
+  @@id([id])
+}
+
+model Like {
+  liker   User  @relation("liker", fields: [userId], references: [id])
+  userId  Int
+  liked   Tweet @relation("liked", fields: [tweetId], references: [id])
+  tweetId Int
+
+  @@id([userId, tweetId])
+}
+
+model Mention {
+  id            Int                    @default(autoincrement())
+  mentionedUser User                   @relation(fields: [userId], references: [id])
+  index         Int
+  userId        Int
+  TweetEntity   TweetEntityMention[]
+  MessageEntity MessageEntityMention[]
+
+  @@id([id])
+}
+
+model Hashtag {
+  text                 String
+  index                Int
+  count                Int
+  TweetEntity          TweetEntityHashtag[]
+  MessageEntityHashtag MessageEntityHashtag[]
+
+  @@id([text])
+}
+
+model Media {
+  id                 Int                  @default(autoincrement())
+  url                String
+  TweetEntity        TweetEntityMedia[]
+  MessageEntityMedia MessageEntityMedia[]
+
+  @@id([id])
+}
+
+model TweetEntity {
+  id       Int                  @default(autoincrement())
+  Mentions TweetEntityMention[]
+  Medias   TweetEntityMedia[]
+  Hashtags TweetEntityHashtag[]
+  Tweet    Tweet[]
+
+  @@id([id])
+}
+
+model TweetEntityMention {
+  entity    TweetEntity @relation(fields: [entityId], references: [id])
+  entityId  Int
+  Mention   Mention     @relation(fields: [mentionId], references: [id])
+  mentionId Int
+
+  @@id([entityId, mentionId])
+}
+
+model TweetEntityMedia {
+  entity   TweetEntity @relation(fields: [entityId], references: [id])
+  entityId Int
+  Media    Media       @relation(fields: [mediaId], references: [id])
+  mediaId  Int
+
+  @@id([entityId, mediaId])
+}
+
+model TweetEntityHashtag {
+  entity      TweetEntity @relation(fields: [entityId], references: [id])
+  entityId    Int
+  Hashtag     Hashtag     @relation(fields: [hashtagText], references: [text])
+  hashtagText String
+
+  @@id([entityId, hashtagText])
+}
+
+model MessageEntity {
+  id                   Int                    @default(autoincrement())
+  MessageEntityMention MessageEntityMention[]
+  MessageEntityMedia   MessageEntityMedia[]
+  MessageEntityHashtag MessageEntityHashtag[]
+  Message              Message[]
+
+  @@id([id])
+}
+
+model MessageEntityMention {
+  entity    MessageEntity @relation(fields: [entityId], references: [id])
+  entityId  Int
+  Mention   Mention       @relation(fields: [mentionId], references: [id])
+  mentionId Int
+
+  @@id([entityId, mentionId])
+}
+
+model MessageEntityMedia {
+  entity   MessageEntity @relation(fields: [entityId], references: [id])
+  entityId Int
+  Media    Media         @relation(fields: [mediaId], references: [id])
+  mediaId  Int
+
+  @@id([entityId, mediaId])
+}
+
+model MessageEntityHashtag {
+  entity      MessageEntity @relation(fields: [entityId], references: [id])
+  entityId    Int
+  Hashtag     Hashtag       @relation(fields: [hashtagText], references: [text])
+  hashtagText String
+
+  @@id([entityId, hashtagText])
+}
+
+model Conversation {
+  id                Int                 @default(autoincrement())
+  name              String
+  Message           Message[]
+  UserConversations UserConversations[]
+
+  @@id([id])
+}
+
+model Message {
+  id             Int           @default(autoincrement())
+  text           String
+  messageEntity  MessageEntity @relation(fields: [entityId], references: [id])
+  entityId       Int
+  date           DateTime      @db.Timestamp()
+  sender         User          @relation(fields: [userId], references: [id])
+  userId         Int
+  Conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  conversationId Int
+
+  reply            Message   @relation("reply", fields: [replyToMessageId], references: [id])
+  Message          Message[] @relation("reply")
+  replyToMessageId Int
+
+  @@id([id])
+}
+
+model Notification {
+  id                  Int                   @default(autoincrement())
+  text                String
+  deleted             Boolean               @default(false)
+  seen                Boolean               @default(false)
+  createdAt           DateTime              @db.Timestamp()
+  sender              User                  @relation(fields: [senderId], references: [id])
+  senderId            Int
+  url                 String
+  RecieveNotification RecieveNotification[]
+
+  @@id([id])
+}
+
+model RecieveNotification {
+  Notification   Notification @relation(fields: [notificationId], references: [id])
+  notificationId Int
+  reciever       User         @relation(fields: [recieverId], references: [id])
+  recieverId     Int
+
+  @@id([notificationId, recieverId])
+}
+
+model UserConversations {
+  User           User         @relation(fields: [userId], references: [id])
+  userId         Int
+  Conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId Int
+
+  @@id([userId, conversationId])
 }

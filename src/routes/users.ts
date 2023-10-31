@@ -27,3 +27,4 @@ const router = express.Router();
  *        description: Bad request
  */
 router.route('/').get();
+
