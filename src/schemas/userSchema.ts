@@ -121,6 +121,13 @@ import { object, string, TypeOf } from 'zod';
  *          type: string
  *        birth_date:  
  *          type: string
+ *    User:
+ *      type: object
+ *      properties:
+ *        email:
+ *          type: string
+ *        username:
+ *          type: string
  */
 
 const createUserSchemaPayload = {

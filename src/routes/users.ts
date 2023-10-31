@@ -1,4 +1,9 @@
 
+import express from 'express';
+const router = express.Router();
+
+
+
 
 /**
  * @openapi
@@ -124,6 +129,11 @@
 
 
 
+
+
+
+
+
 /**
  * @openapi
  * '/api/v1/users/block':
@@ -177,6 +187,7 @@
  *      400:
  *        description: Bad request
  */
+
 
 
 /**
@@ -503,4 +514,7 @@
  *      400:
  *        description: Bad request
  */
+
+router.route('/').get();
+
 
