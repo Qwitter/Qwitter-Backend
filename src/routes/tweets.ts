@@ -260,7 +260,12 @@ router.route('/:id/retweets').get();
  *  post:
  *     tags:
  *     - Tweets
- *     summary: Like a Tweet
+ *     summary: Toggle Like a Tweet
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
  *              $ref: '#/components/schemas/TweetToggleLikeInput'
  *     responses:
  *      200:
