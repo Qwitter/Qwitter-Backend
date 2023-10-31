@@ -4,38 +4,122 @@ import { object, string, TypeOf } from 'zod';
  * @openapi
  * components:
  *  schemas:
- *    CreateUserInput:
+ * 
+ *    UserInteractionInput:
  *      type: object
  *      required:
- *        - email
- *        - name
- *        - password
- *        - passwordConfirmation
+ *        - target_user_id
  *      properties:
- *        email:
- *          type: string
- *          default: ahmed.helmy@qwitter.com
- *        name:
- *          type: string
- *          default: Ahmed Helmy
- *        password:
- *          type: string
- *          default: stringPassword123
- *        passwordConfirmation:
- *          type: string
- *          default: stringPassword123
- *    CreateUserResponse:
+ *        target_user_id:
+ *          type: int
+ *          default: 412423123
+ *    UserInteractionResponse:
  *      type: object
  *      properties:
- *        email:
+ *        operation_succeeded:
+ *          type: boolean
+ *          default: true
+ * 
+ */
+
+
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    User:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: int
+ *          default: 234892837
+ *        user_name:
  *          type: string
+ *          default: johndoe123
  *        name:
  *          type: string
- *        _id:
+ *          default: John Doe
+ *        url:
  *          type: string
- *        createdAt:
+ *          default: www.johndoe.com
+ *        description:
  *          type: string
- *        updatedAt:
+ *          default: Hi i am john doe 
+ *        protected:
+ *          type: boolean
+ *          default: false
+ *        verified:
+ *          type: boolean
+ *          default: true
+ *        followers_count:
+ *          type: int
+ *          default: 12312
+ *        followings_count:
+ *          type: int
+ *          default: 1932
+ *        tweets_count:
+ *          type: string
+ *          default: 231
+ *        profile_banner_url:
+ *          type: string
+ *          default: ""
+ *        profile_image_url_https:
+ *          type: string
+ *          default: https://notdeterminedyet.com/profile_banners/819797/1348102824
+ *        default_profile:
+ *          type: boolean
+ *          default: false
+ *        default_profile_image:
+ *          type: boolean
+ *          default: true
+ */
+
+
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ * 
+ *    UploadImageInput:
+ *      type: object
+ *      required:
+ *        - img
+ *      properties:
+ *        img:
+ *          type: string 
+ *          format: binary
+ *    UploadImageResponse:
+ *      type: object
+ *      properties:
+ *        operation_status:
+ *          type: boolean
+ *          default: true
+ *        img_url:
+ *          type: string
+ * 
+ */
+
+
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ * 
+ *    UserProfile:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *        description:
+ *          type: string
+ *        Location:
+ *          type: string
+ *        url:  
+ *          type: string
+ *        birth_date:  
  *          type: string
  *    User:
  *      type: object
