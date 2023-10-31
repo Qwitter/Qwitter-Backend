@@ -37,6 +37,13 @@ import { object, string, TypeOf } from 'zod';
  *          type: string
  *        updatedAt:
  *          type: string
+ *    User:
+ *      type: object
+ *      properties:
+ *        email:
+ *          type: string
+ *        username:
+ *          type: string
  */
 
 const createUserSchemaPayload = {
