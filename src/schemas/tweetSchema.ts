@@ -188,9 +188,8 @@
  *        sensitive:
  *          type: boolean
  *          default: false
- *        entityId:
- *          type: string
- *          default: 3847329049023859093
+ *        entities:
+ *          $ref: '#/components/schemas/entityArray'
  */
 
 //qoute
@@ -241,9 +240,8 @@
  *        sensitive:
  *          type: boolean
  *          default: false
- *        entityId:
- *          type: string
- *          default: 3847329049023859093
+ *        entities:
+ *          $ref: '#/components/schemas/entityArray'
  */
 
 //Create tweet

@@ -258,6 +258,72 @@
           "is_liked": { "type": "boolean" }
         }
       },
+      "entityArray": {
+        "type": "object",
+        "properties": {
+          "hasthtags": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/hashtag" }
+          },
+          "media": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/media" }
+          },
+          "mentions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/mention" }
+          },
+          "urls": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/url" }
+          }
+        }
+      },
+      "media": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "example": "qwitter/photos/213902323",
+            "description": "The value of the entity."
+          },
+          "type": {
+            "type": "string",
+            "example": "photo",
+            "description": "The type of the entity (e.g., 'hashtag', 'photo')."
+          }
+        }
+      },
+      "hashtag": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "example": "#Palestine",
+            "description": "The value of the entity."
+          }
+        }
+      },
+      "url": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "example": "qwitter/photos/213902323",
+            "description": "The value of the entity."
+          }
+        }
+      },
+      "mention": {
+        "type": "object",
+        "properties": {
+          "mentionedUsername": {
+            "type": "string",
+            "example": "ahmedoshelmy",
+            "description": "The value of the entity."
+          }
+        }
+      },
       "tweet": {
         "type": "object",
         "properties": {
@@ -285,7 +351,7 @@
             "default": 1718938551163691300
           },
           "sensitive": { "type": "boolean", "default": false },
-          "entityId": { "type": "string", "default": 3847329049023859000 }
+          "entities": { "$ref": "#/components/schemas/entityArray" }
         }
       },
       "reply": {
@@ -310,7 +376,7 @@
             "default": 1718938551163691300
           },
           "sensitive": { "type": "boolean", "default": false },
-          "entityId": { "type": "string", "default": 3847329049023859000 }
+          "entities": { "$ref": "#/components/schemas/entityArray" }
         }
       },
       "qoute": {
@@ -335,7 +401,7 @@
             "default": 1718938551163691300
           },
           "sensitive": { "type": "boolean", "default": false },
-          "entityId": { "type": "string", "default": 3847329049023859000 }
+          "entities": { "$ref": "#/components/schemas/entityArray" }
         }
       },
       "CreateTweetPayload": {
