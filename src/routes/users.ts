@@ -3,7 +3,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/users':
+ * '/api/v1/users':
  *  get:
  *     tags:
  *     - User

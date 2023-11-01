@@ -256,7 +256,7 @@ router.route('/:id/likes').get();
 router.route('/:id/retweets').get();
  /**
  * @openapi
- * '/api/tweets/toggle-like':
+ * '/api/v1/tweets/toggle-like':
  *  post:
  *     tags:
  *     - [Tweet]

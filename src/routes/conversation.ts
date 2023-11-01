@@ -1,6 +1,6 @@
 /**
  * @openapi
-* '/api/conversation/create':
+* '/api/v1/conversation/create':
 *  post:
 *     tags:
 *     - Conversations
@@ -22,7 +22,7 @@
 *        description: Conflict
 *      400:
 *        description: Bad request
-* '/api/conversation/add-user':
+* '/api/v1/conversation/add-user':
  *  post:
  *     tags:
  *     - Conversations
@@ -44,7 +44,7 @@
  *        description: Conflict
  *      400:
  *        description: Bad request
- * '/api/conversation/remove-user':
+ * '/api/v1/conversation/remove-user':
  *  delete:
  *     tags:
  *     - Conversations
@@ -68,7 +68,7 @@
  *        description: Bad request
 
 
- * '/api/conversation/':
+ * '/api/v1/conversation/':
  *  get:
  *     tags:
  *     - Conversations
@@ -84,23 +84,4 @@
  *        description: Conflict
  *      400:
  *        description: Bad request
-
- * '/api/conversation/unseen':
- *  get:
- *     tags:
- *     - Conversations
- *     summary: Get User Conversations Unseen Countn
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GetUserUnseenConversationsCountResponse'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
-
-
 */

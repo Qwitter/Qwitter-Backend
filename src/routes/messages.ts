@@ -1,6 +1,6 @@
 /**
  * @openapi
-* '/api/message/send':
+* '/api/v1/message/send':
 *  post:
 *     tags:
 *     - Messages
@@ -22,7 +22,7 @@
 *        description: Conflict
 *      400:
 *        description: Bad request
-* '/api/message/delete':
+* '/api/v1/message/delete':
  *  delete:
  *     tags:
  *     - Messages

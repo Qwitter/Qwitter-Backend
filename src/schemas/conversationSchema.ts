@@ -73,23 +73,30 @@ import { object, string } from 'zod';
  *      properties:
  *        success:
  *          type: boolean
- * 
+ 
  *    GetUserConversationsResponse:
  *      type: object
  *      properties:
+ *        unseen:
+ *          type: integer
  *        conversations:
  *          type: array
  *          items:
- *            type: conversation
- *          example: [{"id":1, "name":"Group"}]
-
- *    GetUserUnseenConversationsCountResponse:
- *      type: object
- *      properties:
- *        count:
- *          type: integer
- *          example: 3
-
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: integer
+ *              name:
+ *                type: string
+ *            example: {"id": 1, "name": "Group"}
+ *      example:
+ *        unseen: 2
+ *        conversations: 
+ *          - id: 1
+ *            name: "Group"
+ *          - id: 2
+ *            name: "Another Group"
+   
  */
 
 

@@ -1,6 +1,6 @@
 /**
  * @openapi
-* '/api/trends':
+* '/api/v1/trends':
 *  get:
 *     tags:
 *     - Trends
@@ -17,7 +17,7 @@
 *      400:
 *        description: Bad request 
 
-* '/api/trends?trend={word}':
+* '/api/v1/trends?trend={word}':
 *  get:
 *     parameters:
 *       - name: auth_key
