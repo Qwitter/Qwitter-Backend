@@ -4,6 +4,11 @@ const router = express.Router();
  * @openapi
  * '/api/v1/notifications/{userId}':
  *   get:
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
  *     tags:
  *       - Notifications
  *     summary: Returns a list of notifications for a user

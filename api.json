@@ -116,16 +116,26 @@
       "GetUserConversationsResponse": {
         "type": "object",
         "properties": {
+          "unseen": { "type": "integer" },
           "conversations": {
             "type": "array",
-            "items": { "type": "conversation" },
-            "example": [{ "id": 1, "name": "Group" }]
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" }
+              },
+              "example": { "id": 1, "name": "Group" }
+            }
           }
+        },
+        "example": {
+          "unseen": 2,
+          "conversations": [
+            { "id": 1, "name": "Group" },
+            { "id": 2, "name": "Another Group" }
+          ]
         }
-      },
-      "GetUserUnseenConversationsCountResponse": {
-        "type": "object",
-        "properties": { "count": { "type": "integer", "example": 3 } }
       },
       "sendMessageRequest": {
         "type": "object",
@@ -158,24 +168,51 @@
       "Notification": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "default": "12345" },
+          "id": {
+            "type": "string",
+            "default": "12345",
+            "description": "Unique identifier for the notification."
+          },
           "text": {
             "type": "string",
-            "default": "Ahmed Helmy liked your photo"
+            "default": "Ahmed Helmy liked your photo",
+            "description": "The text content of the notification."
           },
-          "seen": { "type": "boolean", "default": false },
-          "senderId": { "type": "string", "default": 5641651 },
-          "createdAt": { "type": "string", "default": "19-08-2023" },
+          "seen": {
+            "type": "boolean",
+            "default": false,
+            "description": "Indicates if the notification has been seen or not."
+          },
+          "senderId": {
+            "type": "string",
+            "default": "5641651",
+            "description": "The unique identifier of the sender."
+          },
+          "createdAt": {
+            "type": "string",
+            "default": "19-08-2023",
+            "description": "The date and time when the notification was created."
+          },
           "url": {
             "type": "string",
-            "description": "Its the url for the activity. If its liking a tweet it will be tweet url",
+            "description": "Its the URL for the activity. If its liking a tweet, it will be the tweet URL.",
             "default": "http://qwitter/tweet/123"
           }
         }
       },
       "GetNotificationsResponse": {
-        "type": "array",
-        "items": { "$ref": "#/components/schemas/Notification" }
+        "type": "object",
+        "properties": {
+          "unSeenCount": {
+            "type": "number",
+            "description": "Number of unseen notifications."
+          },
+          "notifications": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Notification" },
+            "description": "List of notifications."
+          }
+        }
       },
       "ReturnListOfTweets": {
         "type": "object",
@@ -190,8 +227,19 @@
         "type": "object",
         "properties": {
           "tweets": {
-            "type": "string",
-            "example": ["#Trend1", "#Trend2", "#Trend2"]
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "trend": { "type": "string" },
+                "count": { "type": "integer" }
+              }
+            },
+            "example": [
+              { "trend": "#Trend1", "count": 10000 },
+              { "trend": "#Trend2", "count": 8000 },
+              { "trend": "#Trend3", "count": 6000 }
+            ]
           }
         }
       },
@@ -208,6 +256,86 @@
         "properties": {
           "success": { "type": "boolean" },
           "is_liked": { "type": "boolean" }
+        }
+      },
+      "tweet": {
+        "type": "object",
+        "properties": {
+          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
+          "id": { "type": "string", "example": 1718938551163691300 },
+          "userName": { "type": "string", "example": "AhmedZahran2025" },
+          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "retweetCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
+          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
+          "text": { "type": "string", "default": "this is a tweet string" },
+          "source": { "type": "string", "default": "Iphone" },
+          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "replyToTweetId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
+          "retweetedId": { "type": "string", "default": 1718938551163691300 },
+          "qouteTweetedId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
+          "sensitive": { "type": "boolean", "default": false },
+          "entityId": { "type": "string", "default": 3847329049023859000 }
+        }
+      },
+      "reply": {
+        "type": "object",
+        "properties": {
+          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
+          "id": { "type": "string", "example": 1718938551163691300 },
+          "userName": { "type": "string", "example": "AhmedZahran2025" },
+          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "retweetCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
+          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
+          "text": { "type": "string", "default": "this is a tweet string" },
+          "source": { "type": "string", "default": "Iphone" },
+          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "replyToTweetId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
+          "sensitive": { "type": "boolean", "default": false },
+          "entityId": { "type": "string", "default": 3847329049023859000 }
+        }
+      },
+      "qoute": {
+        "type": "object",
+        "properties": {
+          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
+          "id": { "type": "string", "example": 1718938551163691300 },
+          "userName": { "type": "string", "example": "AhmedZahran2025" },
+          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "retweetCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
+          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
+          "text": { "type": "string", "default": "this is a tweet string" },
+          "source": { "type": "string", "default": "Iphone" },
+          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "qouteTweetedId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
+          "sensitive": { "type": "boolean", "default": false },
+          "entityId": { "type": "string", "default": 3847329049023859000 }
         }
       },
       "CreateTweetPayload": {
@@ -233,64 +361,18 @@
         "type": "object",
         "properties": {
           "status": { "type": "string", "default": "success" },
-          "body": {
-            "type": "object",
-            "properties": {
-              "createdAt": {
-                "type": "string",
-                "example": "2023-10-27 10:43:00"
-              },
-              "id": { "type": "string", "example": 1718938551163691300 },
-              "userName": { "type": "string", "example": "AhmedZahran2025" },
-              "replyCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "retweetCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "qouteCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "likesCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "text": { "type": "string", "default": "this is a tweet string" },
-              "source": { "type": "string", "default": "Iphone" },
-              "coordinates": {
-                "type": "string",
-                "default": "30.037072,31.206344"
-              },
-              "replyToTweetId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "retweetedId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "qouteTweetedId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "sensitive": { "type": "boolean", "default": false },
-              "entityId": { "type": "string", "default": 3847329049023859000 }
-            }
-          }
+          "body": { "$ref": "#/components/schemas/tweet" }
         }
       },
       "deleteTweetResponse204": {
         "type": "object",
         "properties": {
           "status": { "type": "string", "default": "success" },
-          "id": { "type": "integer", "format": "int64", "default": 1 },
+          "id": {
+            "type": "integer",
+            "format": "string",
+            "default": 1719147494591050000
+          },
           "deletedAt": { "type": "string", "default": "2023-10-27 10:43:00" }
         }
       },
@@ -298,57 +380,7 @@
         "type": "object",
         "properties": {
           "status": { "type": "string", "default": "success" },
-          "body": {
-            "type": "object",
-            "properties": {
-              "createdAt": {
-                "type": "string",
-                "example": "2023-10-27 10:43:00"
-              },
-              "id": { "type": "string", "example": 1718938551163691300 },
-              "userName": { "type": "string", "example": "AhmedZahran2025" },
-              "replyCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "retweetCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "qouteCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "likesCount": {
-                "type": "integer",
-                "format": "int64",
-                "default": 0
-              },
-              "text": { "type": "string", "default": "this is a tweet string" },
-              "source": { "type": "string", "default": "Iphone" },
-              "coordinates": {
-                "type": "string",
-                "default": "30.037072,31.206344"
-              },
-              "replyToTweetId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "retweetedId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "qouteTweetedId": {
-                "type": "string",
-                "default": 1718938551163691300
-              },
-              "sensitive": { "type": "boolean", "default": false },
-              "entityId": { "type": "string", "default": 3847329049023859000 }
-            }
-          }
+          "body": { "$ref": "#/components/schemas/tweet" }
         }
       },
       "getRepliesOfTweetResponse200": {
@@ -357,8 +389,7 @@
           "status": { "type": "string", "default": "success" },
           "replies": {
             "type": "array",
-            "items": { "type": "integer" },
-            "default": [0, 1, 2]
+            "items": { "$ref": "#/components/schemas/reply" }
           }
         }
       },
@@ -368,10 +399,7 @@
           "status": { "type": "string", "default": "success" },
           "qoutes": {
             "type": "array",
-            "items": { "type": "integer" },
-            "default": [
-              1718938551163691300, 1718938551163691300, 1718938551163691300
-            ]
+            "items": { "$ref": "#/components/schemas/qoute" }
           }
         }
       },
@@ -381,8 +409,7 @@
           "status": { "type": "string", "default": "success" },
           "likers": {
             "type": "array",
-            "items": { "type": "string" },
-            "default": ["AhmedZahran2025", "Mrwhosetheboss"]
+            "items": { "$ref": "#/components/schemas/User" }
           }
         }
       },
@@ -392,16 +419,15 @@
           "status": { "type": "string", "default": "success" },
           "retweeters": {
             "type": "array",
-            "items": { "type": "string" },
-            "default": ["AhmedZahran2025", "Mrwhosetheboss"]
+            "items": { "$ref": "#/components/schemas/User" }
           }
         }
       },
       "UserInteractionInput": {
         "type": "object",
-        "required": ["target_user_id"],
+        "required": ["target_user_name"],
         "properties": {
-          "target_user_id": { "type": "int", "default": 412423123 }
+          "target_user_name": { "type": "string", "default": "jhondoe41123" }
         }
       },
       "UserInteractionResponse": {
@@ -639,7 +665,7 @@
         }
       }
     },
-    "/api/conversation/create": {
+    "/api/v1/conversation/create": {
       "post": {
         "tags": ["Conversations"],
         "summary": "Create new conversation",
@@ -669,7 +695,7 @@
         }
       }
     },
-    "/api/conversation/add-user": {
+    "/api/v1/conversation/add-user": {
       "post": {
         "tags": ["Conversations"],
         "summary": "Add user to conversation",
@@ -699,7 +725,7 @@
         }
       }
     },
-    "/api/conversation/remove-user": {
+    "/api/v1/conversation/remove-user": {
       "delete": {
         "tags": ["Conversations"],
         "summary": "Remove user from conversation",
@@ -729,7 +755,7 @@
         }
       }
     },
-    "/api/conversation/": {
+    "/api/v1/conversation/": {
       "get": {
         "tags": ["Conversations"],
         "summary": "Get User Conversations",
@@ -749,27 +775,7 @@
         }
       }
     },
-    "/api/conversation/unseen": {
-      "get": {
-        "tags": ["Conversations"],
-        "summary": "Get User Conversations Unseen Countn",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetUserUnseenConversationsCountResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/message/send": {
+    "/api/v1/message/send": {
       "post": {
         "tags": ["Messages"],
         "summary": "Send New Message",
@@ -795,7 +801,7 @@
         }
       }
     },
-    "/api/message/delete": {
+    "/api/v1/message/delete": {
       "delete": {
         "tags": ["Messages"],
         "summary": "Delete message",
@@ -825,6 +831,14 @@
     },
     "/api/v1/notifications/{userId}": {
       "get": {
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true
+          }
+        ],
         "tags": ["Notifications"],
         "summary": "Returns a list of notifications for a user",
         "security": [{ "bearerAuth": [] }],
@@ -856,9 +870,18 @@
         }
       }
     },
-    "/api/timeline": {
+    "/api/v1/timeline": {
       "get": {
         "tags": ["Timeline"],
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "summary": "Get Timeline",
         "responses": {
           "200": {
@@ -874,9 +897,18 @@
         }
       }
     },
-    "/api/tweets/user/{id}": {
+    "/api/v1/tweets/user/{id}": {
       "get": {
         "tags": ["Timeline"],
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "summary": "Get User Tweets",
         "responses": {
           "200": {
@@ -892,9 +924,18 @@
         }
       }
     },
-    "/api/tweets/user-mentioned/{id}": {
+    "/api/v1/tweets/user-mentioned/{id}": {
       "get": {
         "tags": ["Timeline"],
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "summary": "Get Tweets User Mentioned In",
         "responses": {
           "200": {
@@ -910,9 +951,18 @@
         }
       }
     },
-    "/api/tweets/user-liked/{id}": {
+    "/api/v1/tweets/user-liked/{id}": {
       "get": {
         "tags": ["Timeline"],
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "summary": "Get Tweets User Liked",
         "responses": {
           "200": {
@@ -928,9 +978,25 @@
         }
       }
     },
-    "/api/tweets/search?q={word}": {
+    "/api/v1/tweets/search?q={word}": {
       "get": {
         "tags": ["Timeline"],
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "word",
+            "in": "header",
+            "description": "Word to search",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "summary": "Search Tweets",
         "responses": {
           "200": {
@@ -946,7 +1012,7 @@
         }
       }
     },
-    "/api/trends": {
+    "/api/v1/trends": {
       "get": {
         "tags": ["Trends"],
         "summary": "Get Trends",
@@ -964,8 +1030,24 @@
         }
       }
     },
-    "/api/trends?trend={word}": {
+    "/api/v1/trends?trend={word}": {
       "get": {
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "word",
+            "in": "query",
+            "description": "Word to search",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "tags": ["Trends"],
         "summary": "Get Tweets in Trend",
         "responses": {
@@ -990,7 +1072,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           }
         ],
@@ -1029,7 +1111,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
@@ -1067,15 +1149,15 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
             "name": "id",
             "in": "path",
-            "description": "Tweet id to delete",
+            "description": "Tweet id to get",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": { "type": "string" }
           }
         ],
         "summary": "Get tweet by Id",
@@ -1107,7 +1189,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
@@ -1146,7 +1228,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
@@ -1185,7 +1267,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
@@ -1224,7 +1306,7 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
-            "required": false,
+            "required": true,
             "schema": { "type": "string" }
           },
           {
@@ -1255,9 +1337,9 @@
         }
       }
     },
-    "/api/tweets/toggle-like": {
+    "/api/v1/tweets/toggle-like": {
       "post": {
-        "tags": ["Tweets"],
+        "tags": ["Tweet"],
         "summary": "Toggle Like a Tweet",
         "requestBody": {
           "required": true,
@@ -1283,7 +1365,7 @@
         }
       }
     },
-    "/api/v1/users/followers": {
+    "/api/v1/user/followers": {
       "get": {
         "tags": ["User"],
         "summary": "get list of user objects that follow the user",
@@ -1313,7 +1395,7 @@
         }
       }
     },
-    "/api/v1/users/follow": {
+    "/api/v1/user/follow": {
       "get": {
         "tags": ["User"],
         "summary": "get list of user objects that user follows",
@@ -1341,18 +1423,27 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      },
+      }
+    },
+    "/api/v1/user/follow/{target_user_name}": {
       "post": {
         "tags": ["User"],
         "summary": "follow a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserInteractionInput" }
-            }
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "target_user_name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1367,9 +1458,7 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      }
-    },
-    "/api/v1/users/follow/{target_user_id}": {
+      },
       "delete": {
         "tags": ["User"],
         "parameters": [
@@ -1381,11 +1470,11 @@
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_id",
+            "name": "target_user_name",
             "in": "path",
-            "description": "id of the target user",
+            "description": "username of the target user",
             "required": true,
-            "schema": { "type": "int" }
+            "schema": { "type": "string" }
           }
         ],
         "summary": "unfollow a user",
@@ -1405,7 +1494,7 @@
         }
       }
     },
-    "/api/v1/users/block": {
+    "/api/v1/user/block": {
       "get": {
         "tags": ["User"],
         "summary": "get users blocked by the source user",
@@ -1414,6 +1503,43 @@
             "name": "auth_key",
             "in": "header",
             "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/user/block/{target_user_name}": {
+      "post": {
+        "tags": ["User"],
+        "summary": "block a user",
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "target_user_name",
+            "in": "path",
+            "description": "username of the target user",
             "required": true,
             "schema": { "type": "string" }
           }
@@ -1433,34 +1559,6 @@
           "409": { "description": "Conflict" }
         }
       },
-      "post": {
-        "tags": ["User"],
-        "summary": "block a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserInteractionInput" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/users/block/{target_user_id}": {
       "delete": {
         "tags": ["User"],
         "parameters": [
@@ -1472,11 +1570,11 @@
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_id",
+            "name": "target_user_name",
             "in": "path",
-            "description": "id of the target user",
+            "description": "username of the target user",
             "required": true,
-            "schema": { "type": "int" }
+            "schema": { "type": "string" }
           }
         ],
         "summary": "unblock a user",
@@ -1496,7 +1594,7 @@
         }
       }
     },
-    "/api/v1/users/mute": {
+    "/api/v1/user/mute": {
       "get": {
         "tags": ["User"],
         "parameters": [
@@ -1515,7 +1613,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
                 }
               }
             }
@@ -1523,18 +1622,21 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      },
+      }
+    },
+    "/api/v1/user/mute/{target_user_name}": {
       "post": {
         "tags": ["User"],
         "summary": "mute a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserInteractionInput" }
-            }
+        "parameters": [
+          {
+            "name": "target_user_name",
+            "in": "path",
+            "description": "username of the target user",
+            "required": true,
+            "schema": { "type": "string" }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1549,9 +1651,7 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      }
-    },
-    "/api/v1/users/mute/{target_user_id}": {
+      },
       "delete": {
         "tags": ["User"],
         "parameters": [
@@ -1563,11 +1663,11 @@
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_id",
+            "name": "target_user_name",
             "in": "path",
-            "description": "id of the target user",
+            "description": "usermane of the target user",
             "required": true,
-            "schema": { "type": "int" }
+            "schema": { "type": "string" }
           }
         ],
         "summary": "unmute a user",
@@ -1587,14 +1687,21 @@
         }
       }
     },
-    "/api/v1/users/user_lookup/{name}": {
+    "/api/v1/user/user_lookup?q={name}": {
       "get": {
         "tags": ["User Profile"],
-        "summary": "get list of user objects that follow the are contain the prompted name",
+        "summary": "get list of user objects that contain the prompted name",
         "parameters": [
           {
-            "name": "name",
-            "in": "path",
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "q",
+            "in": "query",
             "description": "name or user name of the user",
             "required": true,
             "schema": { "type": "string" }
@@ -1617,10 +1724,19 @@
         }
       }
     },
-    "/api/v1/users/upload_profile_picture": {
+    "/api/v1/user/upload_profile_picture": {
       "post": {
         "tags": ["User Profile"],
         "summary": "upload profile picture for the user",
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1641,9 +1757,7 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      }
-    },
-    "/api/v1/users//upload_profile_picture": {
+      },
       "delete": {
         "tags": ["User Profile"],
         "parameters": [
@@ -1672,10 +1786,19 @@
         }
       }
     },
-    "/api/v1/users/upload_profile_banner": {
+    "/api/v1/user/upload_profile_banner": {
       "post": {
         "tags": ["User Profile"],
         "summary": "upload profile banner for the user",
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1696,9 +1819,7 @@
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
         }
-      }
-    },
-    "/api/v1/users//upload_profile_banner": {
+      },
       "delete": {
         "tags": ["User Profile"],
         "parameters": [
@@ -1727,7 +1848,7 @@
         }
       }
     },
-    "/api/v1/users/profile": {
+    "/api/v1/user/profile": {
       "get": {
         "tags": ["User Profile"],
         "summary": "get user profile",
@@ -1754,10 +1875,19 @@
         }
       }
     },
-    "/api/v1/users/user_profile": {
+    "/api/v1/user/user_profile": {
       "put": {
         "tags": ["User Profile"],
         "summary": "update user profile",
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "requestBody": {
           "content": {
             "object": {

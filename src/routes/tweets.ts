@@ -257,8 +257,7 @@ router.route('/:id/retweets').get();
  * @openapi
  * '/api/v1/tweets/toggle-like':
  *  post:
- *     tags:
- *     - [Tweet]
+ *     tags: [Tweet]
  *     summary: Toggle Like a Tweet
  *     requestBody:
  *      required: true

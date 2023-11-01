@@ -1,3 +1,86 @@
+//entity
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     entityArray:
+ *       type: object
+ *       properties:
+ *         hasthtags:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/hashtag'
+ *         media:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/media'
+ *         mentions:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/mention'
+ *         urls:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/url'
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     media:
+ *       type: object
+ *       properties:
+ *         value:
+ *           type: string
+ *           example: 'qwitter/photos/213902323'
+ *           description: The value of the entity.
+ *         type:
+ *           type: string
+ *           example: 'photo'
+ *           description: The type of the entity (e.g., 'hashtag', 'photo').
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     hashtag:
+ *       type: object
+ *       properties:
+ *         value:
+ *           type: string
+ *           example: '#Palestine'
+ *           description: The value of the entity.
+ */
+
+//entity
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     url:
+ *       type: object
+ *       properties:
+ *         value:
+ *           type: string
+ *           example: 'qwitter/photos/213902323'
+ *           description: The value of the entity.
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     mention:
+ *       type: object
+ *       properties:
+ *         mentionedUsername:
+ *           type: string
+ *           example: 'ahmedoshelmy'
+ *           description: The value of the entity.
+ */
+
 //tweet
 /**
  * @openapi
@@ -52,9 +135,9 @@
  *        sensitive:
  *          type: boolean
  *          default: false
- *        entityId:
- *          type: string
- *          default: 3847329049023859093
+ *        entities:
+ *          $ref: '#/components/schemas/entityArray'
+ *
  */
 
 //reply
