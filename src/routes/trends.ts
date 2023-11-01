@@ -19,6 +19,19 @@
 
 * '/api/trends?trend={word}':
 *  get:
+*     parameters:
+*       - name: auth_key
+*         in: header
+*         description: ''
+*         required: true
+*         schema:
+*           type: string
+*       - name: word
+*         in: query
+*         description: Word to search
+*         required: true
+*         schema:
+*           type: string
 *     tags:
 *     - Trends
 *     summary: Get Tweets in Trend

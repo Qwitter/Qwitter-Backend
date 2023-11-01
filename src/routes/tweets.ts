@@ -11,7 +11,7 @@ const router = express.Router();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *     summary: add tweet
@@ -44,7 +44,7 @@ router.route('/').post();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -81,7 +81,7 @@ router.route('/').post();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -120,7 +120,7 @@ router.route('/:id').delete().get();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -156,7 +156,7 @@ router.route('/:id/replies').get();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -192,7 +192,7 @@ router.route('/:id/quotes').get();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -228,7 +228,7 @@ router.route('/:id/likes').get();
  *       - name: auth_key
  *         in: header
  *         description: ''
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *       - name: id
@@ -259,7 +259,7 @@ router.route('/:id/retweets').get();
  * '/api/tweets/toggle-like':
  *  post:
  *     tags:
- *     - Tweets
+ *     - [Tweet]
  *     summary: Toggle Like a Tweet
  *     requestBody:
  *      required: true
