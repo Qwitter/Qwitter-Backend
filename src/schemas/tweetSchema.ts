@@ -1,3 +1,168 @@
+//tweet
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    tweet:
+ *      type: object
+ *      properties:
+ *        createdAt:
+ *          type: string
+ *          example: 2023-10-27 10:43:00
+ *        id:
+ *          type: string
+ *          example: 1718938551163691349
+ *        userName:
+ *          type: string
+ *          example: AhmedZahran2025
+ *        replyCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        retweetCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        qouteCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        likesCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        text:
+ *          type: string
+ *          default: this is a tweet string
+ *        source:
+ *          type: string
+ *          default: Iphone
+ *        coordinates:
+ *          type: string
+ *          default: 30.037072,31.206344
+ *        replyToTweetId:
+ *          type: string
+ *          default: 1718938551163691349
+ *        retweetedId:
+ *          type: string
+ *          default: 1718938551163691349
+ *        qouteTweetedId:
+ *          type: string
+ *          default: 1718938551163691349
+ *        sensitive:
+ *          type: boolean
+ *          default: false
+ *        entityId:
+ *          type: string
+ *          default: 3847329049023859093
+ */
+
+//reply
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    reply:
+ *      type: object
+ *      properties:
+ *        createdAt:
+ *          type: string
+ *          example: 2023-10-27 10:43:00
+ *        id:
+ *          type: string
+ *          example: 1718938551163691349
+ *        userName:
+ *          type: string
+ *          example: AhmedZahran2025
+ *        replyCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        retweetCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        qouteCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        likesCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        text:
+ *          type: string
+ *          default: this is a tweet string
+ *        source:
+ *          type: string
+ *          default: Iphone
+ *        coordinates:
+ *          type: string
+ *          default: 30.037072,31.206344
+ *        replyToTweetId:
+ *          type: string
+ *          default: 1718938551163691349
+ *        sensitive:
+ *          type: boolean
+ *          default: false
+ *        entityId:
+ *          type: string
+ *          default: 3847329049023859093
+ */
+
+//qoute
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    qoute:
+ *      type: object
+ *      properties:
+ *        createdAt:
+ *          type: string
+ *          example: 2023-10-27 10:43:00
+ *        id:
+ *          type: string
+ *          example: 1718938551163691349
+ *        userName:
+ *          type: string
+ *          example: AhmedZahran2025
+ *        replyCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        retweetCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        qouteCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        likesCount:
+ *          type: integer
+ *          format: int64
+ *          default: 0
+ *        text:
+ *          type: string
+ *          default: this is a tweet string
+ *        source:
+ *          type: string
+ *          default: Iphone
+ *        coordinates:
+ *          type: string
+ *          default: 30.037072,31.206344
+ *        qouteTweetedId:
+ *          type: string
+ *          default: 1718938551163691349
+ *        sensitive:
+ *          type: boolean
+ *          default: false
+ *        entityId:
+ *          type: string
+ *          default: 3847329049023859093
+ */
+
 //Create tweet
 /**
  * @openapi
@@ -37,57 +202,7 @@
  *          type: string
  *          default: success
  *        body:
- *          type: object
- *          properties:
- *            createdAt:
- *              type: string
- *              example: 2023-10-27 10:43:00
- *            id:
- *              type: string
- *              example: 1718938551163691349
- *            userName:
- *              type: string
- *              example: AhmedZahran2025
- *            replyCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            retweetCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            qouteCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            likesCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            text:
- *              type: string
- *              default: this is a tweet string
- *            source:
- *              type: string
- *              default: Iphone
- *            coordinates:
- *              type: string
- *              default: 30.037072,31.206344
- *            replyToTweetId:
- *              type: string
- *              default: 1718938551163691349
- *            retweetedId:
- *              type: string
- *              default: 1718938551163691349
- *            qouteTweetedId:
- *              type: string
- *              default: 1718938551163691349
- *            sensitive:
- *              type: boolean
- *              default: false
- *            entityId:
- *              type: string
- *              default: 3847329049023859093
+ *          $ref: '#/components/schemas/tweet'
  */
 
 /////////////////////////////////////////////////////////
@@ -105,8 +220,8 @@
  *          default: success
  *        id:
  *          type: integer
- *          format: int64
- *          default: 1
+ *          format: string
+ *          default: 1719147494591049939
  *        deletedAt:
  *          type: string
  *          default: 2023-10-27 10:43:00
@@ -126,57 +241,7 @@
  *          type: string
  *          default: success
  *        body:
- *          type: object
- *          properties:
- *            createdAt:
- *              type: string
- *              example: 2023-10-27 10:43:00
- *            id:
- *              type: string
- *              example: 1718938551163691349
- *            userName:
- *              type: string
- *              example: AhmedZahran2025
- *            replyCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            retweetCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            qouteCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            likesCount:
- *              type: integer
- *              format: int64
- *              default: 0
- *            text:
- *              type: string
- *              default: this is a tweet string
- *            source:
- *              type: string
- *              default: Iphone
- *            coordinates:
- *              type: string
- *              default: 30.037072,31.206344
- *            replyToTweetId:
- *              type: string
- *              default: 1718938551163691349
- *            retweetedId:
- *              type: string
- *              default: 1718938551163691349
- *            qouteTweetedId:
- *              type: string
- *              default: 1718938551163691349
- *            sensitive:
- *              type: boolean
- *              default: false
- *            entityId:
- *              type: string
- *              default: 3847329049023859093
+ *          $ref: '#/components/schemas/tweet'
  */
 
 /////////////////////////////////////////////////////////
@@ -195,8 +260,7 @@
  *        replies:
  *          type: array
  *          items:
- *            type: integer
- *          default: [0,1,2]
+ *            $ref: '#/components/schemas/reply'
  */
 
 /////////////////////////////////////////////////////////
@@ -215,8 +279,7 @@
  *        qoutes:
  *          type: array
  *          items:
- *            type: integer
- *          default: [1718938551163691349,1718938551163691350,1718938551163691351]
+ *            $ref: '#/components/schemas/qoute'
  */
 
 //Get likers of a tweet by Id
@@ -233,8 +296,7 @@
  *        likers:
  *          type: array
  *          items:
- *            type: string
- *          default: [AhmedZahran2025,Mrwhosetheboss]
+ *            $ref: '#/components/schemas/User'
  */
 
 //Get retweeters of a tweet by Id
@@ -251,8 +313,7 @@
  *        retweeters:
  *          type: array
  *          items:
- *            type: string
- *          default: [AhmedZahran2025,Mrwhosetheboss]
+ *            $ref: '#/components/schemas/User'
  */
 
 /////////////////////////////////////////////////////////
