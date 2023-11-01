@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id                  Int                   @default(autoincrement())
+  id                  String                @default(uuid())
   name                String
   birthDate           DateTime              @db.Timestamp()
   location            String
@@ -23,8 +23,8 @@ model User {
   description         String?
   protected           Boolean               @default(false)
   verified            Boolean               @default(false)
-  followers_count     Int                   @default(0)
-  following_count     Int                   @default(0)
+  followersCount      Int                   @default(0)
+  followingCount      Int                   @default(0)
   createdAt           DateTime              @db.Timestamp()
   deletedAt           DateTime?             @db.Timestamp()
   profileBannerUrl    String?
@@ -40,10 +40,10 @@ model User {
   muter               Mute[]                @relation("muter")
   muted               Mute[]                @relation("muted")
   Tweet               Tweet[]
-  Like                Like[]                @relation("liker")
+  Like                Like[]
   Mention             Mention[]
   Message             Message[]
-  Notification        Notification[]
+  Notification        Notification[]        @relation("sendNotification")
   RecieveNotification RecieveNotification[]
   UserConversations   UserConversations[]
 
@@ -51,183 +51,148 @@ model User {
 }
 
 model Block {
-  blocker   User @relation("blocker", fields: [blockerId], references: [id])
-  blockerId Int
-  blocked   User @relation("blocked", fields: [blockedId], references: [id])
-  blockedId Int
+  blocker   User   @relation("blocker", fields: [blockerId], references: [id])
+  blockerId String
+  blocked   User   @relation("blocked", fields: [blockedId], references: [id])
+  blockedId String
 
   @@id([blockerId, blockedId])
 }
 
 model Follow {
-  follower    User @relation("follower", fields: [folowererId], references: [id])
-  folowererId Int
-  followed    User @relation("followed", fields: [followedId], references: [id])
-  followedId  Int
+  follower    User   @relation("follower", fields: [folowererId], references: [id])
+  folowererId String
+  followed    User   @relation("followed", fields: [followedId], references: [id])
+  followedId  String
 
   @@id([folowererId, followedId])
 }
 
 model Mute {
-  muter   User @relation("muter", fields: [muterId], references: [id])
-  muterId Int
-  muted   User @relation("muted", fields: [mutedId], references: [id])
-  mutedId Int
+  muter   User   @relation("muter", fields: [muterId], references: [id])
+  muterId String
+  muted   User   @relation("muted", fields: [mutedId], references: [id])
+  mutedId String
 
   @@id([muterId, mutedId])
 }
 
 model Tweet {
   createdAt   DateTime @db.Timestamp()
-  id          Int      @default(autoincrement())
+  id          String   @default(uuid())
   text        String?
   source      String?
   coordinates String?
   author      User     @relation(fields: [userId], references: [id])
-  userId      Int
+  userId      String
 
   replyToTweet   Tweet?  @relation("replyTo", fields: [replyToTweetId], references: [id])
   replies        Tweet[] @relation("replyTo")
-  replyToTweetId Int?
+  replyToTweetId String?
   replyCount     Int     @default(0)
 
   reTweet      Tweet?  @relation("retweetTo", fields: [retweetedId], references: [id])
   retweeted    Tweet[] @relation("retweetTo")
-  retweetedId  Int?
+  retweetedId  String?
   retweetCount Int     @default(0)
 
   qouteTweet     Tweet?  @relation("qouteTweetTo", fields: [qouteTweetedId], references: [id])
   qouteTweeted   Tweet[] @relation("qouteTweetTo")
-  qouteTweetedId Int?
+  qouteTweetedId String?
   qouteCount     Int     @default(0)
 
   likesCount Int @default(0)
 
-  sensitive Boolean  @default(false)
-  deletedAt DateTime @db.Timestamp()
-  likes     Like[]   @relation("liked")
-
-  tweetEntity TweetEntity @relation(fields: [entityId], references: [id])
-  entityId    Int
+  sensitive   Boolean       @default(false)
+  deletedAt   DateTime      @db.Timestamp()
+  likes       Like[]
+  TweetEntity TweetEntity[] @relation("HasEntity")
 
   @@id([id])
 }
 
 model Like {
-  liker   User  @relation("liker", fields: [userId], references: [id])
-  userId  Int
-  liked   Tweet @relation("liked", fields: [tweetId], references: [id])
-  tweetId Int
+  liker   User   @relation(fields: [userId], references: [id])
+  userId  String
+  liked   Tweet  @relation(fields: [tweetId], references: [id])
+  tweetId String
 
   @@id([userId, tweetId])
 }
 
 model Mention {
-  id            Int                    @default(autoincrement())
-  mentionedUser User                   @relation(fields: [userId], references: [id])
+  id            String @default(uuid())
+  mentionedUser User   @relation(fields: [userId], references: [id])
   index         Int
-  userId        Int
-  TweetEntity   TweetEntityMention[]
-  MessageEntity MessageEntityMention[]
+  userId        String
+  entity        Entity @relation(fields: [entityId], references: [id])
+  entityId      String @unique
 
   @@id([id])
 }
 
 model Hashtag {
-  text                 String
-  index                Int
-  count                Int
-  TweetEntity          TweetEntityHashtag[]
-  MessageEntityHashtag MessageEntityHashtag[]
+  text     String
+  index    Int
+  count    Int
+  entity   Entity @relation(fields: [entityId], references: [id])
+  entityId String @unique
 
   @@id([text])
 }
 
 model Media {
-  id                 Int                  @default(autoincrement())
-  url                String
-  TweetEntity        TweetEntityMedia[]
-  MessageEntityMedia MessageEntityMedia[]
+  id       String @default(uuid())
+  url      String @unique
+  entity   Entity @relation(fields: [entityId], references: [id])
+  entityId String @unique
+
+  @@id([id])
+}
+
+model Url {
+  id       String @default(uuid())
+  text     String
+  index    Int
+  entity   Entity @relation(fields: [entityId], references: [id])
+  entityId String @unique
 
   @@id([id])
 }
 
 model TweetEntity {
-  id       Int                  @default(autoincrement())
-  Mentions TweetEntityMention[]
-  Medias   TweetEntityMedia[]
-  Hashtags TweetEntityHashtag[]
-  Tweet    Tweet[]
+  tweet    Tweet  @relation("HasEntity", fields: [tweetId], references: [id])
+  tweetId  String
+  entity   Entity @relation("entityToTweet", fields: [entityId], references: [id])
+  entityId String
+
+  @@id([tweetId, entityId])
+}
+
+model messageEntity {
+  message   Message @relation("hasEntity", fields: [messageId], references: [id])
+  messageId String
+  entity    Entity  @relation("entityToMessage", fields: [entityId], references: [id])
+  entityId  String
+
+  @@id([messageId, entityId])
+}
+
+model Entity {
+  id String @default(uuid())
+
+  Mention       Mention?
+  Hashtag       Hashtag?
+  Media         Media?
+  Url           Url?
+  messageEntity messageEntity[] @relation("entityToMessage")
+  TweetEntity   TweetEntity[]   @relation("entityToTweet")
 
   @@id([id])
-}
-
-model TweetEntityMention {
-  entity    TweetEntity @relation(fields: [entityId], references: [id])
-  entityId  Int
-  Mention   Mention     @relation(fields: [mentionId], references: [id])
-  mentionId Int
-
-  @@id([entityId, mentionId])
-}
-
-model TweetEntityMedia {
-  entity   TweetEntity @relation(fields: [entityId], references: [id])
-  entityId Int
-  Media    Media       @relation(fields: [mediaId], references: [id])
-  mediaId  Int
-
-  @@id([entityId, mediaId])
-}
-
-model TweetEntityHashtag {
-  entity      TweetEntity @relation(fields: [entityId], references: [id])
-  entityId    Int
-  Hashtag     Hashtag     @relation(fields: [hashtagText], references: [text])
-  hashtagText String
-
-  @@id([entityId, hashtagText])
-}
-
-model MessageEntity {
-  id                   Int                    @default(autoincrement())
-  MessageEntityMention MessageEntityMention[]
-  MessageEntityMedia   MessageEntityMedia[]
-  MessageEntityHashtag MessageEntityHashtag[]
-  Message              Message[]
-
-  @@id([id])
-}
-
-model MessageEntityMention {
-  entity    MessageEntity @relation(fields: [entityId], references: [id])
-  entityId  Int
-  Mention   Mention       @relation(fields: [mentionId], references: [id])
-  mentionId Int
-
-  @@id([entityId, mentionId])
-}
-
-model MessageEntityMedia {
-  entity   MessageEntity @relation(fields: [entityId], references: [id])
-  entityId Int
-  Media    Media         @relation(fields: [mediaId], references: [id])
-  mediaId  Int
-
-  @@id([entityId, mediaId])
-}
-
-model MessageEntityHashtag {
-  entity      MessageEntity @relation(fields: [entityId], references: [id])
-  entityId    Int
-  Hashtag     Hashtag       @relation(fields: [hashtagText], references: [text])
-  hashtagText String
-
-  @@id([entityId, hashtagText])
 }
 
 model Conversation {
-  id                Int                 @default(autoincrement())
+  id                String              @default(uuid())
   name              String
   Message           Message[]
   UserConversations UserConversations[]
@@ -236,31 +201,30 @@ model Conversation {
 }
 
 model Message {
-  id             Int           @default(autoincrement())
+  id             String       @default(uuid())
   text           String
-  messageEntity  MessageEntity @relation(fields: [entityId], references: [id])
-  entityId       Int
-  date           DateTime      @db.Timestamp()
-  sender         User          @relation(fields: [userId], references: [id])
-  userId         Int
-  Conversation   Conversation  @relation(fields: [conversationId], references: [id])
-  conversationId Int
+  date           DateTime     @db.Timestamp()
+  sender         User         @relation(fields: [userId], references: [id])
+  userId         String
+  Conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
 
-  reply            Message   @relation("reply", fields: [replyToMessageId], references: [id])
-  Message          Message[] @relation("reply")
-  replyToMessageId Int
+  reply            Message         @relation("reply", fields: [replyToMessageId], references: [id])
+  Message          Message[]       @relation("reply")
+  replyToMessageId String
+  messageEntity    messageEntity[] @relation("hasEntity")
 
   @@id([id])
 }
 
 model Notification {
-  id                  Int                   @default(autoincrement())
+  id                  String                @default(uuid())
   text                String
   deleted             Boolean               @default(false)
   seen                Boolean               @default(false)
   createdAt           DateTime              @db.Timestamp()
-  sender              User                  @relation(fields: [senderId], references: [id])
-  senderId            Int
+  sender              User                  @relation("sendNotification", fields: [senderId], references: [id])
+  senderId            String
   url                 String
   RecieveNotification RecieveNotification[]
 
@@ -269,18 +233,19 @@ model Notification {
 
 model RecieveNotification {
   Notification   Notification @relation(fields: [notificationId], references: [id])
-  notificationId Int
+  notificationId String
   reciever       User         @relation(fields: [recieverId], references: [id])
-  recieverId     Int
+  recieverId     String
 
   @@id([notificationId, recieverId])
 }
 
 model UserConversations {
   User           User         @relation(fields: [userId], references: [id])
-  userId         Int
+  userId         String
   Conversation   Conversation @relation(fields: [conversationId], references: [id])
-  conversationId Int
+  conversationId String
+  seen           Boolean
 
   @@id([userId, conversationId])
 }

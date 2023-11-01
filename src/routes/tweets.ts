@@ -1,4 +1,3 @@
-
 import express from 'express';
 const router = express.Router();
 
@@ -86,11 +85,10 @@ router.route('/').post();
  *           type: string
  *       - name: id
  *         in: path
- *         description: Tweet id to delete
+ *         description: Tweet id to get
  *         required: true
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
  *     summary: Get tweet by Id
  *     responses:
  *      200:
@@ -254,7 +252,8 @@ router.route('/:id/likes').get();
  *        description: Unauthorized
  */
 router.route('/:id/retweets').get();
- /**
+
+/**
  * @openapi
  * '/api/tweets/toggle-like':
  *  post:
