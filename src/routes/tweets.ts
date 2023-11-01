@@ -26,9 +26,7 @@ const router = express.Router();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/addTweetresponse200'
+ *              $ref: '#/components/schemas/addTweetresponse200'
  *      403:
  *        description: Unauthorized
  */
@@ -60,9 +58,7 @@ router.route('/').post();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/deleteTweetResponse204'
+ *              $ref: '#/components/schemas/deleteTweetResponse204'
  *      404:
  *        description: Tweet was Not Found
  *      410:
@@ -96,9 +92,7 @@ router.route('/').post();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/getTweetResponse200'
+ *              $ref: '#/components/schemas/getTweetResponse200'
  *      404:
  *        description: Tweet was Not Found
  *      410:
@@ -135,9 +129,7 @@ router.route('/:id').delete().get();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/getRepliesOfTweetResponse200'
+ *              $ref: '#/components/schemas/getRepliesOfTweetResponse200'
  *      404:
  *        description: Tweet was Not Found
  *      403:
@@ -171,9 +163,7 @@ router.route('/:id/replies').get();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/getQouteRetweetsOfTweetResponse200'
+ *              $ref: '#/components/schemas/getQouteRetweetsOfTweetResponse200'
  *      404:
  *        description: Tweet was Not Found
  *      403:
@@ -207,9 +197,7 @@ router.route('/:id/quotes').get();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/getLikersOfTweetResponse200'
+ *              $ref: '#/components/schemas/getLikersOfTweetResponse200'
  *      404:
  *        description: Tweet was Not Found
  *      403:
@@ -243,9 +231,7 @@ router.route('/:id/likes').get();
  *        content:
  *          application/json:
  *            schema:
- *              type: array
- *              items:
- *                  $ref: '#/components/schemas/getRetweetersOfTweetResponse200'
+ *              $ref: '#/components/schemas/getRetweetersOfTweetResponse200'
  *      404:
  *        description: Tweet was Not Found
  *      403:
