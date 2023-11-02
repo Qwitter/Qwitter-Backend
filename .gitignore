@@ -7,3 +7,4 @@ yarn.lock
 deskotp.ini
 deliverables/*
 package-lock.json
+coverage
