@@ -1,4 +1,4 @@
-import { object } from 'zod';
+import { object, string } from 'zod';
 
 /**
  * @openapi
@@ -71,4 +71,15 @@ import { object } from 'zod';
 const SignUpPayload = {};
 export const SignUpSchema = object({
   ...SignUpPayload,
+});
+
+const ResetPasswordPayload = {
+  body: object({
+    email: string({
+      required_error: 'Email is required',
+    }).email('Not a valid email address'),
+  }),
+};
+export const ResetPasswordSchema = object({
+  ...ResetPasswordPayload,
 });

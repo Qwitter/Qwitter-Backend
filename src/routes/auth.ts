@@ -1,6 +1,8 @@
 import express from 'express';
 const router = express.Router();
-
+import { validate } from '../utils/validator';
+import { ResetPasswordSchema } from '../schemas/authSchema';
+import * as authController from '../controllers/authController';
 /**
  * @openapi
  * '/api/v1/auth/google':
@@ -183,3 +185,46 @@ router.route('/forget-password').post();
  *
  */
 router.route('/verify-email/:token').get();
+
+/**
+ * @openapi
+ * '/api/v1/auth/reset-password':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Reset the password by Email
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/ForgotPasswordRequest'
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/LoginResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+router
+  .route('/reset-password')
+  .post(validate(ResetPasswordSchema), authController.resetPassword);
+
+export default router;
