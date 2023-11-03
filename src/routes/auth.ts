@@ -116,45 +116,6 @@ router.route('/login').post();
 
 /**
  * @openapi
- * '/api/v1/auth/forget-password':
- *  post:
- *     tags:
- *     - Authentication
- *     summary: Login a user
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/ForgotPasswordRequest'
- *     responses:
- *       "200":
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/LoginResponse'
- *       "400":
- *        $ref: '#/responses/400'
- *       "401":
- *        $ref: '#/responses/401'
- *       "404":
- *        $ref: '#/responses/404'
- *       "403":
- *        $ref: '#/responses/403'
- *       "408":
- *        $ref: '#/responses/408'
- *       "409":
- *        $ref: '#/responses/409'
- *       "410":
- *        $ref: '#/responses/410'
- *
- *
- */
-router.route('/forget-password').post();
-
-/**
- * @openapi
  * '/api/v1/auth/verify-email/{token}':
  *  get:
  *     tags:
@@ -188,11 +149,11 @@ router.route('/verify-email/:token').get();
 
 /**
  * @openapi
- * '/api/v1/auth/reset-password':
+ * '/api/v1/auth/forgot-password':
  *  post:
  *     tags:
  *     - Authentication
- *     summary: Reset the password by Email
+ *     summary: Send a Forgot Password request
  *     requestBody:
  *      required: true
  *      content:
@@ -224,7 +185,7 @@ router.route('/verify-email/:token').get();
  *
  */
 router
-  .route('/reset-password')
-  .post(validate(ResetPasswordSchema), authController.resetPassword);
+  .route('/forgot-password')
+  .post(validate(ResetPasswordSchema), authController.forgotPassword);
 
 export default router;
