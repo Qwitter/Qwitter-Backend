@@ -189,4 +189,6 @@ router.route('/forget-password').post();
 router.route('/verify-email/:token').get();
 
 
+router.route('/logout').post(authController.logout);
+
 export default router;
