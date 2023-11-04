@@ -1,5 +1,5 @@
 import { object } from 'zod';
-
+import z from 'zod'
 /**
  * @openapi
  * components:
@@ -72,3 +72,13 @@ const SignUpPayload = {};
 export const SignUpSchema = object({
   ...SignUpPayload,
 });
+
+const loginPayloadSchema = z.object({
+  body:z.object({
+    email_or_username:z.string(),
+    password:z.string()
+  })
+})
+
+
+export const loginSchema=loginPayloadSchema;
