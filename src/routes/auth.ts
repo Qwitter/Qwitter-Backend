@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import { validate } from '../utils/validator';
-import { ResetPasswordSchema } from '../schemas/authSchema';
+import { ResetPasswordSchema, signUpSchema } from '../schemas/authSchema';
 import * as authController from '../controllers/authController';
 /**
  * @openapi
@@ -73,7 +73,7 @@ router.route('/google').get();
  *       "410":
  *        $ref: '#/responses/410'
  */
-router.route('/signup').post();
+router.route('/signup').post(validate(signUpSchema), authController.signUp);
 
 /**
  * @openapi

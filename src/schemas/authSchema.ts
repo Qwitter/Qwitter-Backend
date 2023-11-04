@@ -68,11 +68,6 @@ import { object, string } from 'zod';
  *          default: "Your account has been successfully verified"
  */
 
-const SignUpPayload = {};
-export const SignUpSchema = object({
-  ...SignUpPayload,
-});
-
 const ResetPasswordPayload = {
   body: object({
     email: string({
@@ -82,4 +77,13 @@ const ResetPasswordPayload = {
 };
 export const ResetPasswordSchema = object({
   ...ResetPasswordPayload,
+});
+
+export const signUpSchema = object({
+  body: object({
+    name: string().min(1).max(50),
+    email: string().email(),
+    password: string().min(8),
+    birthDate: string().datetime(),
+  }),
 });
