@@ -32,7 +32,7 @@ model User {
   email               String                @unique
   userName            String                @unique
   password            String
-  passwordChangedAt   DateTime              @db.Timestamp()
+  passwordChangedAt   DateTime?              @db.Timestamp()
   blocker             Block[]               @relation("blocker")
   blocked             Block[]               @relation("blocked")
   follower            Follow[]              @relation("follower")

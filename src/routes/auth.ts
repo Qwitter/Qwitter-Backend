@@ -1,4 +1,8 @@
 import express from 'express';
+import * as authController from '../controllers/authController';
+import { validate } from '../utils/validator';
+import {loginSchema} from '../schemas/authSchema'
+
 const router = express.Router();
 
 /**
@@ -110,8 +114,8 @@ router.route('/signup').post();
  *
  *
  */
-router.route('/login').post();
-
+router.route('/login').post(validate(loginSchema),authController.login);
+// validate(loginSchema),
 /**
  * @openapi
  * '/api/v1/auth/forget-password':
@@ -183,3 +187,6 @@ router.route('/forget-password').post();
  *
  */
 router.route('/verify-email/:token').get();
+
+
+export default router;
