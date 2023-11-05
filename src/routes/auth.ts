@@ -4,6 +4,7 @@ import { validate } from '../utils/validator';
 import {
   ForgetPasswordSchema,
   ResetPasswordSchema,
+  SendVerificationEmailSchema,
   signUpSchema,
 } from '../schemas/authSchema';
 import * as authController from '../controllers/authController';
@@ -121,7 +122,7 @@ router.route('/login').post();
 /**
  * @openapi
  * '/api/v1/auth/verify-email/{token}':
- *  get:
+ *  post:
  *     tags:
  *     - Authentication
  *     summary: Verify your email by clicking on the provided link
@@ -149,7 +150,47 @@ router.route('/login').post();
  *
  *
  */
-router.route('/verify-email/:token').get();
+router
+  .route('/verify-email/:token')
+  .post(validate(SendVerificationEmailSchema), authController.verifyEmail);
+
+/**
+ * @openapi
+ * '/api/v1/auth/send-verification-email/':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Verify your email by clicking on the provided link
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/VerifyEmailResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+router
+  .route('/send-verification-email/')
+  .post(
+    validate(SendVerificationEmailSchema),
+    authController.sendVerificationEmail,
+  );
 
 /**
  * @openapi
