@@ -79,6 +79,17 @@ export const ResetPasswordSchema = object({
   ...ResetPasswordPayload,
 });
 
+const SendVerificationEmailPayload = {
+  body: object({
+    email: string({
+      required_error: 'Email is required',
+    }).email('Not a valid email address'),
+  }),
+};
+export const SendVerificationEmailSchema = object({
+  ...SendVerificationEmailPayload,
+});
+
 export const signUpSchema = object({
   body: object({
     name: string().min(1).max(50),
