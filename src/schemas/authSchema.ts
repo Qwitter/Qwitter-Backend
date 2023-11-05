@@ -1,4 +1,4 @@
-import { object } from 'zod';
+import { object, string } from 'zod';
 
 /**
  * @openapi
@@ -68,7 +68,33 @@ import { object } from 'zod';
  *          default: "Your account has been successfully verified"
  */
 
-const SignUpPayload = {};
-export const SignUpSchema = object({
-  ...SignUpPayload,
+const ResetPasswordPayload = {
+  body: object({
+    email: string({
+      required_error: 'Email is required',
+    }).email('Not a valid email address'),
+  }),
+};
+export const ResetPasswordSchema = object({
+  ...ResetPasswordPayload,
+});
+
+const SendVerificationEmailPayload = {
+  body: object({
+    email: string({
+      required_error: 'Email is required',
+    }).email('Not a valid email address'),
+  }),
+};
+export const SendVerificationEmailSchema = object({
+  ...SendVerificationEmailPayload,
+});
+
+export const signUpSchema = object({
+  body: object({
+    name: string().min(1).max(50),
+    email: string().email(),
+    password: string().min(8),
+    birthDate: string().datetime(),
+  }),
 });
