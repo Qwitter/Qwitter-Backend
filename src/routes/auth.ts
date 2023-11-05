@@ -1,7 +1,11 @@
 import express from 'express';
 const router = express.Router();
 import { validate } from '../utils/validator';
-import { ResetPasswordSchema, signUpSchema } from '../schemas/authSchema';
+import {
+  ForgetPasswordSchema,
+  ResetPasswordSchema,
+  signUpSchema,
+} from '../schemas/authSchema';
 import * as authController from '../controllers/authController';
 /**
  * @openapi
@@ -186,6 +190,47 @@ router.route('/verify-email/:token').get();
  */
 router
   .route('/forgot-password')
-  .post(validate(ResetPasswordSchema), authController.forgotPassword);
+  .post(validate(ForgetPasswordSchema), authController.forgotPassword);
+
+/**
+ * @openapi
+ * '/api/v1/auth/forgot-password':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Send a Forgot Password request
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/ForgotPasswordRequest'
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/LoginResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+router
+  .route('/reset-password/:token')
+  .post(validate(ResetPasswordSchema), authController.resetPassword);
 
 export default router;

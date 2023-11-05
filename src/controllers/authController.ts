@@ -12,7 +12,6 @@ import { sign } from 'jsonwebtoken';
 export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
-    await prisma.user.create(req.body);
     const user = await prisma.user.findUnique({
       where: { email: req.body.email },
     });
@@ -46,6 +45,40 @@ export const forgotPassword = catchAsync(
       text: 'Reset Password',
     };
     await sendEmail(resetEmail);
+  },
+);
+
+export const resetPassword = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    // 1) Check that user exists
+    const resetTokenHashed = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+    const user = await prisma.user.findUnique({
+      where: { passwordResetToken: resetTokenHashed },
+    });
+    if (!user) {
+      return _next(new AppError('Invalid Token', 400));
+    }
+    if (user.passwordResetExpires > new Date(Date.now())) {
+      return _next(new AppError('Token expired. Request another token.', 400));
+    }
+
+    await prisma.user.update({
+      where: {
+        email: user.email,
+      },
+      data: {
+        passwordChangedAt: new Date(Date.now()),
+        passwordResetExpires: undefined,
+        passwordResetToken: undefined,
+      },
+    });
+
+    _res.status(200).send({
+      message: 'Password reset was successful',
+    });
   },
 );
 

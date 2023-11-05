@@ -68,15 +68,26 @@ import { object, string } from 'zod';
  *          default: "Your account has been successfully verified"
  */
 
-const ResetPasswordPayload = {
+const ForgetPasswordPayload = {
   body: object({
     email: string({
       required_error: 'Email is required',
     }).email('Not a valid email address'),
   }),
 };
+export const ForgetPasswordSchema = object({
+  ...ForgetPasswordPayload,
+});
+
+const ResetPasswordParameter = {
+  params: object({
+    token: string({
+      required_error: 'Token is required',
+    }),
+  }),
+};
 export const ResetPasswordSchema = object({
-  ...ResetPasswordPayload,
+  ...ResetPasswordParameter,
 });
 
 export const signUpSchema = object({
