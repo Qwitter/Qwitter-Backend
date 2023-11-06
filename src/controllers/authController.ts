@@ -81,6 +81,32 @@ export const resetPassword = catchAsync(
     });
   },
 );
+export const changePassword = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    // Check that the passwords match
+    if (req.body.password !== req.body.passwordConfirmation) {
+      return _next(new AppError('The passwords do not match', 400));
+    }
+    // Update the user with the new password
+    const hashedPassword = await hashPassword(req.body.password);
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: req.body.userId,
+      },
+      data: {
+        password: hashedPassword,
+        passwordChangedAt: new Date(Date.now()),
+      },
+    });
+    return _res.status(200).json({
+      message: 'Password Changed Successfully',
+    });
+  },
+);
+
+const hashPassword = async (password: string) => {
+  return await hash(password, 12);
+};
 
 export const signUp = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
@@ -223,6 +249,10 @@ export const sendVerificationEmail = catchAsync(
           code: verificationTokenHashed,
           verified: false,
         },
+      });
+    } else {
+      await prisma.emailVerification.create({
+        data: { email: req.body.email, code: verificationTokenHashed },
       });
     }
     // Send it to user email

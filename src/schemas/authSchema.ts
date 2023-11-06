@@ -90,6 +90,45 @@ export const ForgetPasswordSchema = object({
   ...ForgetPasswordPayload,
 });
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    ChangePasswordRequest:
+ *      type: object
+ *      required:
+ *        - password
+ *        - passwordConfirmation
+ *      properties:
+ *        password:
+ *          type: string
+ *          default: hamada
+ *        passwordConfirmation:
+ *          type: string
+ *          default: hamada
+ *    ChangePasswordSuccessResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Password Changed Successfully
+ *    ResetPasswordSuccessResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Password Reset Permissions Gauranteed
+ *        token:
+ *          type: string
+ *          default: q98ehwniudwe98fehwf094r12i3112321
+ *    SendVerificationEmailResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Verification Email has been sent
+ */
+
 const ResetPasswordParameter = {
   params: object({
     token: string({
@@ -127,4 +166,15 @@ export const checkExistenceSchema = object({
       required_error: 'Email or UserName is required',
     }),
   }),
+});
+
+export const headersSchema = {
+  headers: object({
+    auth_key: string().refine((value) => value.startsWith('Bearer'), {
+      message: 'Invalid Auth Key"',
+    }),
+  }),
+};
+export const tokenSchema = object({
+  ...headersSchema,
 });
