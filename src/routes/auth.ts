@@ -55,14 +55,14 @@ router.route('/google').get();
  *      content:
  *        application/json:
  *           schema:
- *              $ref: '#/components/schemas/CreateUserInput'
+ *              $ref: '#/components/schemas/SignUpRequest'
  *     responses:
  *       "200":
  *        description: Success
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/LoginResponse'
+ *              $ref: '#/components/schemas/SignUpResponse'
  *       "400":
  *        $ref: '#/responses/400'
  *       "401":

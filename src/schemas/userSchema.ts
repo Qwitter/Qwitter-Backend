@@ -4,7 +4,7 @@ import { object, string, TypeOf } from 'zod';
  * @openapi
  * components:
  *  schemas:
- * 
+ *
  *    UserInteractionInput:
  *      type: object
  *      required:
@@ -19,10 +19,8 @@ import { object, string, TypeOf } from 'zod';
  *        operation_succeeded:
  *          type: boolean
  *          default: true
- * 
+ *
  */
-
-
 
 /**
  * @openapi
@@ -31,64 +29,56 @@ import { object, string, TypeOf } from 'zod';
  *    User:
  *      type: object
  *      properties:
- *        id:
- *          type: int
- *          default: 234892837
- *        user_name:
+ *        userName:
  *          type: string
  *          default: johndoe123
  *        name:
  *          type: string
- *          default: John Doe
+ *          default: Ahmed Zahran
+ *        birthDate:
+ *          type: string
+ *          default: 2020-03-09T22:18:26.625Z
  *        url:
  *          type: string
  *          default: www.johndoe.com
  *        description:
  *          type: string
- *          default: Hi i am john doe 
+ *          default: Hi i am john doe
  *        protected:
  *          type: boolean
  *          default: false
  *        verified:
  *          type: boolean
  *          default: true
- *        followers_count:
+ *        followersCount:
  *          type: int
  *          default: 12312
- *        followings_count:
+ *        followingCount:
  *          type: int
  *          default: 1932
- *        tweets_count:
+ *        createdAt:
  *          type: string
- *          default: 231
- *        profile_banner_url:
- *          type: string
- *          default: ""
- *        profile_image_url_https:
+ *          default: 2020-03-09T22:18:26.625Z
+ *        profileBannerUrl:
  *          type: string
  *          default: https://notdeterminedyet.com/profile_banners/819797/1348102824
- *        default_profile:
- *          type: boolean
- *          default: false
- *        default_profile_image:
- *          type: boolean
- *          default: true
+ *        profileImageUrl:
+ *          type: string
+ *          default: https://notdeterminedyet.com/profile_banners/819797/1348102824
  */
-
-
 
 /**
  * @openapi
  * components:
  *  schemas:
- * 
+ *
  *    UploadImageInput:
  *      type: object
  *      required:
  *        - img
  *      properties:
  *        img:
- *          type: string 
+ *          type: string
  *          format: binary
  *    UploadImageResponse:
  *      type: object
@@ -98,16 +88,14 @@ import { object, string, TypeOf } from 'zod';
  *          default: true
  *        img_url:
  *          type: string
- * 
+ *
  */
-
-
 
 /**
  * @openapi
  * components:
  *  schemas:
- * 
+ *
  *    UserProfile:
  *      type: object
  *      properties:
@@ -117,9 +105,9 @@ import { object, string, TypeOf } from 'zod';
  *          type: string
  *        Location:
  *          type: string
- *        url:  
+ *        url:
  *          type: string
- *        birth_date:  
+ *        birth_date:
  *          type: string
  *    User:
  *      type: object
