@@ -120,3 +120,11 @@ export const signUpSchema = object({
     birthDate: string().datetime(),
   }),
 });
+
+export const checkExistenceSchema = object({
+  body: object({
+    userNameOrEmail: string({
+      required_error: 'Email or UserName is required',
+    }),
+  }),
+});
