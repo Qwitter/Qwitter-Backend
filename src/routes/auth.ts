@@ -9,6 +9,7 @@ import {
   signUpSchema,
 } from '../schemas/authSchema';
 import * as authController from '../controllers/authController';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
 /**
  * @openapi
  * '/api/v1/auth/google':
@@ -208,14 +209,24 @@ router
  *  post:
  *     tags:
  *     - Authentication
- *     summary: Verify your email by clicking on the provided link
+ *     summary: Verify your email by sending a verification email
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 default: ahmed@gmail.com
  *     responses:
  *       "200":
  *        description: Success
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/VerifyEmailResponse'
+ *              $ref: '#/components/schemas/SendVerificationEmailResponse'
  *       "400":
  *        $ref: '#/responses/400'
  *       "401":
@@ -283,24 +294,20 @@ router
 
 /**
  * @openapi
- * '/api/v1/auth/forgot-password':
+ * '/api/v1/auth/reset-password/{token}':
  *  post:
  *     tags:
  *     - Authentication
- *     summary: Send a Forgot Password request
+ *     summary: Verify the token of the user. No need for the email in payload
  *     requestBody:
  *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/ForgotPasswordRequest'
  *     responses:
  *       "200":
  *        description: Success
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/LoginResponse'
+ *              $ref: '#/components/schemas/ResetPasswordSuccessResponse'
  *       "400":
  *        $ref: '#/responses/400'
  *       "401":
@@ -321,5 +328,49 @@ router
 router
   .route('/reset-password/:token')
   .post(validate(ResetPasswordSchema), authController.resetPassword);
+
+/**
+ * @openapi
+ * '/api/v1/auth/change-password':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Change the password using only the token
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ChangePasswordSuccessResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+router
+  .route('/change-password/')
+  .post(isLoggedIn, authController.changePassword);
 
 export default router;
