@@ -1,10 +1,9 @@
 import express from 'express';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import {loginSchema} from '../schemas/authSchema'
+import { loginSchema } from '../schemas/authSchema';
 
 const router = express.Router();
-import { validate } from '../utils/validator';
 import {
   ForgetPasswordSchema,
   ResetPasswordSchema,
@@ -12,7 +11,6 @@ import {
   checkExistenceSchema,
   signUpSchema,
 } from '../schemas/authSchema';
-import * as authController from '../controllers/authController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 /**
  * @openapi
@@ -170,7 +168,7 @@ router
  *
  *
  */
-router.route('/login').post(validate(loginSchema),authController.login);
+router.route('/login').post(validate(loginSchema), authController.login);
 // validate(loginSchema),
 /**
  * @openapi
@@ -376,6 +374,5 @@ router
 router
   .route('/change-password/')
   .post(isLoggedIn, authController.changePassword);
-
 
 export default router;
