@@ -1,5 +1,4 @@
 import { object, string } from 'zod';
-
 /**
  * @openapi
  * components:
@@ -178,3 +177,13 @@ export const headersSchema = {
 export const tokenSchema = object({
   ...headersSchema,
 });
+
+const loginPayloadSchema = object({
+  body:object({
+    email_or_username:string(),
+    password:string()
+  })
+})
+
+
+export const loginSchema=loginPayloadSchema;
