@@ -128,7 +128,7 @@ export const changePassword = catchAsync(
     }
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         id: req.body.userId,
       },
