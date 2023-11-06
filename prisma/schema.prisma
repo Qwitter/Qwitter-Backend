@@ -33,7 +33,7 @@ model User {
   userName             String                @unique
   password             String
   passwordChangedAt    DateTime?             @db.Timestamp()
-  passwordResetToken   String?
+  passwordResetToken   String?               @unique
   passwordResetExpires DateTime?
   blocker              Block[]               @relation("blocker")
   blocked              Block[]               @relation("blocked")

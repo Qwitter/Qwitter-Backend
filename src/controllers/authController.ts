@@ -12,7 +12,6 @@ import { sign } from 'jsonwebtoken';
 export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
-    await prisma.user.create(req.body);
     const user = await prisma.user.findUnique({
       where: { email: req.body.email },
     });
@@ -42,10 +41,44 @@ export const forgotPassword = catchAsync(
     // the password confirm to send a patch request to the server
     const resetEmail: emailType = {
       to: user.email,
-      subject: 'Password Reset',
+      subject: 'Email Verif',
       text: 'Reset Password',
     };
     await sendEmail(resetEmail);
+  },
+);
+
+export const resetPassword = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    // 1) Check that user exists
+    const resetTokenHashed = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+    const user = await prisma.user.findUnique({
+      where: { passwordResetToken: resetTokenHashed },
+    });
+    if (!user) {
+      return _next(new AppError('Invalid Token', 400));
+    }
+    if (user.passwordResetExpires > new Date(Date.now())) {
+      return _next(new AppError('Token expired. Request another token.', 400));
+    }
+
+    await prisma.user.update({
+      where: {
+        email: user.email,
+      },
+      data: {
+        passwordChangedAt: new Date(Date.now()),
+        passwordResetExpires: undefined,
+        passwordResetToken: undefined,
+      },
+    });
+
+    _res.status(200).send({
+      message: 'Password reset was successful',
+    });
   },
 );
 
@@ -111,6 +144,96 @@ export const signUp = catchAsync(
       token,
       data: newUser,
       suggestions: [uniqueUserName[1], uniqueUserName[2]],
+    });
+  },
+);
+
+
+export const sendVerificationEmail = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    // Generate the random token
+
+    // the 0 in readUInt32LE is the offset or index from which you want to read a 32-bit unsigned integer (LE stands for Little Endian).
+    const verificationToken = crypto
+      .randomBytes(4)
+      .readUInt32LE(0)
+      .toString()
+      .substring(0, 6);
+    const verificationTokenHashed = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
+
+    const existingVerificationCode = await prisma.emailVerification.findFirst({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (existingVerificationCode) {
+      await prisma.emailVerification.update({
+        where: {
+          email: req.body.email,
+        },
+        data: {
+          code: verificationTokenHashed,
+          verified: false,
+        },
+      });
+    }
+    // Send it to user email
+    const verificationEmail: emailType = {
+      to: req.body.email,
+      subject: 'Email Verification',
+      text: 'Email Verification: ' + verificationToken,
+    };
+    await sendEmail(verificationEmail);
+    res.status(200).send({
+      message: 'Sent Verification Email Successfully ',
+    });
+  },
+);
+
+export const verifyEmail = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    // Check if user already exists
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    if (user) {
+      _next(new AppError('User already exists', 409));
+    }
+    // Get the hashed token
+    const verificationToken = req.params.token;
+    const verificationTokenHashed = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
+
+    const existingVerificationCode = await prisma.emailVerification.findFirst({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!existingVerificationCode)
+      _next(new AppError('Please request Verification first', 409));
+    if (existingVerificationCode.code !== verificationTokenHashed)
+      _next(new AppError('Wrong Token. Please check again', 409));
+
+    await prisma.emailVerification.update({
+      where: {
+        email: req.body.email,
+      },
+      data: {
+        verified: true,
+      },
+    });
+
+    res.status(200).send({
+      message: 'Email Verified Successfully ',
     });
   },
 );
