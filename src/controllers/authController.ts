@@ -75,14 +75,14 @@ export const signUp = catchAsync(
       return _next(new AppError('Email is not Verified ', 403));
     }
     const hashedPassword = await hash(req.body.password, 12);
-    const uniqueUserName = await createUniqueUserName(req.body.name);
+    const uniqueUserName = await createUniqueUserName(req.body.name, 3);
     const newUser = await prisma.user.create({
       data: {
         name: req.body.name,
         birthDate: req.body.birthDate,
         createdAt: new Date().toISOString(),
         email: req.body.email,
-        userName: uniqueUserName,
+        userName: uniqueUserName[0],
         password: hashedPassword,
       },
       select: {
@@ -107,20 +107,34 @@ export const signUp = catchAsync(
     const token = sign({ id: userId }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
-    _res.status(200).json({ token, data: newUser });
+    _res.status(200).json({
+      token,
+      data: newUser,
+      suggestions: [uniqueUserName[1], uniqueUserName[2]],
+    });
   },
 );
 
-async function createUniqueUserName(name: string) {
-  let userName = name.replace(/\s+/g, '').toLowerCase();
-  userName += crypto.randomBytes(3).toString('hex');
-  const user = await prisma.user.findFirst({
-    where: {
-      userName: userName,
-    },
-  });
-  if (user) {
-    return createUniqueUserName(name);
+async function createUniqueUserName(
+  name: string,
+  countOfUniqueUserNames: number,
+) {
+  const suggestions: string[] = [];
+  while (countOfUniqueUserNames) {
+    let userName = name.replace(/\s+/g, '').toLowerCase();
+    userName += crypto.randomBytes(3).toString('hex');
+    if (suggestions.find((element) => element === userName)) {
+      continue;
+    }
+    const user = await prisma.user.findFirst({
+      where: {
+        userName: userName,
+      },
+    });
+    if (!user) {
+      countOfUniqueUserNames--;
+      suggestions.push(userName);
+    }
   }
-  return userName;
+  return suggestions;
 }

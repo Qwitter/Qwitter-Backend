@@ -22,7 +22,7 @@ import { object, string } from 'zod';
  *        - email
  *        - name
  *        - password
- *        - passwordConfirmation
+ *        - birthDate
  *      properties:
  *        email:
  *          type: string
@@ -33,6 +33,9 @@ import { object, string } from 'zod';
  *        password:
  *          type: string
  *          default: stringPassword123
+ *        birthDate:
+ *          type: string
+ *          default: 2020-03-09T22:18:26.625Z
  *        passwordConfirmation:
  *          type: string
  *          default: stringPassword123
@@ -53,6 +56,14 @@ import { object, string } from 'zod';
  *      properties:
  *        token:
  *          type: string
+ *          default: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZmNTgyOGMyLTBkYzUtNDNlMS1hZmQzLWFhODI3ZmQxODRiYSIsImlhdCI6MTY5OTI3MjE0MiwiZXhwIjoxNzA3MDQ4MTQyfQ.s4Bgs8RJr9U242CdG9cJyiVK6N7_VAVw9mziMdAkFrM
+ *        data:
+ *          $ref: '#/components/schemas/User'
+ *        suggestions:
+ *          type: array
+ *          items:
+ *            string
+ *          default: [ahmedzahran6335d6,ahmedzahran891380]
  *    LoginResponse:
  *      type: object
  *      properties:
