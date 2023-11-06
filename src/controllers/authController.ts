@@ -148,6 +148,51 @@ export const signUp = catchAsync(
   },
 );
 
+export const checkExistence = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    const qualifier: string = req.body.userNameOrEmail;
+    if (isEmail(qualifier)) {
+      const user = await prisma.user.findFirst({
+        where: {
+          email: qualifier,
+        },
+      });
+      if (user) {
+        _res.status(200).json({
+          available: false,
+        });
+      } else {
+        _res.status(200).json({
+          available: true,
+        });
+      }
+    } else {
+      const user = await prisma.user.findFirst({
+        where: {
+          userName: qualifier,
+        },
+      });
+      if (user) {
+        _res.status(200).json({
+          available: false,
+        });
+      } else {
+        _res.status(200).json({
+          available: true,
+        });
+      }
+    }
+    _next();
+  },
+);
+
+const isEmail = (email: string) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    );
+};
 
 export const sendVerificationEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -190,6 +235,7 @@ export const sendVerificationEmail = catchAsync(
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
+    _next();
   },
 );
 

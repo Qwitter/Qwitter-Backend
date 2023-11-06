@@ -5,6 +5,7 @@ import {
   ForgetPasswordSchema,
   ResetPasswordSchema,
   SendVerificationEmailSchema,
+  checkExistenceSchema,
   signUpSchema,
 } from '../schemas/authSchema';
 import * as authController from '../controllers/authController';
@@ -79,6 +80,53 @@ router.route('/google').get();
  *        $ref: '#/responses/410'
  */
 router.route('/signup').post(validate(signUpSchema), authController.signUp);
+
+/**
+ * @openapi
+ * '/api/v1/auth/check-existence':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Check validity of a userName or Email
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userNameOrEmail:
+ *                 type: string
+ *                 default: ahmed@gmail.com
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               available:
+ *                 type: boolean
+ *                 default: true
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ */
+router
+  .route('/check-existence')
+  .post(validate(checkExistenceSchema), authController.checkExistence);
 
 /**
  * @openapi
