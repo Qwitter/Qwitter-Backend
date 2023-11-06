@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": { "title": "REST API Docs", "version": "1.0.0" },
-  "servers": [{}],
+  "servers": [{ "url": "localhost:3000" }],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -21,11 +21,15 @@
       },
       "SignUpRequest": {
         "type": "object",
-        "required": ["email", "name", "password", "passwordConfirmation"],
+        "required": ["email", "name", "password", "birthDate"],
         "properties": {
           "email": { "type": "string", "default": "ahmed.helmy@qwitter.com" },
           "name": { "type": "string", "default": "Ahmed Helmy" },
           "password": { "type": "string", "default": "stringPassword123" },
+          "birthDate": {
+            "type": "string",
+            "default": "2020-03-09T22:18:26.625Z"
+          },
           "passwordConfirmation": {
             "type": "string",
             "default": "stringPassword123"
@@ -45,7 +49,18 @@
       },
       "SignUpResponse": {
         "type": "object",
-        "properties": { "token": { "type": "string" } }
+        "properties": {
+          "token": {
+            "type": "string",
+            "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZmNTgyOGMyLTBkYzUtNDNlMS1hZmQzLWFhODI3ZmQxODRiYSIsImlhdCI6MTY5OTI3MjE0MiwiZXhwIjoxNzA3MDQ4MTQyfQ.s4Bgs8RJr9U242CdG9cJyiVK6N7_VAVw9mziMdAkFrM"
+          },
+          "data": { "$ref": "#/components/schemas/User" },
+          "suggestions": {
+            "type": "array",
+            "items": "string",
+            "default": ["ahmedzahran6335d6", "ahmedzahran891380"]
+          }
+        }
       },
       "LoginResponse": {
         "type": "object",
@@ -60,6 +75,45 @@
           "message": {
             "type": "string",
             "default": "Your account has been successfully verified"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": ["password", "passwordConfirmation"],
+        "properties": {
+          "password": { "type": "string", "default": "hamada" },
+          "passwordConfirmation": { "type": "string", "default": "hamada" }
+        }
+      },
+      "ChangePasswordSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Password Changed Successfully"
+          }
+        }
+      },
+      "ResetPasswordSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Password Reset Permissions Gauranteed"
+          },
+          "token": {
+            "type": "string",
+            "default": "q98ehwniudwe98fehwf094r12i3112321"
+          }
+        }
+      },
+      "SendVerificationEmailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Verification Email has been sent"
           }
         }
       },
@@ -505,23 +559,30 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": { "type": "int", "default": 234892837 },
-          "user_name": { "type": "string", "default": "johndoe123" },
-          "name": { "type": "string", "default": "John Doe" },
+          "userName": { "type": "string", "default": "johndoe123" },
+          "name": { "type": "string", "default": "Ahmed Zahran" },
+          "birthDate": {
+            "type": "string",
+            "default": "2020-03-09T22:18:26.625Z"
+          },
           "url": { "type": "string", "default": "www.johndoe.com" },
           "description": { "type": "string", "default": "Hi i am john doe" },
           "protected": { "type": "boolean", "default": false },
           "verified": { "type": "boolean", "default": true },
-          "followers_count": { "type": "int", "default": 12312 },
-          "followings_count": { "type": "int", "default": 1932 },
-          "tweets_count": { "type": "string", "default": 231 },
-          "profile_banner_url": { "type": "string", "default": "" },
-          "profile_image_url_https": {
+          "followersCount": { "type": "int", "default": 12312 },
+          "followingCount": { "type": "int", "default": 1932 },
+          "createdAt": {
+            "type": "string",
+            "default": "2020-03-09T22:18:26.625Z"
+          },
+          "profileBannerUrl": {
             "type": "string",
             "default": "https://notdeterminedyet.com/profile_banners/819797/1348102824"
           },
-          "default_profile": { "type": "boolean", "default": false },
-          "default_profile_image": { "type": "boolean", "default": true },
+          "profileImageUrl": {
+            "type": "string",
+            "default": "https://notdeterminedyet.com/profile_banners/819797/1348102824"
+          },
           "email": { "type": "string" },
           "username": { "type": "string" }
         }
@@ -623,7 +684,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateUserInput" }
+              "schema": { "$ref": "#/components/schemas/SignUpRequest" }
             }
           }
         },
@@ -632,7 +693,51 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": { "$ref": "#/components/schemas/SignUpResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/check-existence": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Check validity of a userName or Email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userNameOrEmail": {
+                    "type": "string",
+                    "default": "ahmed@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": { "type": "boolean", "default": true }
+                  }
+                }
               }
             }
           },
@@ -677,10 +782,71 @@
         }
       }
     },
-    "/api/v1/auth/forget-password": {
+    "/api/v1/auth/verify-email/{token}": {
       "post": {
         "tags": ["Authentication"],
-        "summary": "Login a user",
+        "summary": "Verify your email by clicking on the provided link",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/VerifyEmailResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/send-verification-email/": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify your email by sending a verification email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendVerificationEmailResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Send a Forgot Password request",
         "requestBody": {
           "required": true,
           "content": {
@@ -708,16 +874,54 @@
         }
       }
     },
-    "/api/v1/auth/verify-email/{token}": {
-      "get": {
+    "/api/v1/auth/reset-password/{token}": {
+      "post": {
         "tags": ["Authentication"],
-        "summary": "Verify your email by clicking on the provided link",
+        "summary": "Verify the token of the user. No need for the email in payload",
+        "requestBody": { "required": true },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/VerifyEmailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Change the password using only the token",
+        "parameters": [
+          {
+            "name": "auth_key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": { "required": true },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordSuccessResponse"
+                }
               }
             }
           },
@@ -1156,12 +1360,7 @@
             "description": "Tweet was added successfully",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/addTweetresponse200"
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/addTweetresponse200" }
               }
             }
           },
@@ -1195,10 +1394,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/deleteTweetResponse204"
-                  }
+                  "$ref": "#/components/schemas/deleteTweetResponse204"
                 }
               }
             }
@@ -1232,12 +1428,7 @@
             "description": "Tweet was found",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/getTweetResponse200"
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/getTweetResponse200" }
               }
             }
           },
@@ -1273,10 +1464,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/getRepliesOfTweetResponse200"
-                  }
+                  "$ref": "#/components/schemas/getRepliesOfTweetResponse200"
                 }
               }
             }
@@ -1312,10 +1500,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/getQouteRetweetsOfTweetResponse200"
-                  }
+                  "$ref": "#/components/schemas/getQouteRetweetsOfTweetResponse200"
                 }
               }
             }
@@ -1351,10 +1536,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/getLikersOfTweetResponse200"
-                  }
+                  "$ref": "#/components/schemas/getLikersOfTweetResponse200"
                 }
               }
             }
@@ -1390,10 +1572,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/getRetweetersOfTweetResponse200"
-                  }
+                  "$ref": "#/components/schemas/getRetweetersOfTweetResponse200"
                 }
               }
             }
