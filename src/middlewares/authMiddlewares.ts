@@ -18,13 +18,16 @@ const jwtVerifyAsync = (token: string, secret: string) => {
 export const isLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
-    const auth_header: string = req.headers.authorization;
+    const auth_header: string = req.headers.authorization as string;
 
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return next(new AppError('Invalid token ', 400));
     }
-    const token: string = req.headers.authorization.split(' ')[1];
-    const payloadData = await jwtVerifyAsync(token, process.env.JWT_SECRET);
+    const token: string = auth_header.split(' ')[1];
+    const payloadData = await jwtVerifyAsync(
+      token,
+      process.env.JWT_SECRET as string,
+    );
     const { id } = payloadData as jwtPayloadType;
     req.body.userId = id;
     const user = await prisma.user.findFirst({

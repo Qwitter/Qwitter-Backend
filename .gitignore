@@ -8,4 +8,4 @@ deskotp.ini
 deliverables/*
 package-lock.json
 coverage
-prisma/migrations
+prisma/migrations/*

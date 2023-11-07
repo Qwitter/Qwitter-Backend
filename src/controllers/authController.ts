@@ -11,7 +11,7 @@ import { sign } from 'jsonwebtoken';
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
-    const hashedPassword = await hash(password, process.env.SALT);
+    const hashedPassword = await hash(password, process.env.SALT as string);
     let user = null;
 
     if (email_or_username.includes('@')) {
@@ -40,7 +40,7 @@ export const login = catchAsync(
       res.status(200).json({ msg: 'wrong password' });
       return;
     }
-    const token = sign({ id: user.id }, process.env.JWT_SECRET, {
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
     res.status(200).json({ token: token, user });
