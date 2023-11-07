@@ -13,6 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
+    "strictNullChecks": true,
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
     }

@@ -117,7 +117,15 @@ router.route('/signup').post(validate(signUpSchema), authController.signUp);
  *       "401":
  *        $ref: '#/responses/401'
  *       "404":
- *        $ref: '#/responses/404'
+ *        description: Not Found
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               available:
+ *                 type: boolean
+ *                 default: false
  *       "403":
  *        $ref: '#/responses/403'
  *       "408":

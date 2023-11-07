@@ -163,7 +163,7 @@ export const checkExistenceSchema = object({
   body: object({
     userNameOrEmail: string({
       required_error: 'Email or UserName is required',
-    }),
+    }).min(7),
   }),
 });
 
