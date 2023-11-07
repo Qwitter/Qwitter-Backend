@@ -184,7 +184,17 @@ router.route('/login').post(validate(loginSchema), authController.login);
  *  post:
  *     tags:
  *     - Authentication
- *     summary: Verify your email by clicking on the provided link
+ *     summary: Verify your email by checking the 6-digit token and the email address
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 default: ahmed@gmail.com
  *     responses:
  *       "200":
  *        description: Success
@@ -268,12 +278,6 @@ router
  *     tags:
  *     - Authentication
  *     summary: Send a Forgot Password request
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/ForgotPasswordRequest'
  *     responses:
  *       "200":
  *        description: Success
@@ -355,6 +359,10 @@ router
  *           type: string
  *     requestBody:
  *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/ChangePasswordRequest'
  *     responses:
  *       "200":
  *        description: Success

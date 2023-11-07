@@ -6,10 +6,10 @@ import { object, string } from 'zod';
  *    LoginRequest:
  *      type: object
  *      required:
- *        - email
+ *        - email_or_username
  *        - password
  *      properties:
- *        email:
+ *        email_or_username:
  *          type: string
  *          default: ahmed.helmy@qwitter.com
  *        password:
@@ -38,7 +38,7 @@ import { object, string } from 'zod';
  *        passwordConfirmation:
  *          type: string
  *          default: stringPassword123
- *    ForgotPasswordRequest:
+ *    ChangePasswordRequest:
  *      type: object
  *      required:
  *        - password
@@ -179,11 +179,10 @@ export const tokenSchema = object({
 });
 
 const loginPayloadSchema = object({
-  body:object({
-    email_or_username:string(),
-    password:string()
-  })
-})
+  body: object({
+    email_or_username: string(),
+    password: string(),
+  }),
+});
 
-
-export const loginSchema=loginPayloadSchema;
+export const loginSchema = loginPayloadSchema;

@@ -13,9 +13,12 @@
     "schemas": {
       "LoginRequest": {
         "type": "object",
-        "required": ["email", "password"],
+        "required": ["email_or_username", "password"],
         "properties": {
-          "email": { "type": "string", "default": "ahmed.helmy@qwitter.com" },
+          "email_or_username": {
+            "type": "string",
+            "default": "ahmed.helmy@qwitter.com"
+          },
           "password": { "type": "string", "default": "stringPassword123" }
         }
       },
@@ -36,15 +39,12 @@
           }
         }
       },
-      "ForgotPasswordRequest": {
+      "ChangePasswordRequest": {
         "type": "object",
         "required": ["password", "passwordConfirmation"],
         "properties": {
-          "password": { "type": "string", "default": "stringPassword123" },
-          "passwordConfirmation": {
-            "type": "string",
-            "default": "stringPassword123"
-          }
+          "password": { "type": "string", "default": "hamada" },
+          "passwordConfirmation": { "type": "string", "default": "hamada" }
         }
       },
       "SignUpResponse": {
@@ -76,14 +76,6 @@
             "type": "string",
             "default": "Your account has been successfully verified"
           }
-        }
-      },
-      "ChangePasswordRequest": {
-        "type": "object",
-        "required": ["password", "passwordConfirmation"],
-        "properties": {
-          "password": { "type": "string", "default": "hamada" },
-          "passwordConfirmation": { "type": "string", "default": "hamada" }
         }
       },
       "ChangePasswordSuccessResponse": {
@@ -744,7 +736,19 @@
           "400": { "$ref": "#/responses/400" },
           "401": { "$ref": "#/responses/401" },
           "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": { "type": "boolean", "default": false }
+                  }
+                }
+              }
+            }
+          },
           "408": { "$ref": "#/responses/408" },
           "409": { "$ref": "#/responses/409" },
           "410": { "$ref": "#/responses/410" }
@@ -785,7 +789,20 @@
     "/api/v1/auth/verify-email/{token}": {
       "post": {
         "tags": ["Authentication"],
-        "summary": "Verify your email by clicking on the provided link",
+        "summary": "Verify your email by checking the 6-digit token and the email address",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -847,14 +864,6 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Send a Forgot Password request",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ForgotPasswordRequest" }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Success",
@@ -913,7 +922,14 @@
             "schema": { "type": "string" }
           }
         ],
-        "requestBody": { "required": true },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
