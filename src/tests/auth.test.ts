@@ -48,6 +48,7 @@ describe('checkExistence Function', () => {
       const user = {
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'Ahmed Zahran',
+        google_id: null,
         birthDate: new Date(),
         location: null,
         url: null,
@@ -97,6 +98,7 @@ describe('checkExistence Function', () => {
       const user = {
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'Ahmed Zahran',
+        google_id: null,
         birthDate: new Date(),
         location: null,
         url: null,

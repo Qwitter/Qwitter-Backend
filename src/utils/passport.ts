@@ -1,22 +1,26 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import {PrismaClient} from '@prisma/client'
-import { createUniqueUserName } from 'src/controllers/authController';
+import { PrismaClient } from '@prisma/client';
+import {
+  createUniqueUserName,
+  generateJWTToken,
+} from '../controllers/authController';
 
-const prisma=new PrismaClient()
+const prisma = new PrismaClient();
 
 export const configurePassport = () => {
-    passport.use(new GoogleStrategy({
+  passport.use(
+    new GoogleStrategy(
+      {
         clientID: process.env.GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
         callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
-        scope: ['profile', 'email']
+        scope: ['profile', 'email'],
       },
       async (_, __, profile: Profile, done) => {
         try {
-
           const user = await prisma.user.findFirst({
-            where: { google_id: profile.id },
+            where: { email: profile._json.email as string },
           });
 
           if (!user) {
@@ -24,9 +28,11 @@ export const configurePassport = () => {
               data: {
                 name: profile.displayName,
                 email: profile._json.email as string,
-                userName: createUniqueUserName(profile.displayName, 1)[0],
+                birthDate: new Date('01-01-2001'),
+                userName: (
+                  await createUniqueUserName(profile.displayName, 1)
+                )[0],
                 createdAt: new Date().toISOString(),
-                birthDate: "", 
                 location: '',
                 passwordChangedAt: new Date().toISOString(),
                 password: 'password_placeholder',
@@ -40,28 +46,39 @@ export const configurePassport = () => {
                 google_id: true,
               },
             });
-            return done(null, newUser);
+            const token = generateJWTToken(newUser.id);
+            const response = {
+              user: newUser,
+              token: token,
+            };
+            return done(null, response);
           }
+          const token = generateJWTToken(user.id);
+          const response = {
+            user: user,
+            token: token,
+          };
 
-          return done(null, user);
+          return done(null, response);
         } catch (error) {
           return done(error, undefined);
         }
-      }
-    ));
+      },
+    ),
+  );
 
-    passport.serializeUser((user: any, done) => {
-      done(null, user.id);
-    });
+  passport.serializeUser((data: any, done) => {
+    done(null, data.user.id);
+  });
 
-    passport.deserializeUser(async (id: string, done) => {
-      try {
-        const user = await prisma.user.findUnique({
-          where: { id },
-        });
-        done(null, user);
-      } catch (error) {
-        done(error, null);
-      }
-    });
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
+  });
 };

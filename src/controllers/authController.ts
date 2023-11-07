@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -315,19 +315,21 @@ export const sendVerificationEmail = catchAsync(
 );
 
 export const logout = async (req: Request, res: Response) => {
-    const token = Array.isArray(req.headers['auth_key']) ? req.headers['auth_key'][0] : req.headers['auth_key'];
+  const token = Array.isArray(req.headers['auth_key'])
+    ? req.headers['auth_key'][0]
+    : req.headers['auth_key'];
 
-    if (!token) {
-        return res.status(401).json({ message: 'You are not logged in' });
+  if (!token) {
+    return res.status(401).json({ message: 'You are not logged in' });
+  }
+
+  return verify(token, process.env.JWT_SECRET as string, (err) => {
+    if (err) {
+      return res.status(401).json({ message: 'Invalid token' });
     }
 
-    return jwt.verify(token, process.env.JWT_SECRET, (err) => {
-        if (err) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
-
-        return res.status(200).json({ message: 'Successfully logged out' });
-    });
+    return res.status(200).json({ message: 'Successfully logged out' });
+  });
 };
 
 export const verifyEmail = catchAsync(
@@ -401,3 +403,9 @@ export async function createUniqueUserName(
   }
   return suggestions;
 }
+
+export const generateJWTToken = (userId: string) => {
+  return sign({ id: userId }, process.env.JWT_SECRET as string, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};

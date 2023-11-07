@@ -391,19 +391,23 @@ router
  *
  */
 
-router.get('/google',
+router.get(
+  '/google',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    prompt: 'select_account'
-  })
+    prompt: 'select_account',
+  }),
 );
 
-router.get('/google/callback',
+router.get(
+  '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (_, res) => {
-    console.log(res);
-    res.redirect('/');
-  }
+  (_req, res) => {
+    res.status(200).json({
+      message: 'Success',
+      data: _req.user,
+    });
+  },
 );
 
 router
