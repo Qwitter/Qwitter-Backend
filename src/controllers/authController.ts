@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../client';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import crypto from 'crypto';
@@ -61,7 +60,10 @@ export const resetPassword = catchAsync(
     if (!user) {
       return _next(new AppError('Invalid Token', 400));
     }
-    if (user.passwordResetExpires > new Date(Date.now())) {
+    if (
+      user.passwordResetExpires &&
+      user.passwordResetExpires > new Date(Date.now())
+    ) {
       return _next(new AppError('Token expired. Request another token.', 400));
     }
 
@@ -92,22 +94,25 @@ export const signUp = catchAsync(
     if (user) {
       return _next(new AppError('User already exists', 409));
     }
-    const verify = await prisma.emailVerification.findFirst({
-      where: {
-        email: req.body.email,
-      },
-    });
-    if (!verify) {
-      return _next(new AppError('Email is not Verified ', 403));
-    } else if (!verify.verified) {
-      await prisma.emailVerification.delete({
-        where: {
-          email: req.body.email,
-        },
-      });
-      return _next(new AppError('Email is not Verified ', 403));
-    }
-    const hashedPassword = await hash(req.body.password, 12);
+    // const verify = await prisma.emailVerification.findFirst({
+    //   where: {
+    //     email: req.body.email,
+    //   },
+    // });
+    // if (!verify) {
+    //   return _next(new AppError('Email is not Verified ', 403));
+    // } else if (!verify.verified) {
+    //   await prisma.emailVerification.delete({
+    //     where: {
+    //       email: req.body.email,
+    //     },
+    //   });
+    //   return _next(new AppError('Email is not Verified ', 403));
+    // }
+    const hashedPassword = await hash(
+      req.body.password,
+      process.env.SALT as string,
+    );
     const uniqueUserName = await createUniqueUserName(req.body.name, 3);
     const newUser = await prisma.user.create({
       data: {
@@ -135,14 +140,13 @@ export const signUp = catchAsync(
         userName: true,
       },
     });
-    const userId = newUser.id;
-    delete newUser.id;
-    const token = sign({ id: userId }, process.env.JWT_SECRET, {
+    const { id, ...newObject } = newUser;
+    const token = sign({ id: id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
     _res.status(200).json({
       token,
-      data: newUser,
+      data: newObject,
       suggestions: [uniqueUserName[1], uniqueUserName[2]],
     });
   },
@@ -158,7 +162,7 @@ export const checkExistence = catchAsync(
         },
       });
       if (user) {
-        _res.status(200).json({
+        _res.status(404).json({
           available: false,
         });
       } else {
@@ -173,7 +177,7 @@ export const checkExistence = catchAsync(
         },
       });
       if (user) {
-        _res.status(200).json({
+        _res.status(404).json({
           available: false,
         });
       } else {
@@ -186,12 +190,14 @@ export const checkExistence = catchAsync(
   },
 );
 
-const isEmail = (email: string) => {
+export const isEmail = (email: string) => {
   return String(email)
     .toLowerCase()
     .match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
+    )
+    ? true
+    : false;
 };
 
 export const sendVerificationEmail = catchAsync(
@@ -266,7 +272,10 @@ export const verifyEmail = catchAsync(
     });
     if (!existingVerificationCode)
       _next(new AppError('Please request Verification first', 409));
-    if (existingVerificationCode.code !== verificationTokenHashed)
+    if (
+      existingVerificationCode &&
+      existingVerificationCode.code !== verificationTokenHashed
+    )
       _next(new AppError('Wrong Token. Please check again', 409));
 
     await prisma.emailVerification.update({
@@ -284,7 +293,7 @@ export const verifyEmail = catchAsync(
   },
 );
 
-async function createUniqueUserName(
+export async function createUniqueUserName(
   name: string,
   countOfUniqueUserNames: number,
 ) {
