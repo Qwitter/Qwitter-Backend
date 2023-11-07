@@ -278,27 +278,29 @@ router
  *     tags:
  *     - Authentication
  *     summary: Send a Forgot Password request
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 default: ahmed@gmail.com
  *     responses:
  *       "200":
  *        description: Success
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/LoginResponse'
- *       "400":
- *        $ref: '#/responses/400'
- *       "401":
- *        $ref: '#/responses/401'
+ *              $ref: '#/components/schemas/ForgotPasswordResponse'
  *       "404":
- *        $ref: '#/responses/404'
- *       "403":
- *        $ref: '#/responses/403'
- *       "408":
- *        $ref: '#/responses/408'
- *       "409":
- *        $ref: '#/responses/409'
- *       "410":
- *        $ref: '#/responses/410'
+ *        description: Failure
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ForgotPasswordResponse404'
  *
  *
  */
