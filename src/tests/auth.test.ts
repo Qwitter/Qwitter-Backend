@@ -180,7 +180,7 @@ describe("POST /auth/login",  ()=>{
     expect(response.body).toHaveProperty('user')
     
   }),
-  test("should send post request to login unregistered user and respond with status and token and user",async ()=>{
+  test("should send post request to login unregistered user and respond with message indicating the error and status 400",async ()=>{
     prismaMock.user.findUnique.mockResolvedValue(null)
     const response=await request(app).post("/api/v1/auth/login").send({
       email_or_username:"unregistered@example.com",
