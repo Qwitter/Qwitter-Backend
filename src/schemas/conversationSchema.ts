@@ -99,21 +99,20 @@ import { object, string } from 'zod';
    
  */
 
-
 const createConversationPayload = {
-    body: object({
-      user_id: string({
-        required_error: 'User ID is required',
-      }),
-      conversation_id: string({
-        required_error: 'Conversation ID is required',
-      }),
-      users: string({
-        required_error: 'Users to be added are required',
-      }),  
+  body: object({
+    user_id: string({
+      required_error: 'User ID is required',
     }),
-  };
-  
+    conversation_id: string({
+      required_error: 'Conversation ID is required',
+    }),
+    users: string({
+      required_error: 'Users to be added are required',
+    }),
+  }),
+};
+
 const addUserToConversationPayload = {
   body: object({
     conversation_id: string({
@@ -124,7 +123,7 @@ const addUserToConversationPayload = {
     }),
     user_to_add_id: string({
       required_error: 'User To Add ID is required',
-    }),  
+    }),
   }),
 };
 
@@ -138,13 +137,12 @@ const removeUserFromConversationPayload = {
     }),
     user_to_remove_id: string({
       required_error: 'User To Remove ID is required',
-    }),  
+    }),
   }),
 };
-  
 
 export const addUserToConversationSchema = object({
   ...addUserToConversationPayload,
   ...createConversationPayload,
-  ...removeUserFromConversationPayload
+  ...removeUserFromConversationPayload,
 });

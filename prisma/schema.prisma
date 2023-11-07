@@ -15,39 +15,47 @@ datasource db {
 }
 
 model User {
-  id                  String                @default(uuid())
-  name                String
-  birthDate           DateTime              @db.Timestamp()
-  location            String
-  url                 String?
-  description         String?
-  protected           Boolean               @default(false)
-  verified            Boolean               @default(false)
-  followersCount      Int                   @default(0)
-  followingCount      Int                   @default(0)
-  createdAt           DateTime              @db.Timestamp()
-  deletedAt           DateTime?             @db.Timestamp()
-  profileBannerUrl    String?
-  profileImageUrl     String?
-  email               String                @unique
-  userName            String                @unique
-  password            String
-  passwordChangedAt   DateTime?              @db.Timestamp()
-  blocker             Block[]               @relation("blocker")
-  blocked             Block[]               @relation("blocked")
-  follower            Follow[]              @relation("follower")
-  followed            Follow[]              @relation("followed")
-  muter               Mute[]                @relation("muter")
-  muted               Mute[]                @relation("muted")
-  Tweet               Tweet[]
-  Like                Like[]
-  Mention             Mention[]
-  Message             Message[]
-  Notification        Notification[]        @relation("sendNotification")
-  RecieveNotification RecieveNotification[]
-  UserConversations   UserConversations[]
+  id                   String                @default(uuid())
+  name                 String
+  birthDate            DateTime              @db.Timestamp()
+  location             String?
+  url                  String?
+  description          String?
+  protected            Boolean               @default(false)
+  verified             Boolean               @default(false)
+  followersCount       Int                   @default(0)
+  followingCount       Int                   @default(0)
+  createdAt            DateTime              @db.Timestamp()
+  deletedAt            DateTime?             @db.Timestamp()
+  profileBannerUrl     String?
+  profileImageUrl      String?
+  email                String                @unique
+  userName             String                @unique
+  password             String
+  passwordChangedAt    DateTime?             @db.Timestamp()
+  passwordResetToken   String?               @unique
+  passwordResetExpires DateTime?
+  blocker              Block[]               @relation("blocker")
+  blocked              Block[]               @relation("blocked")
+  follower             Follow[]              @relation("follower")
+  followed             Follow[]              @relation("followed")
+  muter                Mute[]                @relation("muter")
+  muted                Mute[]                @relation("muted")
+  Tweet                Tweet[]
+  Like                 Like[]
+  Mention              Mention[]
+  Message              Message[]
+  Notification         Notification[]        @relation("sendNotification")
+  RecieveNotification  RecieveNotification[]
+  UserConversations    UserConversations[]
 
   @@id([id])
+}
+
+model EmailVerification {
+  email    String  @id
+  code     String
+  verified Boolean @default(false)
 }
 
 model Block {
