@@ -4,16 +4,14 @@ import Request from 'supertest';
 import request from 'supertest';
 import app from '../app';
 import crypto from 'crypto';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 //mocking jwt and hashing
-jest.mock('bcrypt')
-bcrypt.hash=jest.fn().mockResolvedValue('hashed_password')
-jest.mock('jsonwebtoken')
-jwt.sign=jest.fn().mockResolvedValue('generated_token')
-
-
+jest.mock('bcrypt');
+bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+jest.mock('jsonwebtoken');
+jwt.sign = jest.fn().mockResolvedValue('generated_token');
 
 // test isEmail function
 describe('isEmail Function', () => {
@@ -141,15 +139,8 @@ describe('checkExistence Function', () => {
   });
 });
 
-
-
-
-
-
-
-describe("POST /auth/login",  ()=>{
-  test("should send post request to login with a registered user using username and respond with status and token and user",async ()=>{
-
+describe('POST /auth/login', () => {
+  test('should send post request to login with a registered user using username and respond with status and token and user', async () => {
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -167,37 +158,33 @@ describe("POST /auth/login",  ()=>{
       profileImageUrl: null,
       email: 'ahmed@gmail.com',
       userName: 'ahmedzahran12364',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
-      google_id:""
+      google_id: null,
     };
-    prismaMock.user.findUnique.mockResolvedValue(user)
-    const response=await request(app).post("/api/v1/auth/login").send({
-      email_or_username:"jhondoe",
-      password:"123456"
-    })
-    expect(response.status).toEqual(200)
-    expect(response.body).toHaveProperty('token')
-    expect(response.body).toHaveProperty('user')
-    
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    const response = await request(app).post('/api/v1/auth/login').send({
+      email_or_username: 'jhondoe',
+      password: '123456',
+    });
+    expect(response.status).toEqual(200);
+    expect(response.body).toHaveProperty('token');
+    expect(response.body).toHaveProperty('user');
   }),
-  test("should send post request to login unregistered user and respond with message indicating the error and status 400",async ()=>{
-    prismaMock.user.findUnique.mockResolvedValue(null)
-    const response=await request(app).post("/api/v1/auth/login").send({
-      email_or_username:"unregistered@example.com",
-      password:"123456"
-    })
+    test('should send post request to login unregistered user and respond with message indicating the error and status 400', async () => {
+      prismaMock.user.findUnique.mockResolvedValue(null);
+      const response = await request(app).post('/api/v1/auth/login').send({
+        email_or_username: 'unregistered@example.com',
+        password: '123456',
+      });
 
-    console.log(response.body,response.status)
-    expect(response.status).toEqual(400)
-    expect(response.body).toHaveProperty('message')
-  })
-})
-
-
+      console.log(response.body, response.status);
+      expect(response.status).toEqual(400);
+      expect(response.body).toHaveProperty('message');
+    });
+});
 
 // test verifyEmail
 describe('verifyEmail Function', () => {
@@ -240,7 +227,6 @@ describe('verifyEmail Function', () => {
           passwordChangedAt: null,
           passwordResetToken: null,
           passwordResetExpires: null,
-          google_id:""
         };
         prismaMock.user.findFirst.mockResolvedValue(user);
         const response = await Request(app)

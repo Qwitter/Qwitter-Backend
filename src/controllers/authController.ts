@@ -127,6 +127,7 @@ export const resetPassword = catchAsync(
     });
   },
 );
+
 export const changePassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // Check that the passwords match
