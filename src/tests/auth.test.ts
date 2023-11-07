@@ -175,7 +175,6 @@ describe("POST /auth/login",  ()=>{
       email_or_username:"jhondoe",
       password:"123456"
     })
-    console.log(response.body)
     expect(response.status).toEqual(200)
     expect(response.body).toHaveProperty('token')
     expect(response.body).toHaveProperty('user')
@@ -188,7 +187,7 @@ describe("POST /auth/login",  ()=>{
       password:"123456"
     })
 
-    console.log(response.body)
+    console.log(response.body,response.status)
     expect(response.status).toEqual(400)
     expect(response.body).toHaveProperty('message')
   })

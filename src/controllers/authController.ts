@@ -38,7 +38,9 @@ export const login = catchAsync(
     }
 
     if (!user) {
-      return _next(new AppError('Invalid Token', 400));
+      res.status(400)
+      res.send({message:"wrong password or email"})
+      return
     }
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
