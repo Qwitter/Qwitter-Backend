@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
 import { loginSchema } from '../schemas/authSchema';
@@ -389,6 +390,22 @@ router
  *
  *
  */
+
+router.get('/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account'
+  })
+);
+
+router.get('/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (_, res) => {
+    console.log(res);
+    res.redirect('/');
+  }
+);
+
 router
   .route('/change-password/')
   .post(isLoggedIn, authController.changePassword);
