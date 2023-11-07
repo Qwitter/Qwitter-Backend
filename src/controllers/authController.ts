@@ -314,48 +314,54 @@ export const sendVerificationEmail = catchAsync(
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     // Check if user already exists
-
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email,
       },
     });
-
     if (user) {
-      _next(new AppError('User already exists', 409));
+      res.status(409).json({ message: 'User already exists' });
+      // _next(new AppError('User already exists', 409));
+    } else {
+      // Get the hashed token
+      const verificationToken = req.params.token;
+      const verificationTokenHashed = crypto
+        .createHash('sha256')
+        .update(verificationToken)
+        .digest('hex');
+
+      const existingVerificationCode = await prisma.emailVerification.findFirst(
+        {
+          where: {
+            email: req.body.email,
+          },
+        },
+      );
+      if (!existingVerificationCode) {
+        res.status(409).json({ message: 'Please request Verification first' });
+        // _next(new AppError('Please request Verification first', 409));
+      } else if (
+        existingVerificationCode &&
+        existingVerificationCode.code !== verificationTokenHashed
+      ) {
+        res.status(409).json({ message: 'Wrong Token. Please check again' });
+        // _next(new AppError('Wrong Token. Please check again', 409));
+      } else {
+        await prisma.emailVerification.update({
+          where: {
+            email: req.body.email,
+          },
+          data: {
+            verified: true,
+          },
+        });
+
+        res.status(200).send({
+          message: 'Email Verified Successfully',
+        });
+      }
     }
-    // Get the hashed token
-    const verificationToken = req.params.token;
-    const verificationTokenHashed = crypto
-      .createHash('sha256')
-      .update(verificationToken)
-      .digest('hex');
-
-    const existingVerificationCode = await prisma.emailVerification.findFirst({
-      where: {
-        email: req.body.email,
-      },
-    });
-    if (!existingVerificationCode)
-      _next(new AppError('Please request Verification first', 409));
-    if (
-      existingVerificationCode &&
-      existingVerificationCode.code !== verificationTokenHashed
-    )
-      _next(new AppError('Wrong Token. Please check again', 409));
-
-    await prisma.emailVerification.update({
-      where: {
-        email: req.body.email,
-      },
-      data: {
-        verified: true,
-      },
-    });
-
-    res.status(200).send({
-      message: 'Email Verified Successfully ',
-    });
+    _next();
   },
 );
 

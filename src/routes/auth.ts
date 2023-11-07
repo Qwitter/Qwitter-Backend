@@ -206,8 +206,6 @@ router.route('/login').post(validate(loginSchema), authController.login);
  *        $ref: '#/responses/409'
  *       "410":
  *        $ref: '#/responses/410'
- *
- *
  */
 router
   .route('/verify-email/:token')
