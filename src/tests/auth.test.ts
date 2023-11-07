@@ -1,7 +1,6 @@
 import * as authController from '../controllers/authController';
 import { prismaMock } from '../singleton';
 import Request from 'supertest';
-import request from 'supertest';
 import app from '../app';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
@@ -165,7 +164,7 @@ describe('POST /auth/login', () => {
       google_id: null,
     };
     prismaMock.user.findUnique.mockResolvedValue(user);
-    const response = await request(app).post('/api/v1/auth/login').send({
+    const response = await Request(app).post('/api/v1/auth/login').send({
       email_or_username: 'jhondoe',
       password: '123456',
     });
@@ -175,7 +174,7 @@ describe('POST /auth/login', () => {
   }),
     test('should send post request to login unregistered user and respond with message indicating the error and status 400', async () => {
       prismaMock.user.findUnique.mockResolvedValue(null);
-      const response = await request(app).post('/api/v1/auth/login').send({
+      const response = await Request(app).post('/api/v1/auth/login').send({
         email_or_username: 'unregistered@example.com',
         password: '123456',
       });
