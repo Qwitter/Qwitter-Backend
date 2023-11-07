@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
 import { loginSchema } from '../schemas/authSchema';
@@ -216,8 +217,6 @@ router.route('/login').post(validate(loginSchema), authController.login);
  *        $ref: '#/responses/409'
  *       "410":
  *        $ref: '#/responses/410'
- *
- *
  */
 router
   .route('/verify-email/:token')
@@ -278,27 +277,29 @@ router
  *     tags:
  *     - Authentication
  *     summary: Send a Forgot Password request
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 default: ahmed@gmail.com
  *     responses:
  *       "200":
  *        description: Success
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/LoginResponse'
- *       "400":
- *        $ref: '#/responses/400'
- *       "401":
- *        $ref: '#/responses/401'
+ *              $ref: '#/components/schemas/ForgotPasswordResponse'
  *       "404":
- *        $ref: '#/responses/404'
- *       "403":
- *        $ref: '#/responses/403'
- *       "408":
- *        $ref: '#/responses/408'
- *       "409":
- *        $ref: '#/responses/409'
- *       "410":
- *        $ref: '#/responses/410'
+ *        description: Failure
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ForgotPasswordResponse404'
  *
  *
  */
@@ -387,6 +388,26 @@ router
  *
  *
  */
+
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+  }),
+);
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (_req, res) => {
+    res.status(200).json({
+      message: 'Success',
+      data: _req.user,
+    });
+  },
+);
+
 router
   .route('/change-password/')
   .post(isLoggedIn, authController.changePassword);

@@ -6,8 +6,8 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-import jwt from 'jsonwebtoken'
-import { sign } from 'jsonwebtoken';
+
+import { sign, verify } from 'jsonwebtoken';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -82,9 +82,12 @@ export const forgotPassword = catchAsync(
     const resetEmail: emailType = {
       to: user.email,
       subject: 'Email Verif',
-      text: 'Reset Password',
+      text: 'Reset Password ' + resetToken,
     };
     await sendEmail(resetEmail);
+    return _res.status(200).json({
+      message: 'Password reset email sent successfully',
+    });
   },
 );
 
@@ -314,66 +317,76 @@ export const sendVerificationEmail = catchAsync(
 );
 
 export const logout = async (req: Request, res: Response) => {
-    const token = Array.isArray(req.headers['auth_key']) ? req.headers['auth_key'][0] : req.headers['auth_key'];
+  const token = Array.isArray(req.headers['auth_key'])
+    ? req.headers['auth_key'][0]
+    : req.headers['auth_key'];
 
-    if (!token) {
-        return res.status(401).json({ message: 'You are not logged in' });
+  if (!token) {
+    return res.status(401).json({ message: 'You are not logged in' });
+  }
+
+
+  return verify(token, process.env.JWT_SECRET as string, (err) => {
+    if (err) {
+      return res.status(401).json({ message: 'Invalid token' });
     }
 
-    return jwt.verify(token, process.env.JWT_SECRET as string, (err) => {
-        if (err) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
 
-        return res.status(200).json({ message: 'Successfully logged out' });
-    });
+    return res.status(200).json({ message: 'Successfully logged out' });
+  });
 };
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     // Check if user already exists
-
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email,
       },
     });
-
     if (user) {
-      _next(new AppError('User already exists', 409));
+      res.status(409).json({ message: 'User already exists' });
+      // _next(new AppError('User already exists', 409));
+    } else {
+      // Get the hashed token
+      const verificationToken = req.params.token;
+      const verificationTokenHashed = crypto
+        .createHash('sha256')
+        .update(verificationToken)
+        .digest('hex');
+
+      const existingVerificationCode = await prisma.emailVerification.findFirst(
+        {
+          where: {
+            email: req.body.email,
+          },
+        },
+      );
+      if (!existingVerificationCode) {
+        res.status(409).json({ message: 'Please request Verification first' });
+        // _next(new AppError('Please request Verification first', 409));
+      } else if (
+        existingVerificationCode &&
+        existingVerificationCode.code !== verificationTokenHashed
+      ) {
+        res.status(409).json({ message: 'Wrong Token. Please check again' });
+        // _next(new AppError('Wrong Token. Please check again', 409));
+      } else {
+        await prisma.emailVerification.update({
+          where: {
+            email: req.body.email,
+          },
+          data: {
+            verified: true,
+          },
+        });
+
+        res.status(200).send({
+          message: 'Email Verified Successfully',
+        });
+      }
     }
-    // Get the hashed token
-    const verificationToken = req.params.token;
-    const verificationTokenHashed = crypto
-      .createHash('sha256')
-      .update(verificationToken)
-      .digest('hex');
-
-    const existingVerificationCode = await prisma.emailVerification.findFirst({
-      where: {
-        email: req.body.email,
-      },
-    });
-    if (!existingVerificationCode)
-      _next(new AppError('Please request Verification first', 409));
-    if (
-      existingVerificationCode &&
-      existingVerificationCode.code !== verificationTokenHashed
-    )
-      _next(new AppError('Wrong Token. Please check again', 409));
-
-    await prisma.emailVerification.update({
-      where: {
-        email: req.body.email,
-      },
-      data: {
-        verified: true,
-      },
-    });
-
-    res.status(200).send({
-      message: 'Email Verified Successfully ',
-    });
+    _next();
   },
 );
 
@@ -400,3 +413,9 @@ export async function createUniqueUserName(
   }
   return suggestions;
 }
+
+export const generateJWTToken = (userId: string) => {
+  return sign({ id: userId }, process.env.JWT_SECRET as string, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
