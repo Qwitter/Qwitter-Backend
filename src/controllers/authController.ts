@@ -311,6 +311,22 @@ export const sendVerificationEmail = catchAsync(
   },
 );
 
+export const logout = async (req: Request, res: Response) => {
+    const token = Array.isArray(req.headers['auth_key']) ? req.headers['auth_key'][0] : req.headers['auth_key'];
+
+    if (!token) {
+        return res.status(401).json({ message: 'You are not logged in' });
+    }
+
+    return jwt.verify(token, process.env.JWT_SECRET, (err) => {
+        if (err) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        return res.status(200).json({ message: 'Successfully logged out' });
+    });
+};
+
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     // Check if user already exists

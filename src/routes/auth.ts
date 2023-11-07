@@ -391,4 +391,6 @@ router
   .route('/change-password/')
   .post(isLoggedIn, authController.changePassword);
 
+router.route('/logout').post(authController.logout);
+
 export default router;
