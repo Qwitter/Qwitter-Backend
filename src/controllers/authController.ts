@@ -146,7 +146,7 @@ export const changePassword = catchAsync(
 );
 
 const hashPassword = async (password: string) => {
-  return await hash(password, 12);
+  return await hash(password, process.env.SALT as string);
 };
 
 export const signUp = catchAsync(
@@ -159,25 +159,22 @@ export const signUp = catchAsync(
     if (user) {
       return _next(new AppError('User already exists', 409));
     }
-    // const verify = await prisma.emailVerification.findFirst({
-    //   where: {
-    //     email: req.body.email,
-    //   },
-    // });
-    // if (!verify) {
-    //   return _next(new AppError('Email is not Verified ', 403));
-    // } else if (!verify.verified) {
-    //   await prisma.emailVerification.delete({
-    //     where: {
-    //       email: req.body.email,
-    //     },
-    //   });
-    //   return _next(new AppError('Email is not Verified ', 403));
-    // }
-    const hashedPassword = await hash(
-      req.body.password,
-      process.env.SALT as string,
-    );
+    const verify = await prisma.emailVerification.findFirst({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!verify) {
+      return _next(new AppError('Email is not Verified ', 403));
+    } else if (!verify.verified) {
+      await prisma.emailVerification.delete({
+        where: {
+          email: req.body.email,
+        },
+      });
+      return _next(new AppError('Email is not Verified ', 403));
+    }
+    const hashedPassword = await hashPassword(req.body.password);
     const uniqueUserName = await createUniqueUserName(req.body.name, 3);
     const newUser = await prisma.user.create({
       data: {
