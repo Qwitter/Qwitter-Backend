@@ -126,6 +126,18 @@ export const ForgetPasswordSchema = object({
  *        message:
  *          type: string
  *          default: Verification Email has been sent
+ *    ForgotPasswordResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Password reset email sent successfully
+ *    ForgotPasswordResponse404:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: User not found
  */
 
 const ResetPasswordParameter = {

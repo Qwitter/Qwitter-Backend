@@ -80,9 +80,12 @@ export const forgotPassword = catchAsync(
     const resetEmail: emailType = {
       to: user.email,
       subject: 'Email Verif',
-      text: 'Reset Password',
+      text: 'Reset Password ' + resetToken,
     };
     await sendEmail(resetEmail);
+    return _res.status(200).json({
+      message: 'Password reset email sent successfully',
+    });
   },
 );
 
