@@ -16,6 +16,7 @@ datasource db {
 
 model User {
   id                  String                @default(uuid())
+  google_id           String
   name                String
   birthDate           DateTime              @db.Timestamp()
   location            String
