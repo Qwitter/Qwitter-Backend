@@ -8,6 +8,45 @@ import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 
+export const login = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { email_or_username, password } = req.body;
+    const hashedPassword = await hash(password, process.env.SALT);
+    let user = null;
+
+    if (email_or_username.includes('@')) {
+      const userEmail = await prisma.user
+        .findUnique({
+          where: {
+            email: email_or_username,
+            password: hashedPassword,
+          },
+        })
+        .catch();
+      user = userEmail;
+    } else {
+      const userUsername = await prisma.user
+        .findUnique({
+          where: {
+            userName: email_or_username,
+            password: hashedPassword,
+          },
+        })
+        .catch();
+      user = userUsername;
+    }
+
+    if (!user) {
+      res.status(200).json({ msg: 'wrong password' });
+      return;
+    }
+    const token = sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+    res.status(200).json({ token: token, user });
+  },
+);
+
 export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
@@ -83,6 +122,32 @@ export const resetPassword = catchAsync(
     });
   },
 );
+export const changePassword = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    // Check that the passwords match
+    if (req.body.password !== req.body.passwordConfirmation) {
+      return _next(new AppError('The passwords do not match', 400));
+    }
+    // Update the user with the new password
+    const hashedPassword = await hashPassword(req.body.password);
+    await prisma.user.update({
+      where: {
+        id: req.body.userId,
+      },
+      data: {
+        password: hashedPassword,
+        passwordChangedAt: new Date(Date.now()),
+      },
+    });
+    return _res.status(200).json({
+      message: 'Password Changed Successfully',
+    });
+  },
+);
+
+const hashPassword = async (password: string) => {
+  return await hash(password, 12);
+};
 
 export const signUp = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
@@ -229,6 +294,10 @@ export const sendVerificationEmail = catchAsync(
           code: verificationTokenHashed,
           verified: false,
         },
+      });
+    } else {
+      await prisma.emailVerification.create({
+        data: { email: req.body.email, code: verificationTokenHashed },
       });
     }
     // Send it to user email
