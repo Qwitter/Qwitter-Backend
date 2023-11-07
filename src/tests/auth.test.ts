@@ -1,7 +1,18 @@
 import * as authController from '../controllers/authController';
 import { prismaMock } from '../singleton';
 import Request from 'supertest';
+import request from 'supertest';
 import app from '../app';
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
+
+//mocking jwt and hashing
+jest.mock('bcrypt')
+bcrypt.hash=jest.fn().mockResolvedValue('hashed_password')
+jest.mock('jsonwebtoken')
+jwt.sign=jest.fn().mockResolvedValue('generated_token')
+
+
 
 // test isEmail function
 describe('isEmail Function', () => {
@@ -126,3 +137,62 @@ describe('checkExistence Function', () => {
     });
   });
 });
+
+
+
+
+
+
+
+describe("POST /auth/login",  ()=>{
+  test("should send post request to login with a registered user using username and respond with status and token and user",async ()=>{
+
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@gmail.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user)
+    const response=await request(app).post("/api/v1/auth/login").send({
+      email_or_username:"jhondoe",
+      password:"123456"
+    })
+    console.log(response.body)
+    expect(response.status).toEqual(200)
+    expect(response.body).toHaveProperty('token')
+    expect(response.body).toHaveProperty('user')
+    
+  }),
+  test("should send post request to login unregistered user and respond with status and token and user",async ()=>{
+    prismaMock.user.findUnique.mockResolvedValue(null)
+    const response=await request(app).post("/api/v1/auth/login").send({
+      email_or_username:"unregistered@example.com",
+      password:"123456"
+    })
+
+    console.log(response.body)
+    expect(response.status).toEqual(400)
+    expect(response.body).toHaveProperty('message')
+  })
+})
+
+
+

@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
+import jwt from 'jsonwebtoken'
 import { sign } from 'jsonwebtoken';
 
 export const login = catchAsync(
@@ -37,8 +38,7 @@ export const login = catchAsync(
     }
 
     if (!user) {
-      res.status(200).json({ msg: 'wrong password' });
-      return;
+      return _next(new AppError('Invalid Token', 400));
     }
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
@@ -318,7 +318,7 @@ export const logout = async (req: Request, res: Response) => {
         return res.status(401).json({ message: 'You are not logged in' });
     }
 
-    return jwt.verify(token, process.env.JWT_SECRET, (err) => {
+    return jwt.verify(token, process.env.JWT_SECRET as string, (err) => {
         if (err) {
             return res.status(401).json({ message: 'Invalid token' });
         }
