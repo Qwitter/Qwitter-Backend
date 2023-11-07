@@ -21,7 +21,6 @@ export const configurePassport = () => {
           if (!user) {
             const newUser = await prisma.user.create({
               data: {
-                id: "1234",
                 name: profile.displayName,
                 email: profile._json.email,
                 userName: profile.username || profile._json.email,
