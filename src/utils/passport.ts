@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import {PrismaClient} from '@prisma/client'
+import { createUniqueUserName } from 'src/controllers/authController';
 
 const prisma=new PrismaClient()
 
@@ -22,9 +23,8 @@ export const configurePassport = () => {
             const newUser = await prisma.user.create({
               data: {
                 name: profile.displayName,
-                email: profile._json.email,
-                userName: profile.username || profile._json.email,
-                google_id: profile.id,
+                email: profile._json.email as string,
+                userName: createUniqueUserName(profile.displayName, 1)[0],
                 createdAt: new Date().toISOString(),
                 birthDate: "", 
                 location: '',
@@ -45,7 +45,7 @@ export const configurePassport = () => {
 
           return done(null, user);
         } catch (error) {
-          return done(error, null);
+          return done(error, undefined);
         }
       }
     ));
