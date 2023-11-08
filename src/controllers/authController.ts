@@ -56,7 +56,11 @@ export const forgotPassword = catchAsync(
       where: { email: req.body.email },
     });
     if (!user) {
-      return _next(new AppError('User not found', 404));
+      // return _next(new AppError('User not found', 404));
+      _res.status(404)
+      _res.send({message:"User not found"})
+      return
+      
     }
     // 2) Generate the random token
     const passwordResetExpireTime = 10 * 60 * 1000; // 10 minutes
@@ -102,13 +106,17 @@ export const resetPassword = catchAsync(
       where: { passwordResetToken: resetTokenHashed },
     });
     if (!user) {
-      return _next(new AppError('Invalid Token', 400));
+      // return _next(new AppError('Invalid Token', 400));
+      _res.status(400).json({ message: 'Invalid Token' });
+      return
     }
     if (
       user.passwordResetExpires &&
       user.passwordResetExpires > new Date(Date.now())
     ) {
-      return _next(new AppError('Token expired. Request another token.', 400));
+      // return _next(new AppError('Token expired. Request another token.', 400));
+      _res.status(400).json({ message: 'Token expired. Request another token' });
+
     }
 
     await prisma.user.update({
@@ -132,7 +140,10 @@ export const changePassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // Check that the passwords match
     if (req.body.password !== req.body.passwordConfirmation) {
-      return _next(new AppError('The passwords do not match', 400));
+      // return _next(new AppError('The passwords do not match', 400));
+      _res.status(400).json({ message: 'The passwords do not match' });
+      return
+      // _next(new AppError('Wrong Token. Please check again', 409));
     }
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);

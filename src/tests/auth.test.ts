@@ -179,7 +179,6 @@ describe('POST /auth/login', () => {
         password: '123456',
       });
 
-      console.log(response.body, response.status);
       expect(response.status).toEqual(400);
       expect(response.body).toHaveProperty('message');
     });
@@ -226,6 +225,7 @@ describe('verifyEmail Function', () => {
           passwordChangedAt: null,
           passwordResetToken: null,
           passwordResetExpires: null,
+          google_id:null,
         };
         prismaMock.user.findFirst.mockResolvedValue(user);
         const response = await Request(app)
@@ -333,7 +333,7 @@ describe("POST forgotPassword",()=>{
     prismaMock.user.update.mockResolvedValue(user);
 
     const req={
-      email:"registered email"
+      email:"anon@gmail.com"
     }
     const response = await Request(app)
               .post('/api/v1/auth/forgot-password')
@@ -341,7 +341,7 @@ describe("POST forgotPassword",()=>{
             expect(response.status).toEqual(200);
             expect(response.body.message).toStrictEqual(
               'Password reset email sent successfully',)
-    
+   
             
   })
 
@@ -349,7 +349,7 @@ describe("POST forgotPassword",()=>{
     
     prismaMock.user.findUnique.mockResolvedValue(null);
     const req={
-      email:"unregistered email"
+      email:"anon@gmail.com"
     }
     const response = await Request(app)
               .post('/api/v1/auth/forgot-password')
@@ -392,14 +392,14 @@ describe("POST /reset-password",()=>{
     prismaMock.user.update.mockResolvedValue(user);
 
     const req={
-      email:"registered email"
+      email:"anon@gmail.com"
     }
     const response = await Request(app)
-              .post('/api/v1/auth/forgot-password/registered_fake_token')
+              .post('/api/v1/auth/reset-password/token')
               .send(req);
             expect(response.status).toEqual(200);
             expect(response.body.message).toStrictEqual(
-              'Password reset email sent successfully',)
+              'Password reset was successful',)
     
             
   })
@@ -408,8 +408,8 @@ describe("POST /reset-password",()=>{
     
     prismaMock.user.findUnique.mockResolvedValue(null);
     const response = await Request(app)
-              .post('/api/v1/auth/forgot-password/unregistered_fake_token')
-              .send();
+              .post('/api/v1/auth/reset-password/token')
+              .send({email:"anon@gmail.com"});
             expect(response.status).toEqual(400);
             expect(response.body.message).toStrictEqual(
               'Invalid Token',)        
@@ -428,9 +428,36 @@ describe("POST /change-password",()=>{
       passwordConfirmation:"password",
       
     }
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: "registered_fake_token",
+      passwordResetExpires: null,
+      google_id:""
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user)
+
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
-              .send(req);
+              .send(req).set('Authorization','Bearer abc1234');
+              console.log(response.body)
             expect(response.status).toEqual(200);
             expect(response.body.message).toStrictEqual(
               'Password Changed Successfully',)
@@ -446,6 +473,31 @@ describe("POST /change-password",()=>{
       passwordConfirmation:"password2",
       
     }
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: "registered_fake_token",
+      passwordResetExpires: null,
+      google_id:""
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user)
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
               .send(req);
@@ -455,5 +507,21 @@ describe("POST /change-password",()=>{
     
             
   })
+  
+  test("should send a request with a user that is not logged in  msg error and status code 400",async ()=>{
+   
 
+    const req={
+      password:"password",
+      passwordConfirmation:"password2",
+      
+    }
+    
+    const response = await Request(app)
+              .post('/api/v1/auth/change-password')
+              .send(req);
+            expect(response.status).toEqual(400);
+            expect(response.body.message).toStrictEqual(
+              'Invalid token',)            
+  })
 })
