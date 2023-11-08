@@ -301,3 +301,94 @@ describe('verifyEmail Function', () => {
     });
   });
 });
+
+
+describe('POST /auth/signup', () => {
+  test('should sign up a new user and return a token and user data with status 200', async () => {
+    const mockUser = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+
+
+    prismaMock.user.findFirst.mockResolvedValue(null); 
+    prismaMock.emailVerification.findFirst.mockResolvedValue({ email: mockUser.email, verified: true, code: "1234" });
+    prismaMock.user.create.mockResolvedValue(mockUser);
+
+    const response = await request(app)
+      .post('/api/v1/auth/signup')
+      .send({
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        birthDate: mockUser.birthDate,
+      });
+
+    expect(response.status).toEqual(200);
+    expect(response.body).toHaveProperty('token');
+    expect(response.body).toHaveProperty('data');
+    expect(response.body).toHaveProperty('suggestions');
+    expect(response.body.data).toHaveProperty('userName');
+  });
+
+  test('should not sign up an already registered user and return a 409 error', async () => {
+    const mockUser = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+
+    prismaMock.user.findFirst.mockResolvedValue(mockUser);
+
+    const response = await request(app)
+      .post('/api/v1/auth/signup')
+      .send({
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        birthDate: mockUser.birthDate,
+      });
+
+    expect(response.status).toEqual(409);
+  });
+
+});
