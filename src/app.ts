@@ -8,7 +8,6 @@ import globalErrorHandler from './controllers/errorController';
 const app = express();
 
 app.use(express.json());
-app.use(globalErrorHandler);
 
 app.use(
   session({
@@ -24,5 +23,7 @@ app.use(passport.session());
 configurePassport();
 
 app.use('/api/v1/auth', authRouter);
+
+app.use(globalErrorHandler);
 
 export default app;
