@@ -8,6 +8,7 @@ import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
 
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import { User } from '.prisma/client';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -324,21 +325,21 @@ export const sendVerificationEmail = catchAsync(
 
 export const logout = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1];
 
-  if (!token) {
-    res.status(401).json({ message: 'You are not logged in' });
-  } else {
-    verify(token, process.env.JWT_SECRET as string, (err) => {
-      if (err) {
-        res.status(401).json({ message: 'Invalid token' });
-      } else {
-        res.status(200).json({ message: 'Successfully logged out' });
-      }
-    });
-  }
-
-});
+    if (!token) {
+      res.status(401).json({ message: 'You are not logged in' });
+    } else {
+      verify(token, process.env.JWT_SECRET as string, (err) => {
+        if (err) {
+          res.status(401).json({ message: 'Invalid token' });
+        } else {
+          res.status(200).json({ message: 'Successfully logged out' });
+        }
+      });
+    }
+  },
+);
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -427,46 +428,22 @@ export const generateJWTToken = (userId: string) => {
 export const userNameSuggestions = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const headers = req.headers;
-    var data;
-    if (!headers.auth_key) {
-      _res.status(401).json({ message: 'Unauthorized access' });
-    } else {
-      try {
-        data = await verify(
-          headers.auth_key as string,
-          process.env.JWT_SECRET as string,
-        );
-        if (!(data as JwtPayload).id) {
-          _res.status(409).json({ message: 'Invalid access credentials' });
-        } else {
-          if (
-            ((data as JwtPayload).exp as number) <=
-            parseInt((Date.now() / 1000).toString())
-          ) {
-            _res.status(409).json({ message: 'Token Expired' });
-          } else {
-            const user = await prisma.user.findFirst({
-              where: {
-                id: (data as JwtPayload).id,
-              },
-            });
-            if (!user) {
-              _res.status(404).json({ message: 'User not found' });
-            } else {
-              const uniqueUserName = await createUniqueUserName(
-                req.body.userName ? req.body.userName : user.name,
-                5,
-              );
-              _res.status(200).json({
-                suggestions: uniqueUserName,
-              });
-            }
-          }
-        }
-      } catch (e) {
-        _res.status(401).json({ message: 'Invalid access credentials' });
-      }
-    }
+    const data = await verify(
+      headers.authorization as string,
+      process.env.JWT_SECRET as string,
+    );
+    const user = await prisma.user.findFirst({
+      where: {
+        id: (data as JwtPayload).id,
+      },
+    });
+    const uniqueUserName = await createUniqueUserName(
+      req.body.userName ? req.body.userName : (user as User).name,
+      5,
+    );
+    _res.status(200).json({
+      suggestions: uniqueUserName,
+    });
     _next();
   },
 );
