@@ -486,3 +486,36 @@ describe('userNameSuggestions Function', () => {
     });
   });
 });
+
+
+
+
+describe('POST /send-verification-email', () => {
+  test('should update verification code if email exists', async () => {
+    const mockRequest = { body: { email: 'existing@example.com' } };
+    const existingVerificationCode = { email: 'existing@example.com', code:'1234', verified:false };
+    
+    prismaMock.emailVerification.findFirst.mockResolvedValue(existingVerificationCode);
+    prismaMock.emailVerification.update.mockResolvedValue(existingVerificationCode);
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual('Sent Verification Email Successfully ');
+  });
+
+  test('should create verification code if email does not exist', async () => {
+    const mockRequest = { body: { email: 'new@example.com' } };
+    const existingVerificationCode = { email: 'new@example.com', code:'1234', verified:false };
+    prismaMock.emailVerification.findFirst.mockResolvedValue(null);
+    prismaMock.emailVerification.create.mockResolvedValue(existingVerificationCode);
+
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual('Sent Verification Email Successfully ');
+  });
+});
