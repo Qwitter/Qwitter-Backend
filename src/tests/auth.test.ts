@@ -427,9 +427,9 @@ describe('userNameSuggestions Function', () => {
           prismaMock.user.findFirst.mockResolvedValue(null);
 
           const response = await Request(app)
-            .get('/api/v1/auth/username-suggestions')
+            .post('/api/v1/auth/username-suggestions')
             .set('auth_key', 'abc123');
-
+          console.log(response.body);
           expect(response.status).toBe(200);
           expect(response.body.suggestions).toHaveLength(5);
         });
@@ -439,7 +439,7 @@ describe('userNameSuggestions Function', () => {
           prismaMock.user.findFirst.mockResolvedValue(null);
 
           const response = await Request(app)
-            .get('/api/v1/auth/username-suggestions')
+            .post('/api/v1/auth/username-suggestions')
             .set('auth_key', 'abc123');
 
           expect(response.status).toBe(404);
@@ -456,7 +456,7 @@ describe('userNameSuggestions Function', () => {
         });
 
         const response = await Request(app)
-          .get('/api/v1/auth/username-suggestions')
+          .post('/api/v1/auth/username-suggestions')
           .set('auth_key', 'abc123');
 
         expect(response.status).toBe(409);
@@ -466,7 +466,7 @@ describe('userNameSuggestions Function', () => {
         jwt.verify = jest.fn().mockResolvedValueOnce({});
 
         const response = await Request(app)
-          .get('/api/v1/auth/username-suggestions')
+          .post('/api/v1/auth/username-suggestions')
           .set('auth_key', 'abc123');
 
         expect(response.status).toBe(409);
@@ -478,7 +478,7 @@ describe('userNameSuggestions Function', () => {
   });
   describe('auth_key not found in header', () => {
     test('should respond with status 401', async () => {
-      const response = await Request(app).get(
+      const response = await Request(app).post(
         '/api/v1/auth/username-suggestions',
       );
       expect(response.status).toBe(401);

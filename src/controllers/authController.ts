@@ -163,60 +163,65 @@ export const signUp = catchAsync(
       },
     });
     if (user) {
-      return _next(new AppError('User already exists', 409));
-    }
-    const verify = await prisma.emailVerification.findFirst({
-      where: {
-        email: req.body.email,
-      },
-    });
-    if (!verify) {
-      return _next(new AppError('Email is not Verified ', 403));
-    } else if (!verify.verified) {
-      await prisma.emailVerification.delete({
+      _res.status(409).json({ message: 'User already exists' });
+      // return _next(new AppError('User already exists', 409));
+    } else {
+      const verify = await prisma.emailVerification.findFirst({
         where: {
           email: req.body.email,
         },
       });
-      return _next(new AppError('Email is not Verified ', 403));
+      if (!verify) {
+        _res.status(403).json({ message: 'Email is not Verified' });
+        // return _next(new AppError('Email is not Verified', 403));
+      } else if (!verify.verified) {
+        await prisma.emailVerification.delete({
+          where: {
+            email: req.body.email,
+          },
+        });
+        _res.status(403).json({ message: 'Email is not Verified' });
+        // return _next(new AppError('Email is not Verified', 403));
+      } else {
+        const hashedPassword = await hashPassword(req.body.password);
+        const uniqueUserName = await createUniqueUserName(req.body.name, 6);
+        const newUser = await prisma.user.create({
+          data: {
+            name: req.body.name,
+            birthDate: req.body.birthDate,
+            createdAt: new Date().toISOString(),
+            email: req.body.email,
+            userName: uniqueUserName[0],
+            password: hashedPassword,
+          },
+          select: {
+            id: true,
+            name: true,
+            birthDate: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            userName: true,
+          },
+        });
+        const { id, ...newObject } = newUser;
+        const token = sign({ id: id }, process.env.JWT_SECRET as string, {
+          expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+        _res.status(200).json({
+          token,
+          data: newObject,
+          suggestions: uniqueUserName.slice(1, 6),
+        });
+      }
     }
-    const hashedPassword = await hashPassword(req.body.password);
-    const uniqueUserName = await createUniqueUserName(req.body.name, 6);
-    const newUser = await prisma.user.create({
-      data: {
-        name: req.body.name,
-        birthDate: req.body.birthDate,
-        createdAt: new Date().toISOString(),
-        email: req.body.email,
-        userName: uniqueUserName[0],
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        name: true,
-        birthDate: true,
-        location: true,
-        url: true,
-        description: true,
-        protected: true,
-        verified: true,
-        followersCount: true,
-        followingCount: true,
-        createdAt: true,
-        profileBannerUrl: true,
-        profileImageUrl: true,
-        userName: true,
-      },
-    });
-    const { id, ...newObject } = newUser;
-    const token = sign({ id: id }, process.env.JWT_SECRET as string, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-    _res.status(200).json({
-      token,
-      data: newObject,
-      suggestions: uniqueUserName.slice(1, 6),
-    });
   },
 );
 
