@@ -7,7 +7,7 @@ import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
 
-import { sign, verify } from 'jsonwebtoken';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -38,9 +38,9 @@ export const login = catchAsync(
     }
 
     if (!user) {
-      res.status(400)
-      res.send({message:"wrong password or email"})
-      return
+      res.status(400);
+      res.send({ message: 'wrong password or email' });
+      return;
     }
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
@@ -181,7 +181,7 @@ export const signUp = catchAsync(
       return _next(new AppError('Email is not Verified ', 403));
     }
     const hashedPassword = await hashPassword(req.body.password);
-    const uniqueUserName = await createUniqueUserName(req.body.name, 3);
+    const uniqueUserName = await createUniqueUserName(req.body.name, 6);
     const newUser = await prisma.user.create({
       data: {
         name: req.body.name,
@@ -215,7 +215,7 @@ export const signUp = catchAsync(
     _res.status(200).json({
       token,
       data: newObject,
-      suggestions: [uniqueUserName[1], uniqueUserName[2]],
+      suggestions: uniqueUserName.slice(1, 6),
     });
   },
 );
@@ -326,12 +326,10 @@ export const logout = async (req: Request, res: Response) => {
     return res.status(401).json({ message: 'You are not logged in' });
   }
 
-
   return verify(token, process.env.JWT_SECRET as string, (err) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid token' });
     }
-
 
     return res.status(200).json({ message: 'Successfully logged out' });
   });
@@ -420,3 +418,48 @@ export const generateJWTToken = (userId: string) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+
+export const userNameSuggestions = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    const headers = req.headers;
+    var data;
+    if (!headers.auth_key) {
+      _res.status(401).json({ message: 'Unauthorized access' });
+    } else {
+      try {
+        data = await verify(
+          headers.auth_key as string,
+          process.env.JWT_SECRET as string,
+        );
+        if (!(data as JwtPayload).id) {
+          _res.status(409).json({ message: 'Invalid access credentials' });
+        } else {
+          if (
+            ((data as JwtPayload).exp as number) <=
+            parseInt((Date.now() / 1000).toString())
+          ) {
+            _res.status(409).json({ message: 'Token Expired' });
+          } else {
+            const user = await prisma.user.findFirst({
+              where: {
+                id: (data as JwtPayload).id,
+              },
+            });
+            if (!user) {
+              _res.status(404).json({ message: 'User not found' });
+            } else {
+              const uniqueUserName = await createUniqueUserName(user.name, 5);
+              console.log(uniqueUserName);
+              _res.status(200).json({
+                suggestions: uniqueUserName,
+              });
+            }
+          }
+        }
+      } catch (e) {
+        _res.status(401).json({ message: 'Invalid access credentials' });
+      }
+    }
+    _next();
+  },
+);

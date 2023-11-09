@@ -12,6 +12,11 @@ jest.mock('bcrypt');
 bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
 jest.mock('jsonwebtoken');
 jwt.sign = jest.fn().mockResolvedValue('generated_token');
+jwt.verify = jest.fn().mockResolvedValue({
+  id: 'eac0ece1',
+  iat: 1699498302,
+  exp: 1707274302,
+});
 
 // test isEmail function
 describe('isEmail Function', () => {
@@ -302,7 +307,6 @@ describe('verifyEmail Function', () => {
   });
 });
 
-
 describe('POST /auth/signup', () => {
   test('should sign up a new user and return a token and user data with status 200', async () => {
     const mockUser = {
@@ -322,27 +326,27 @@ describe('POST /auth/signup', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran12364',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
       google_id: null,
     };
 
-
-    prismaMock.user.findFirst.mockResolvedValue(null); 
-    prismaMock.emailVerification.findFirst.mockResolvedValue({ email: mockUser.email, verified: true, code: "1234" });
+    prismaMock.user.findFirst.mockResolvedValue(null);
+    prismaMock.emailVerification.findFirst.mockResolvedValue({
+      email: mockUser.email,
+      verified: true,
+      code: '1234',
+    });
     prismaMock.user.create.mockResolvedValue(mockUser);
 
-    const response = await request(app)
-      .post('/api/v1/auth/signup')
-      .send({
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        birthDate: mockUser.birthDate,
-      });
+    const response = await request(app).post('/api/v1/auth/signup').send({
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      birthDate: mockUser.birthDate,
+    });
 
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('token');
@@ -369,8 +373,7 @@ describe('POST /auth/signup', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran12364',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -379,16 +382,13 @@ describe('POST /auth/signup', () => {
 
     prismaMock.user.findFirst.mockResolvedValue(mockUser);
 
-    const response = await request(app)
-      .post('/api/v1/auth/signup')
-      .send({
-        name: mockUser.name,
-        email: mockUser.email,
-        password: mockUser.password,
-        birthDate: mockUser.birthDate,
-      });
+    const response = await request(app).post('/api/v1/auth/signup').send({
+      name: mockUser.name,
+      email: mockUser.email,
+      password: mockUser.password,
+      birthDate: mockUser.birthDate,
+    });
 
     expect(response.status).toEqual(409);
   });
-
 });
