@@ -448,8 +448,10 @@ export const userNameSuggestions = catchAsync(
             if (!user) {
               _res.status(404).json({ message: 'User not found' });
             } else {
-              const uniqueUserName = await createUniqueUserName(user.name, 5);
-              console.log(uniqueUserName);
+              const uniqueUserName = await createUniqueUserName(
+                req.body.userName ? req.body.userName : user.name,
+                5,
+              );
               _res.status(200).json({
                 suggestions: uniqueUserName,
               });

@@ -421,6 +421,16 @@ router.route('/logout').post(authController.logout);
  *     tags:
  *     - Authentication
  *     summary: get userName suggestions using only the token
+ *     requestBody:
+ *      required: false
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userName:
+ *                 type: string
+ *                 default: zahran1234
  *     parameters:
  *       - name: auth_key
  *         in: header
@@ -449,6 +459,6 @@ router.route('/logout').post(authController.logout);
  *        $ref: '#/responses/410'
  */
 
-router.route('/username-suggestions').get(authController.userNameSuggestions);
+router.route('/username-suggestions').post(authController.userNameSuggestions);
 
 export default router;
