@@ -414,4 +414,41 @@ router
 
 router.route('/logout').post(authController.logout);
 
+/**
+ * @openapi
+ * '/api/v1/auth/username-suggestions':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: get userName suggestions using only the token
+ *     parameters:
+ *       - name: auth_key
+ *         in: header
+ *         description: ''
+ *         required: true
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/userNameSuggestionsResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ */
+
+router.route('/username-suggestions').get(authController.userNameSuggestions);
+
 export default router;
