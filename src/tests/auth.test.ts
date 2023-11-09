@@ -392,3 +392,97 @@ describe('POST /auth/signup', () => {
     expect(response.status).toEqual(409);
   });
 });
+
+// test userNameSuggestions
+describe('userNameSuggestions Function', () => {
+  describe('auth_key in header', () => {
+    describe('auth_key is valid', () => {
+      describe('user Found', () => {
+        test('should respond with status 200', async () => {
+          const user = {
+            id: 'eac0ece1',
+            name: 'Zahran',
+            birthDate: new Date(),
+            location: null,
+            url: null,
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 0,
+            followingCount: 0,
+            createdAt: new Date(),
+            deletedAt: null,
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@gmail.com',
+            userName: 'ahmedzahran12364',
+            password:
+              '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+            passwordChangedAt: null,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            google_id: null,
+          };
+          prismaMock.user.findFirst.mockResolvedValueOnce(user);
+          prismaMock.user.findFirst.mockResolvedValue(null);
+
+          const response = await Request(app)
+            .get('/api/v1/auth/username-suggestions')
+            .set('auth_key', 'abc123');
+
+          expect(response.status).toBe(200);
+          expect(response.body.suggestions).toHaveLength(5);
+        });
+      });
+      describe('user not Found', () => {
+        test('should respond with status 404', async () => {
+          prismaMock.user.findFirst.mockResolvedValue(null);
+
+          const response = await Request(app)
+            .get('/api/v1/auth/username-suggestions')
+            .set('auth_key', 'abc123');
+
+          expect(response.status).toBe(404);
+          expect(response.body.message).toStrictEqual('User not found');
+        });
+      });
+    });
+    describe('auth_key is invalid', () => {
+      test('should respond with status 409 token expired', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({
+          id: 'eac0ece1',
+          iat: 1699498302,
+          exp: 0,
+        });
+
+        const response = await Request(app)
+          .get('/api/v1/auth/username-suggestions')
+          .set('auth_key', 'abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual('Token Expired');
+      });
+      test('should respond with status 409 token invalid', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({});
+
+        const response = await Request(app)
+          .get('/api/v1/auth/username-suggestions')
+          .set('auth_key', 'abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual(
+          'Invalid access credentials',
+        );
+      });
+    });
+  });
+  describe('auth_key not found in header', () => {
+    test('should respond with status 401', async () => {
+      const response = await Request(app).get(
+        '/api/v1/auth/username-suggestions',
+      );
+      expect(response.status).toBe(401);
+      expect(response.body.message).toStrictEqual('Unauthorized access');
+    });
+  });
+});
