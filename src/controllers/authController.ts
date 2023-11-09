@@ -6,10 +6,8 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-
-import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
-
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
