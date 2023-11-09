@@ -6,11 +6,19 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+
+
 //mocking jwt and hashing
 jest.mock('bcrypt');
 bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
 jest.mock('jsonwebtoken');
 jwt.sign = jest.fn().mockResolvedValue('generated_token');
+jwt.verify = jest.fn().mockResolvedValue({
+  id: 'eac0ece1',
+  iat: 1699498302,
+  exp: 1707274302,
+});
+
 
 // test isEmail function
 describe('isEmail Function', () => {
@@ -453,6 +461,8 @@ describe("POST /change-password",()=>{
       google_id:""
     };
     prismaMock.user.findUnique.mockResolvedValue(user)
+    prismaMock.user.update.mockResolvedValue(user)
+    
 
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
@@ -462,7 +472,6 @@ describe("POST /change-password",()=>{
             expect(response.body.message).toStrictEqual(
               'Password Changed Successfully',)
     
-            
   })
 
   test("should send a different password and confirmation password and return a msg error and status code 400",async ()=>{
@@ -501,6 +510,8 @@ describe("POST /change-password",()=>{
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
               .send(req);
+              console.log(response.body)
+
             expect(response.status).toEqual(400);
             expect(response.body.message).toStrictEqual(
               'The passwords do not match',)
@@ -520,6 +531,8 @@ describe("POST /change-password",()=>{
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
               .send(req);
+              console.log(response.body)
+
             expect(response.status).toEqual(400);
             expect(response.body.message).toStrictEqual(
               'Invalid token',)            

@@ -139,12 +139,13 @@ export const resetPassword = catchAsync(
 export const changePassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // Check that the passwords match
+    console.log(req.body)
     if (req.body.password !== req.body.passwordConfirmation) {
       // return _next(new AppError('The passwords do not match', 400));
       _res.status(400).json({ message: 'The passwords do not match' });
-      return
       // _next(new AppError('Wrong Token. Please check again', 409));
     }
+    else{
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);
     await prisma.user.update({
@@ -156,10 +157,12 @@ export const changePassword = catchAsync(
         passwordChangedAt: new Date(Date.now()),
       },
     });
-    return _res.status(200).json({
+    _res.status(200).json({
       message: 'Password Changed Successfully',
     });
-  },
+  }
+  _next()
+},
 );
 
 const hashPassword = async (password: string) => {
