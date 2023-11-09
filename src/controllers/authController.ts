@@ -10,6 +10,7 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 
+
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -315,11 +316,11 @@ export const sendVerificationEmail = catchAsync(
       subject: 'Email Verification',
       text: 'Email Verification: ' + verificationToken,
     };
+
     sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
-    _next();
   },
 );
 
@@ -427,16 +428,7 @@ export const generateJWTToken = (userId: string) => {
 
 export const userNameSuggestions = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
-    const headers = req.headers;
-    const data = await verify(
-      headers.authorization as string,
-      process.env.JWT_SECRET as string,
-    );
-    const user = await prisma.user.findFirst({
-      where: {
-        id: (data as JwtPayload).id,
-      },
-    });
+    const user = req.user;
     const uniqueUserName = await createUniqueUserName(
       req.body.userName ? req.body.userName : (user as User).name,
       5,
