@@ -459,6 +459,8 @@ router.route('/logout').post(authController.logout);
  *        $ref: '#/responses/410'
  */
 
-router.route('/username-suggestions').post(authController.userNameSuggestions);
+router
+  .route('/username-suggestions')
+  .post(isLoggedIn, authController.userNameSuggestions);
 
 export default router;

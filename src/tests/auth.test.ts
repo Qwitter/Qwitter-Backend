@@ -185,7 +185,6 @@ describe('POST /auth/login', () => {
         password: '123456',
       });
 
-      console.log(response.body, response.status);
       expect(response.status).toEqual(400);
       expect(response.body).toHaveProperty('message');
     });
@@ -424,12 +423,12 @@ describe('userNameSuggestions Function', () => {
             google_id: null,
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
-          prismaMock.user.findFirst.mockResolvedValue(null);
+          prismaMock.user.findFirst.mockResolvedValueOnce(user);
+          prismaMock.user.findFirst.mockResolvedValueOnce(null);
 
           const response = await Request(app)
-            .get('/api/v1/auth/username-suggestions')
-            .set('auth_key', 'abc123');
-
+            .post('/api/v1/auth/username-suggestions')
+            .set('authorization', 'Bearer abc123');
           expect(response.status).toBe(200);
           expect(response.body.suggestions).toHaveLength(5);
         });
@@ -439,9 +438,8 @@ describe('userNameSuggestions Function', () => {
           prismaMock.user.findFirst.mockResolvedValue(null);
 
           const response = await Request(app)
-            .get('/api/v1/auth/username-suggestions')
-            .set('auth_key', 'abc123');
-
+            .post('/api/v1/auth/username-suggestions')
+            .set('authorization', 'Bearer abc123');
           expect(response.status).toBe(404);
           expect(response.body.message).toStrictEqual('User not found');
         });
@@ -456,8 +454,8 @@ describe('userNameSuggestions Function', () => {
         });
 
         const response = await Request(app)
-          .get('/api/v1/auth/username-suggestions')
-          .set('auth_key', 'abc123');
+          .post('/api/v1/auth/username-suggestions')
+          .set('authorization', 'Bearer abc123');
 
         expect(response.status).toBe(409);
         expect(response.body.message).toStrictEqual('Token Expired');
@@ -466,8 +464,8 @@ describe('userNameSuggestions Function', () => {
         jwt.verify = jest.fn().mockResolvedValueOnce({});
 
         const response = await Request(app)
-          .get('/api/v1/auth/username-suggestions')
-          .set('auth_key', 'abc123');
+          .post('/api/v1/auth/username-suggestions')
+          .set('authorization', 'Bearer abc123');
 
         expect(response.status).toBe(409);
         expect(response.body.message).toStrictEqual(
@@ -478,11 +476,60 @@ describe('userNameSuggestions Function', () => {
   });
   describe('auth_key not found in header', () => {
     test('should respond with status 401', async () => {
-      const response = await Request(app).get(
+      const response = await Request(app).post(
         '/api/v1/auth/username-suggestions',
       );
+
       expect(response.status).toBe(401);
       expect(response.body.message).toStrictEqual('Unauthorized access');
     });
+  });
+});
+
+describe('POST /send-verification-email', () => {
+  test('should update verification code if email exists', async () => {
+    const mockRequest = { body: { email: 'existing@example.com' } };
+    const existingVerificationCode = {
+      email: 'existing@example.com',
+      code: '1234',
+      verified: false,
+    };
+
+    prismaMock.emailVerification.findFirst.mockResolvedValue(
+      existingVerificationCode,
+    );
+    prismaMock.emailVerification.update.mockResolvedValue(
+      existingVerificationCode,
+    );
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual(
+      'Sent Verification Email Successfully ',
+    );
+  });
+
+  test('should create verification code if email does not exist', async () => {
+    const mockRequest = { body: { email: 'new@example.com' } };
+    const existingVerificationCode = {
+      email: 'new@example.com',
+      code: '1234',
+      verified: false,
+    };
+    prismaMock.emailVerification.findFirst.mockResolvedValue(null);
+    prismaMock.emailVerification.create.mockResolvedValue(
+      existingVerificationCode,
+    );
+
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual(
+      'Sent Verification Email Successfully ',
+    );
   });
 });
