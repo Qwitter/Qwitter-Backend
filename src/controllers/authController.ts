@@ -309,7 +309,7 @@ export const sendVerificationEmail = catchAsync(
       subject: 'Email Verification',
       text: 'Email Verification: ' + verificationToken,
     };
-    await sendEmail(verificationEmail);
+    sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
@@ -317,23 +317,23 @@ export const sendVerificationEmail = catchAsync(
   },
 );
 
-export const logout = async (req: Request, res: Response) => {
-  const token = Array.isArray(req.headers['auth_key'])
-    ? req.headers['auth_key'][0]
-    : req.headers['auth_key'];
+export const logout = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'You are not logged in' });
+    res.status(401).json({ message: 'You are not logged in' });
+  } else {
+    verify(token, process.env.JWT_SECRET as string, (err) => {
+      if (err) {
+        res.status(401).json({ message: 'Invalid token' });
+      } else {
+        res.status(200).json({ message: 'Successfully logged out' });
+      }
+    });
   }
 
-  return verify(token, process.env.JWT_SECRET as string, (err) => {
-    if (err) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    return res.status(200).json({ message: 'Successfully logged out' });
-  });
-};
+});
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
