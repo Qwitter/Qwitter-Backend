@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { loginSchema } from '../schemas/authSchema';
+import { googleSignUpSchema, loginSchema } from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -400,13 +400,18 @@ router.get(
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (_req, res) => {
-    res.status(200).json({
-      message: 'Success',
-      data: _req.user,
-    });
+  (req:any, res) => {
+    const user = req.user.user;
+    if (user.registered === false) {
+      const googleId = user.id, email = user._json.email;
+      res.redirect(`/google/register?google_id=${googleId}&email=${email}`);
+    } else {
+      res.redirect('/');
+    }
   },
 );
+
+router.route('/signup').post(validate(googleSignUpSchema), authController.signUpGoogle);
 
 router
   .route('/change-password/')

@@ -225,6 +225,62 @@ export const signUp = catchAsync(
   },
 );
 
+export const signUpGoogle = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    if(!req.body.google_id) {
+      _res.status(404).json({ message: 'Google Auth ID not found' });
+      return;
+    }
+    const user = await prisma.user.findFirst({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (user) {
+      _res.status(409).json({ message: 'User already exists' });
+      // return _next(new AppError('User already exists', 409));
+    } else {
+      const uniqueUserName = [req.body.username] || await createUniqueUserName(req.body.name, 6);
+      const newUser = await prisma.user.create({
+        data: {
+          name: req.body.name,
+          birthDate: req.body.birthDate,
+          createdAt: new Date().toISOString(),
+          email: req.body.email,
+          userName: uniqueUserName[0],
+          password: "",
+          google_id: req.body.google_id
+        },
+        select: {
+          id: true,
+          name: true,
+          birthDate: true,
+          location: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          userName: true,
+        },
+      });
+      const { id, ...newObject } = newUser;
+      const token = sign({ id: id }, process.env.JWT_SECRET as string, {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      });
+      _res.status(200).json({
+        token,
+        data: newObject,
+      });
+    }
+  },
+);
+
+
 export const checkExistence = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const qualifier: string = req.body.userNameOrEmail;
