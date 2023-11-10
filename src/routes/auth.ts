@@ -411,7 +411,7 @@ router.get(
   },
 );
 
-router.route('/signup').post(validate(googleSignUpSchema), authController.signUpGoogle);
+router.route('/google/signup').post(validate(googleSignUpSchema), authController.signUpGoogle);
 
 router
   .route('/change-password/')
