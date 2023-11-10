@@ -6,8 +6,8 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-
 import { sign, verify } from 'jsonwebtoken';
+import { User } from '.prisma/client';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -38,9 +38,9 @@ export const login = catchAsync(
     }
 
     if (!user) {
-      res.status(400)
-      res.send({message:"wrong password or email"})
-      return
+      res.status(400);
+      res.send({ message: 'wrong password or email' });
+      return;
     }
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
@@ -177,60 +177,65 @@ export const signUp = catchAsync(
       },
     });
     if (user) {
-      return _next(new AppError('User already exists', 409));
-    }
-    const verify = await prisma.emailVerification.findFirst({
-      where: {
-        email: req.body.email,
-      },
-    });
-    if (!verify) {
-      return _next(new AppError('Email is not Verified ', 403));
-    } else if (!verify.verified) {
-      await prisma.emailVerification.delete({
+      _res.status(409).json({ message: 'User already exists' });
+      // return _next(new AppError('User already exists', 409));
+    } else {
+      const verify = await prisma.emailVerification.findFirst({
         where: {
           email: req.body.email,
         },
       });
-      return _next(new AppError('Email is not Verified ', 403));
+      if (!verify) {
+        _res.status(403).json({ message: 'Email is not Verified' });
+        // return _next(new AppError('Email is not Verified', 403));
+      } else if (!verify.verified) {
+        await prisma.emailVerification.delete({
+          where: {
+            email: req.body.email,
+          },
+        });
+        _res.status(403).json({ message: 'Email is not Verified' });
+        // return _next(new AppError('Email is not Verified', 403));
+      } else {
+        const hashedPassword = await hashPassword(req.body.password);
+        const uniqueUserName = await createUniqueUserName(req.body.name, 6);
+        const newUser = await prisma.user.create({
+          data: {
+            name: req.body.name,
+            birthDate: req.body.birthDate,
+            createdAt: new Date().toISOString(),
+            email: req.body.email,
+            userName: uniqueUserName[0],
+            password: hashedPassword,
+          },
+          select: {
+            id: true,
+            name: true,
+            birthDate: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            userName: true,
+          },
+        });
+        const { id, ...newObject } = newUser;
+        const token = sign({ id: id }, process.env.JWT_SECRET as string, {
+          expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+        _res.status(200).json({
+          token,
+          data: newObject,
+          suggestions: uniqueUserName.slice(1, 6),
+        });
+      }
     }
-    const hashedPassword = await hashPassword(req.body.password);
-    const uniqueUserName = await createUniqueUserName(req.body.name, 3);
-    const newUser = await prisma.user.create({
-      data: {
-        name: req.body.name,
-        birthDate: req.body.birthDate,
-        createdAt: new Date().toISOString(),
-        email: req.body.email,
-        userName: uniqueUserName[0],
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        name: true,
-        birthDate: true,
-        location: true,
-        url: true,
-        description: true,
-        protected: true,
-        verified: true,
-        followersCount: true,
-        followingCount: true,
-        createdAt: true,
-        profileBannerUrl: true,
-        profileImageUrl: true,
-        userName: true,
-      },
-    });
-    const { id, ...newObject } = newUser;
-    const token = sign({ id: id }, process.env.JWT_SECRET as string, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-    _res.status(200).json({
-      token,
-      data: newObject,
-      suggestions: [uniqueUserName[1], uniqueUserName[2]],
-    });
   },
 );
 
@@ -323,33 +328,31 @@ export const sendVerificationEmail = catchAsync(
       subject: 'Email Verification',
       text: 'Email Verification: ' + verificationToken,
     };
-    await sendEmail(verificationEmail);
+
+    sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
-    _next();
   },
 );
 
-export const logout = async (req: Request, res: Response) => {
-  const token = Array.isArray(req.headers['auth_key'])
-    ? req.headers['auth_key'][0]
-    : req.headers['auth_key'];
+export const logout = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const token = req.headers.authorization?.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({ message: 'You are not logged in' });
-  }
-
-
-  return verify(token, process.env.JWT_SECRET as string, (err) => {
-    if (err) {
-      return res.status(401).json({ message: 'Invalid token' });
+    if (!token) {
+      res.status(401).json({ message: 'You are not logged in' });
+    } else {
+      verify(token, process.env.JWT_SECRET as string, (err) => {
+        if (err) {
+          res.status(401).json({ message: 'Invalid token' });
+        } else {
+          res.status(200).json({ message: 'Successfully logged out' });
+        }
+      });
     }
-
-
-    return res.status(200).json({ message: 'Successfully logged out' });
-  });
-};
+  },
+);
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -434,3 +437,17 @@ export const generateJWTToken = (userId: string) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+
+export const userNameSuggestions = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    const user = req.user;
+    const uniqueUserName = await createUniqueUserName(
+      req.body.userName ? req.body.userName : (user as User).name,
+      5,
+    );
+    _res.status(200).json({
+      suggestions: uniqueUserName,
+    });
+    _next();
+  },
+);

@@ -1,9 +1,8 @@
-
 import express from 'express';
+import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { uploadProfilePicture } from '../controllers/userController';
 const router = express.Router();
-
-
-
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *     
+ *
  *     responses:
  *      200:
  *        description: Success
@@ -64,7 +63,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
 
 /**
  * @openapi
@@ -82,7 +80,7 @@ const router = express.Router();
  *           type: string
  *       - name: target_user_name
  *         in: path
- *         required: true         
+ *         required: true
  *         schema:
  *           type: string
  *     responses:
@@ -98,9 +96,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
-
 /**
  * @openapi
  * /api/v1/user/follow/{target_user_name}:
@@ -115,7 +110,7 @@ const router = express.Router();
  *           type: string
  *       - name: target_user_name
  *         in: path
- *         description: username of the target user 
+ *         description: username of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -132,13 +127,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
-
-
-
-
-
-
 
 /**
  * @openapi
@@ -169,7 +157,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
 /**
  * @openapi
  * '/api/v1/user/block/{target_user_name}':
@@ -186,7 +173,7 @@ const router = express.Router();
  *           type: string
  *       - name: target_user_name
  *         in: path
- *         description: username of the target user 
+ *         description: username of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -203,8 +190,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
 /**
  * @openapi
  * /api/v1/user/block/{target_user_name}:
@@ -219,7 +204,7 @@ const router = express.Router();
  *           type: string
  *       - name: target_user_name
  *         in: path
- *         description: username of the target user 
+ *         description: username of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -236,9 +221,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
-
-
 
 /**
  * @openapi
@@ -269,7 +251,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
 /**
  * @openapi
  * '/api/v1/user/mute/{target_user_name}':
@@ -280,7 +261,7 @@ const router = express.Router();
  *     parameters:
  *       - name: target_user_name
  *         in: path
- *         description: username of the target user 
+ *         description: username of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -297,7 +278,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
 /**
  * @openapi
  * /api/v1/user/mute/{target_user_name}:
@@ -312,7 +292,7 @@ const router = express.Router();
  *           type: string
  *       - name: target_user_name
  *         in: path
- *         description: usermane of the target user 
+ *         description: usermane of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -329,9 +309,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
-
-
 
 /**
  * @openapi
@@ -353,8 +330,8 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *       
- *     
+ *
+ *
  *     responses:
  *      200:
  *        description: Success
@@ -370,11 +347,9 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
 /**
  * @openapi
- * '/api/v1/user/upload_profile_picture':
+ * '/api/v1/user/profile_picture':
  *  post:
  *     tags:
  *     - User Profile
@@ -405,8 +380,12 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
+router.post(
+  '/profile_picture',
+  isLoggedIn,
+  uploadImageMiddleware,
+  uploadProfilePicture,
+);
 /**
  * @openapi
  * '/api/v1/user/upload_profile_picture':
@@ -433,8 +412,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
 /**
  * @openapi
  * '/api/v1/user/upload_profile_banner':
@@ -452,7 +429,7 @@ const router = express.Router();
  *     requestBody:
  *      required: true
  *      content:
- *          multipart/form-data: 
+ *          multipart/form-data:
  *           schema:
  *              $ref: '#/components/schemas/UploadImageInput'
  *     responses:
@@ -467,8 +444,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
-
 
 /**
  * @openapi
@@ -495,9 +470,6 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
-
-
 
 /**
  * @openapi
@@ -526,8 +498,6 @@ const router = express.Router();
  *        description: Bad request
  */
 
-
-
 /**
  * @openapi
  * '/api/v1/user/user_profile':
@@ -544,7 +514,7 @@ const router = express.Router();
  *           type: string
  *     requestBody:
  *      content:
- *          object: 
+ *          object:
  *           schema:
  *              $ref: '#/components/schemas/UserProfile'
  *     responses:
@@ -562,4 +532,4 @@ const router = express.Router();
 
 router.route('/').get();
 
-
+export default router;
