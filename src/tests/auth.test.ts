@@ -5,6 +5,18 @@ import app from '../app';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+const sendMailMock = jest.fn(); // this will return undefined if .sendMail() is called
+
+
+jest.mock("nodemailer");
+
+const nodemailer = require("nodemailer"); //doesn't work with import. idk why
+nodemailer.createTransport.mockReturnValue({"sendMail": sendMailMock});
+
+beforeEach( () => {
+    sendMailMock.mockClear();
+    nodemailer.createTransport.mockClear();
+});
 
 
 
@@ -339,6 +351,7 @@ describe("POST forgotPassword",()=>{
     };
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.user.update.mockResolvedValue(user);
+    // nodemailermock.mock.create
 
     const req={
       email:"anon@gmail.com"
