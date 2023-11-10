@@ -7,6 +7,25 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+//mocking sendEmail
+const sendMailMock = jest.fn(); // this will return undefined if .sendMail() is called
+
+// In order to return a specific value you can use this instead
+// const sendMailMock = jest.fn().mockReturnValue(/* Whatever you would expect as return value */);
+
+jest.mock("nodemailer");
+
+const nodemailer = require("nodemailer"); //doesn't work with import. idk why
+nodemailer.createTransport.mockReturnValue({"sendMail": sendMailMock});
+
+beforeEach( () => {
+    sendMailMock.mockClear();
+    nodemailer.createTransport.mockClear();
+});
+
+
+
+
 //mocking jwt and hashing
 jest.mock('bcrypt');
 bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
@@ -40,7 +59,7 @@ describe('isEmail Function', () => {
   });
 });
 
-// test checkExistence function
+//test checkExistence function
 describe('checkExistence Function', () => {
   describe('given an email and is available', () => {
     test('should respond with a status 200', async () => {
@@ -393,6 +412,304 @@ describe('POST /auth/signup', () => {
 });
 
 // test userNameSuggestions
+
+describe('POST /send-verification-email', () => {
+  test('should update verification code if email exists', async () => {
+    const mockRequest = { body: { email: 'existing@example.com' } };
+    const existingVerificationCode = {
+      email: 'existing@example.com',
+      code: '1234',
+      verified: false,
+    };
+
+    prismaMock.emailVerification.findFirst.mockResolvedValue(
+      existingVerificationCode,
+    );
+    prismaMock.emailVerification.update.mockResolvedValue(
+      existingVerificationCode,
+    );
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual(
+      'Sent Verification Email Successfully ',
+    );
+  });
+
+  test('should create verification code if email does not exist', async () => {
+    const mockRequest = { body: { email: 'new@example.com' } };
+    const existingVerificationCode = {
+      email: 'new@example.com',
+      code: '1234',
+      verified: false,
+    };
+    prismaMock.emailVerification.findFirst.mockResolvedValue(null);
+    prismaMock.emailVerification.create.mockResolvedValue(
+      existingVerificationCode,
+    );
+
+    const response = await request(app)
+      .post('/api/v1/auth/send-verification-email')
+      .send(mockRequest.body);
+
+    expect(response.status).toEqual(200);
+    expect(response.body.message).toEqual(
+      'Sent Verification Email Successfully ',
+    );
+  });
+});
+
+
+describe("POST /change-password",()=>{
+  const sendMailMock = jest.fn(); // this will return undefined if .sendMail() is called
+
+
+  jest.mock("nodemailer");
+
+  const nodemailer = require("nodemailer"); //doesn't work with import. idk why
+  nodemailer.createTransport.mockReturnValue({"sendMail": sendMailMock});
+
+  beforeEach( () => {
+      sendMailMock.mockClear();
+      nodemailer.createTransport.mockClear();
+  });
+
+  test("should send a matching passwprd and confirmation password and return a msg confirming a change password and status code 200",async ()=>{
+   
+
+    const req={
+      password:"password",
+      passwordConfirmation:"password",
+      
+    }
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: "registered_fake_token",
+      passwordResetExpires: null,
+      google_id:""
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(user)
+    prismaMock.user.findFirst.mockResolvedValue(user)
+    prismaMock.user.update.mockResolvedValue(user)
+    
+
+    const response = await Request(app)
+              .post('/api/v1/auth/change-password')
+              .send(req).set('authorization','Bearer abc1234');
+              console.log(response.body)
+            expect(response.status).toEqual(200);
+            expect(response.body.message).toStrictEqual(
+              'Password Changed Successfully',)
+    
+  })
+
+  test("should send a different password and confirmation password and return a msg error and status code 400",async ()=>{
+   
+
+    const req={
+      password:"password",
+      passwordConfirmation:"password2",
+      
+    }
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: "registered_fake_token",
+      passwordResetExpires: null,
+      google_id:""
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user)
+    prismaMock.user.findFirst.mockResolvedValue(user)
+
+    const response = await Request(app)
+              .post('/api/v1/auth/change-password')
+              .send(req).set('authorization','Bearer abc1234');;
+              console.log(response.body)
+
+            expect(response.status).toEqual(400);
+            expect(response.body.message).toStrictEqual(
+              'The passwords do not match',)
+    
+            
+  })
+  
+  test("should send a request with a user that is not logged in  msg error and status code 400",async ()=>{
+   
+
+    const req={
+      password:"password",
+      passwordConfirmation:"password2",
+      
+    }
+    
+    const response = await Request(app)
+              .post('/api/v1/auth/change-password')
+              .send(req);
+
+            expect(response.status).toEqual(401);
+            expect(response.body.message).toStrictEqual(
+              'Unauthorized access',)            
+  })
+})
+
+describe("POST forgotPassword",()=>{
+  test("should send a registered email and return a msg confirming a reset email and status code 200",async ()=>{
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id:""
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+    // nodemailermock.mock.create
+
+    const req={
+      email:"anon@gmail.com"
+    }
+    const response = await Request(app)
+              .post('/api/v1/auth/forgot-password')
+              .send(req);
+            expect(response.status).toEqual(200);
+            expect(response.body.message).toStrictEqual(
+              'Password reset email sent successfully',)
+   
+            
+  })
+
+  test("should send a unregistered email and return msg User not found and status 404 ",async ()=>{
+    
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    const req={
+      email:"anon@gmail.com"
+    }
+    const response = await Request(app)
+              .post('/api/v1/auth/forgot-password')
+              .send(req);
+            expect(response.status).toEqual(404);
+            expect(response.body.message).toStrictEqual(
+              'User not found',)        
+  })
+})
+
+
+
+describe("POST /reset-password",()=>{
+  test("should send a registered token and return a msg confirming a reset password and status code 200",async ()=>{
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: "registered_fake_token",
+      passwordResetExpires: null,
+      google_id:""
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const req={
+      email:"anon@gmail.com"
+    }
+    const response = await Request(app)
+              .post('/api/v1/auth/reset-password/token')
+              .send(req);
+            expect(response.status).toEqual(200);
+            expect(response.body.message).toStrictEqual(
+              'Password reset was successful',)
+    
+            
+  })
+
+  test("should send a unregistered token and return msg Invalid token and status 400 ",async ()=>{
+    
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    const response = await Request(app)
+              .post('/api/v1/auth/reset-password/token')
+              .send({email:"anon@gmail.com"});
+            expect(response.status).toEqual(400);
+            expect(response.body.message).toStrictEqual(
+              'Invalid Token',)        
+  })
+})
+
+
+
+
+
+
+
 describe('userNameSuggestions Function', () => {
   describe('auth_key in header', () => {
     describe('auth_key is valid', () => {
@@ -483,53 +800,5 @@ describe('userNameSuggestions Function', () => {
       expect(response.status).toBe(401);
       expect(response.body.message).toStrictEqual('Unauthorized access');
     });
-  });
-});
-
-describe('POST /send-verification-email', () => {
-  test('should update verification code if email exists', async () => {
-    const mockRequest = { body: { email: 'existing@example.com' } };
-    const existingVerificationCode = {
-      email: 'existing@example.com',
-      code: '1234',
-      verified: false,
-    };
-
-    prismaMock.emailVerification.findFirst.mockResolvedValue(
-      existingVerificationCode,
-    );
-    prismaMock.emailVerification.update.mockResolvedValue(
-      existingVerificationCode,
-    );
-    const response = await request(app)
-      .post('/api/v1/auth/send-verification-email')
-      .send(mockRequest.body);
-
-    expect(response.status).toEqual(200);
-    expect(response.body.message).toEqual(
-      'Sent Verification Email Successfully ',
-    );
-  });
-
-  test('should create verification code if email does not exist', async () => {
-    const mockRequest = { body: { email: 'new@example.com' } };
-    const existingVerificationCode = {
-      email: 'new@example.com',
-      code: '1234',
-      verified: false,
-    };
-    prismaMock.emailVerification.findFirst.mockResolvedValue(null);
-    prismaMock.emailVerification.create.mockResolvedValue(
-      existingVerificationCode,
-    );
-
-    const response = await request(app)
-      .post('/api/v1/auth/send-verification-email')
-      .send(mockRequest.body);
-
-    expect(response.status).toEqual(200);
-    expect(response.body.message).toEqual(
-      'Sent Verification Email Successfully ',
-    );
   });
 });
