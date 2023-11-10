@@ -9,7 +9,7 @@ export const multerStorage = multer.diskStorage({
     _file: Express.Multer.File,
     callback: (error: Error | null, destination: string) => void,
   ) {
-    callback(null, 'public/imgs/users');
+    callback(null, `public/imgs/user${_req.url}`);
   },
   filename: function (
     req: UserRequest,

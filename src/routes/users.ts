@@ -388,9 +388,10 @@ router.post(
   uploadImageMiddleware,
   userController.uploadProfilePicture,
 );
+
 /**
  * @openapi
- * '/api/v1/user/upload_profile_picture':
+ * '/api/v1/user/profile_picture':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
@@ -416,7 +417,7 @@ router.post(
 
 /**
  * @openapi
- * '/api/v1/user/upload_profile_banner':
+ * '/api/v1/user/profile_banner':
  *  post:
  *     tags:
  *     - User Profile
@@ -446,10 +447,15 @@ router.post(
  *      400:
  *        description: Bad request
  */
-
+router.post(
+  '/profile_banner',
+  isLoggedIn,
+  uploadImageMiddleware,
+  userController.uploadProfileBanner,
+);
 /**
  * @openapi
- * '/api/v1/user/upload_profile_banner':
+ * '/api/v1/user/profile_banner':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
