@@ -460,13 +460,15 @@ describe("POST /change-password",()=>{
       passwordResetExpires: null,
       google_id:""
     };
+
     prismaMock.user.findUnique.mockResolvedValue(user)
+    prismaMock.user.findFirst.mockResolvedValue(user)
     prismaMock.user.update.mockResolvedValue(user)
     
 
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
-              .send(req).set('Authorization','Bearer abc1234');
+              .send(req).set('authorization','Bearer abc1234');
               console.log(response.body)
             expect(response.status).toEqual(200);
             expect(response.body.message).toStrictEqual(
@@ -509,7 +511,7 @@ describe("POST /change-password",()=>{
     prismaMock.user.findUnique.mockResolvedValue(user)
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
-              .send(req);
+              .send(req).set('authorization','Bearer abc1234');;
               console.log(response.body)
 
             expect(response.status).toEqual(400);

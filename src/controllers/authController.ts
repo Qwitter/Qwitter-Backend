@@ -147,21 +147,21 @@ export const changePassword = catchAsync(
     }
     else{
     // Update the user with the new password
-    const hashedPassword = await hashPassword(req.body.password);
-    await prisma.user.update({
-      where: {
-        id: req.body.userId,
-      },
-      data: {
-        password: hashedPassword,
-        passwordChangedAt: new Date(Date.now()),
-      },
-    });
-    _res.status(200).json({
-      message: 'Password Changed Successfully',
-    });
+      const hashedPassword = await hashPassword(req.body.password);
+      await prisma.user.update({
+        where: {
+          id: req.body.userId,
+        },
+        data: {
+          password: hashedPassword,
+          passwordChangedAt: new Date(Date.now()),
+        },
+      });
+      _res.status(200).json({
+        message: 'Password Changed Successfully',
+      });
   }
-  _next()
+_next()
 },
 );
 
