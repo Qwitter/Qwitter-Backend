@@ -179,6 +179,15 @@ export const signUpSchema = object({
   }),
 });
 
+export const googleSignUpSchema = object({
+  body: object({
+    name: string().min(1).max(50),
+    username: string().min(1).max(50),
+    email: string().email(),
+    birthDate: string().datetime(),
+  }),
+});
+
 export const checkExistenceSchema = object({
   body: object({
     userNameOrEmail: string({
