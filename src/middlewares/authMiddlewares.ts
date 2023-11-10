@@ -9,11 +9,10 @@ export const isLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
     const auth_header: string = req.headers.authorization as string;
-    
+
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return next(new AppError('Unauthorized access', 401));
     }
-    else{
     const token: string = auth_header.split(' ')[1];
     const payloadData = await verify(token, process.env.JWT_SECRET as string);
     if (!(payloadData as JwtPayload).id) {
