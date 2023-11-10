@@ -5,7 +5,7 @@
 *     tags:
 *     - Timeline
 *     parameters:
-*       - name: auth_key
+*       - name: authorization
 *         in: header
 *         description: ''
 *         required: true
@@ -29,7 +29,7 @@
  *     tags:
  *     - Timeline
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -53,7 +53,7 @@
  *     tags:
  *     - Timeline
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -77,7 +77,7 @@
  *     tags:
  *     - Timeline
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -101,7 +101,7 @@
  *     tags:
  *     - Timeline
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true

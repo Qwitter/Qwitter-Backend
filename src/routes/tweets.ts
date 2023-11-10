@@ -7,7 +7,7 @@ const router = express.Router();
  *  post:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -38,7 +38,7 @@ router.route('/').post();
  *  delete:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -73,7 +73,7 @@ router.route('/').post();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -109,7 +109,7 @@ router.route('/:id').delete().get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -143,7 +143,7 @@ router.route('/:id/replies').get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -177,7 +177,7 @@ router.route('/:id/quotes').get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -211,7 +211,7 @@ router.route('/:id/likes').get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true

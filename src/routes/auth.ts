@@ -352,7 +352,7 @@ router
  *     - Authentication
  *     summary: Change the password using only the token
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -432,7 +432,7 @@ router.route('/logout').post(authController.logout);
  *                 type: string
  *                 default: zahran1234
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true

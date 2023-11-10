@@ -1,7 +1,9 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { getUser, uploadProfilePicture } from '../controllers/userController';
+import * as userController from '../controllers/userController';
+import { updateUserNameSchemaPayload } from '../schemas/userSchema';
+import { validate } from '../utils/validator';
 const router = express.Router();
 
 /**
@@ -12,7 +14,7 @@ const router = express.Router();
  *     - User
  *     summary: get list of user objects that follow the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -42,7 +44,7 @@ const router = express.Router();
  *     - User
  *     summary: get list of user objects that user follows
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -72,7 +74,7 @@ const router = express.Router();
  *     - User
  *     summary: follow a user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -102,7 +104,7 @@ const router = express.Router();
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -136,7 +138,7 @@ const router = express.Router();
  *     - User
  *     summary: get users blocked by the source user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -165,7 +167,7 @@ const router = express.Router();
  *     - User
  *     summary: block a user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -196,7 +198,7 @@ const router = express.Router();
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -229,7 +231,7 @@ const router = express.Router();
  *     tags:
  *     - User
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -284,7 +286,7 @@ const router = express.Router();
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -318,7 +320,7 @@ const router = express.Router();
  *     - User Profile
  *     summary: get list of user objects that contain the prompted name
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -355,7 +357,7 @@ const router = express.Router();
  *     - User Profile
  *     summary: upload profile picture for the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -384,7 +386,7 @@ router.post(
   '/profile_picture',
   isLoggedIn,
   uploadImageMiddleware,
-  uploadProfilePicture,
+  userController.uploadProfilePicture,
 );
 /**
  * @openapi
@@ -392,7 +394,7 @@ router.post(
  *  delete:
  *     tags: [User Profile]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -420,7 +422,7 @@ router.post(
  *     - User Profile
  *     summary: upload profile banner for the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -451,7 +453,7 @@ router.post(
  *  delete:
  *     tags: [User Profile]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -479,7 +481,7 @@ router.post(
  *     - User Profile
  *     summary: get user profile
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -506,7 +508,7 @@ router.post(
  *     - User Profile
  *     summary: update user profile
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -530,11 +532,55 @@ router.post(
  *        description: Bad request
  */
 
-router.get(
-  '/',
-  isLoggedIn,
-  getUser,
-);
-
+router.get('/', isLoggedIn, userController.getUser);
+/**
+ * @openapi
+ * '/api/v1/user/username':
+ *  patch:
+ *     tags:
+ *     - User Profile
+ *     summary: update userName
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userName:
+ *                 type: string
+ *                 default: zahran1234
+ *     responses:
+ *       "200":
+ *        description: Success
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ */
+router
+  .route('/username')
+  .patch(
+    validate(updateUserNameSchemaPayload),
+    isLoggedIn,
+    userController.changeUserName,
+  );
 
 export default router;

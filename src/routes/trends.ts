@@ -20,7 +20,7 @@
 * '/api/v1/trends?trend={word}':
 *  get:
 *     parameters:
-*       - name: auth_key
+*       - name: authorization
 *         in: header
 *         description: ''
 *         required: true

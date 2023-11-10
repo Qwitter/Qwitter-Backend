@@ -65,7 +65,7 @@ export const forgotPassword = catchAsync(
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         email: user.email,
       },
@@ -74,7 +74,7 @@ export const forgotPassword = catchAsync(
         passwordResetExpires: new Date(Date.now() + passwordResetExpireTime),
       },
     });
-    console.log(updatedUser);
+
     // 3) Send it to user email
 
     // TODO: The subject should have the link to the frontend page where the user will send the password and
