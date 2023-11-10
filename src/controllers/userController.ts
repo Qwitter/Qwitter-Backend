@@ -3,8 +3,7 @@ import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
 import prisma from '../client';
-// import { JwtPayload, verify } from 'jsonwebtoken';
-
+import fs from 'fs';
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const photoName = _req.file?.filename;
@@ -51,7 +50,40 @@ export const uploadProfileBanner = catchAsync(
     });
   },
 );
-
+export const deleteProfileBanner = catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const user = _req.user as User;
+    const imageUrl = user.profileBannerUrl as string;
+    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
+    await fs.unlink('./public/' + trimmedString, (err) => {
+      if (err) {
+        res.status(404).send({
+          message: 'File not found',
+        });
+      }
+      res.status(200).send({
+        message: 'File is deleted.',
+      });
+    });
+  },
+);
+export const deleteProfilePicture = catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const user = _req.user as User;
+    const imageUrl = user.profileImageUrl as string;
+    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
+    await fs.unlink('./public/' + trimmedString, (err) => {
+      if (err) {
+        res.status(404).send({
+          message: 'File not found',
+        });
+      }
+      res.status(200).send({
+        message: 'File is deleted.',
+      });
+    });
+  },
+);
 export const getUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const recievedUser = _req.user as User;
