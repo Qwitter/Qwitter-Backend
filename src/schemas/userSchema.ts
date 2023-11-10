@@ -138,6 +138,14 @@ const createUserSchemaPayload = {
   }),
 };
 
+export const updateUserNameSchemaPayload = object({
+  body: object({
+    userName: string({
+      required_error: 'userName is required',
+    }).min(5),
+  }),
+});
+
 export const createUserSchema = object({
   ...createUserSchemaPayload,
 });
