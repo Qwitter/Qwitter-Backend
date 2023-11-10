@@ -1,7 +1,7 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { uploadProfilePicture } from '../controllers/userController';
+import { getUser, uploadProfilePicture } from '../controllers/userController';
 const router = express.Router();
 
 /**
@@ -530,6 +530,11 @@ router.post(
  *        description: Bad request
  */
 
-router.route('/').get();
+router.get(
+  '/',
+  isLoggedIn,
+  getUser,
+);
+
 
 export default router;

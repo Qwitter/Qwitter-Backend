@@ -517,7 +517,6 @@ describe("POST /change-password",()=>{
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
               .send(req).set('authorization','Bearer abc1234');
-              console.log(response.body)
             expect(response.status).toEqual(200);
             expect(response.body.message).toStrictEqual(
               'Password Changed Successfully',)
@@ -562,7 +561,6 @@ describe("POST /change-password",()=>{
     const response = await Request(app)
               .post('/api/v1/auth/change-password')
               .send(req).set('authorization','Bearer abc1234');;
-              console.log(response.body)
 
             expect(response.status).toEqual(400);
             expect(response.body.message).toStrictEqual(
