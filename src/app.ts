@@ -4,12 +4,14 @@ import session from 'express-session';
 import { configurePassport } from './utils/passport';
 import authRouter from './routes/auth';
 import userRouter from './routes/users';
+import path from 'path';
 
 import globalErrorHandler from './controllers/errorController';
 
 const app = express();
 
 app.use(express.json());
+app.use('/imgs', express.static(path.resolve('./public/imgs/')));
 
 app.use(
   session({

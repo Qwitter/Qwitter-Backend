@@ -7,8 +7,47 @@ import prisma from '../client';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
+    const photoName = _req.file?.filename;
+    if (!photoName) {
+      return _next(
+        new AppError('An error occurred while uploading profile picture', 500),
+      );
+    }
+    const user = _req.user as User;
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        profileImageUrl: `${process.env.URL}/imgs/user${_req.url}/${photoName}`,
+      },
+    });
     return res.status(200).json({
       message: 'Image uploaded successfully',
+      user: updatedUser,
+    });
+  },
+);
+export const uploadProfileBanner = catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const photoName = _req.file?.filename;
+    if (!photoName) {
+      return _next(
+        new AppError('An error occurred while uploading profile picture', 500),
+      );
+    }
+    const user = _req.user as User;
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        profileBannerUrl: `${process.env.URL}/imgs/user${_req.url}/${photoName}`,
+      },
+    });
+    return res.status(200).json({
+      message: 'Image uploaded successfully',
+      user: updatedUser,
     });
   },
 );
