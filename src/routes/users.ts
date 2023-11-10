@@ -414,6 +414,11 @@ router.post(
  *      400:
  *        description: Bad request
  */
+router.delete(
+  '/profile_picture',
+  isLoggedIn,
+  userController.deleteProfilePicture,
+);
 
 /**
  * @openapi
@@ -478,7 +483,11 @@ router.post(
  *      400:
  *        description: Bad request
  */
-
+router.delete(
+  '/profile_banner',
+  isLoggedIn,
+  userController.deleteProfileBanner,
+);
 /**
  * @openapi
  * '/api/v1/user/profile':

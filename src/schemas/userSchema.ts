@@ -19,6 +19,14 @@ import { object, string, TypeOf } from 'zod';
  *        operation_succeeded:
  *          type: boolean
  *          default: true
+ *    UploadImageResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Image uploaded successfully
+ *        user:
+ *          $ref: '#/components/schemas/User'
  *
  */
 
@@ -80,14 +88,6 @@ import { object, string, TypeOf } from 'zod';
  *        img:
  *          type: string
  *          format: binary
- *    UploadImageResponse:
- *      type: object
- *      properties:
- *        operation_status:
- *          type: boolean
- *          default: true
- *        img_url:
- *          type: string
  *
  */
 
