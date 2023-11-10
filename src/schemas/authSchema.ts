@@ -76,6 +76,14 @@ import { object, string } from 'zod';
  *        message:
  *          type: string
  *          default: "Your account has been successfully verified"
+ *    userNameSuggestionsResponse:
+ *      type: object
+ *      properties:
+ *        suggestions:
+ *          type: array
+ *          items:
+ *            string
+ *          default: ["ahmedzahran6439a8","ahmedzahran39ccb4","ahmedzahranc6b400","ahmedzahranf44260","ahmedzahrane3d45d"]
  */
 
 const ForgetPasswordPayload = {
