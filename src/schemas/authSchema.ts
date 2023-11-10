@@ -185,7 +185,6 @@ export const googleSignUpSchema = object({
     username: string().min(1).max(50),
     email: string().email(),
     birthDate: string().datetime(),
-    google_id: string(), 
   }),
 });
 

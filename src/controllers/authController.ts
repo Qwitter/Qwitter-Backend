@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-import { sign, verify } from 'jsonwebtoken';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 
 export const login = catchAsync(
@@ -227,10 +227,21 @@ export const signUp = catchAsync(
 
 export const signUpGoogle = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
-    if(!req.body.google_id) {
-      _res.status(404).json({ message: 'Google Auth ID not found' });
-      return;
+    const auth_header: string = req.headers.authorization as string;
+
+    if (!auth_header || !auth_header.startsWith('Bearer')) {
+      return _next(new AppError('Unauthorized access', 401));
     }
+    
+    const token: string = auth_header.split(' ')[1];
+    const payloadData = await verify(token, process.env.JWT_SECRET as string);
+    const google_id = (payloadData as JwtPayload).google_id;
+    const email = (payloadData as JwtPayload).email;
+
+    if (!google_id || req.body.email != email) {
+      return _next(new AppError('Invalid access credentials', 409));
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email,
@@ -238,7 +249,6 @@ export const signUpGoogle = catchAsync(
     });
     if (user) {
       _res.status(409).json({ message: 'User already exists' });
-      // return _next(new AppError('User already exists', 409));
     } else {
       const uniqueUserName = [req.body.username] || await createUniqueUserName(req.body.name, 6);
       const newUser = await prisma.user.create({
@@ -249,7 +259,7 @@ export const signUpGoogle = catchAsync(
           email: req.body.email,
           userName: uniqueUserName[0],
           password: "",
-          google_id: req.body.google_id
+          google_id: google_id
         },
         select: {
           id: true,

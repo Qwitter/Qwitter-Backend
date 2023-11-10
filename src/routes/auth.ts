@@ -401,12 +401,12 @@ router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req:any, res) => {
-    const user = req.user.user;
+    const user = req.user.user, token = req.user.token;
     if (user.registered === false) {
-      const googleId = user.id, email = user._json.email;
-      res.redirect(`/google/register?google_id=${googleId}&email=${email}`);
+      const email = user._json.email;
+      res.redirect(process.env.CLIENT_SIDE + `/i/flow/single-sign/callback?authenticationMethod=signup&token=${token}&email=${email}`);
     } else {
-      res.redirect('/');
+      res.redirect(process.env.CLIENT_SIDE + '/i/flow/single-sign/callback?authenticationMethod=login');
     }
   },
 );

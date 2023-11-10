@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import {
   generateJWTToken,
 } from '../controllers/authController';
+import { sign } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
@@ -25,8 +26,11 @@ export const configurePassport = () => {
             return done(null, {
               user: {
                 ...profile,
-                registered:false
+                registered: false
               },
+              token: sign({ google_id: profile.id, email: profile._json.email }, process.env.JWT_SECRET as string, {
+                expiresIn: process.env.JWT_EXPIRES_IN,
+              })
             });
           } else {
             const token = generateJWTToken(user.id);
