@@ -406,7 +406,7 @@ router.get(
       const email = user._json.email;
       res.redirect(process.env.CLIENT_SIDE + `/i/flow/single-sign/callback?authenticationMethod=signup&token=${token}&email=${email}`);
     } else {
-      res.redirect(process.env.CLIENT_SIDE + '/i/flow/single-sign/callback?authenticationMethod=login');
+      res.redirect(process.env.CLIENT_SIDE + `/i/flow/single-sign/callback?authenticationMethod=login?token=${token}`);
     }
   },
 );
