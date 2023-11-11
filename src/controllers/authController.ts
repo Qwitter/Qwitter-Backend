@@ -112,19 +112,21 @@ export const resetPassword = catchAsync(
     ) {
       return _next(new AppError('Token expired. Request another token.', 400));
     }
-
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
     await prisma.user.update({
       where: {
         email: user.email,
       },
       data: {
-        passwordChangedAt: new Date(Date.now()),
         passwordResetExpires: undefined,
         passwordResetToken: undefined,
       },
     });
 
     _res.status(200).send({
+      token: token,
       message: 'Password reset was successful',
     });
   },
