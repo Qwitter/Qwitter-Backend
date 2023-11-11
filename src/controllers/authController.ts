@@ -245,7 +245,7 @@ export const signUpGoogle = catchAsync(
 
     const user = await prisma.user.findFirst({
       where: {
-        email: req.body.email,
+        email: email,
       },
     });
     if (user) {
@@ -382,7 +382,7 @@ export const sendVerificationEmail = catchAsync(
       text: 'Email Verification: ' + verificationToken,
     };
 
-    sendEmail(verificationEmail);
+    await sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
