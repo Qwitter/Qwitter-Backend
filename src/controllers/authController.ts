@@ -60,7 +60,8 @@ export const forgotPassword = catchAsync(
     }
     // 2) Generate the random token
     const passwordResetExpireTime = 10 * 60 * 1000; // 10 minutes
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetToken = crypto.randomBytes(4).toString('hex');
+    console.log(resetToken);
     const resetTokenHashed = crypto
       .createHash('sha256')
       .update(resetToken)
@@ -81,7 +82,7 @@ export const forgotPassword = catchAsync(
     // the password confirm to send a patch request to the server
     const resetEmail: emailType = {
       to: user.email,
-      subject: 'Email Verif',
+      subject: 'Password Reset',
       text: 'Reset Password ' + resetToken,
     };
     await sendEmail(resetEmail);
@@ -232,7 +233,7 @@ export const signUpGoogle = catchAsync(
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return _next(new AppError('Unauthorized access', 401));
     }
-    
+
     const token: string = auth_header.split(' ')[1];
     const payloadData = await verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
@@ -250,7 +251,8 @@ export const signUpGoogle = catchAsync(
     if (user) {
       _res.status(409).json({ message: 'User already exists' });
     } else {
-      const uniqueUserName = [req.body.username] || await createUniqueUserName(req.body.name, 6);
+      const uniqueUserName =
+        [req.body.username] || (await createUniqueUserName(req.body.name, 6));
       const newUser = await prisma.user.create({
         data: {
           name: req.body.name,
@@ -258,8 +260,8 @@ export const signUpGoogle = catchAsync(
           createdAt: new Date().toISOString(),
           email: req.body.email,
           userName: uniqueUserName[0],
-          password: "",
-          google_id: google_id
+          password: '',
+          google_id: google_id,
         },
         select: {
           id: true,
@@ -289,7 +291,6 @@ export const signUpGoogle = catchAsync(
     }
   },
 );
-
 
 export const checkExistence = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
