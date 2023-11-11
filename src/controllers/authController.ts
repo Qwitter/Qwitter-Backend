@@ -59,9 +59,9 @@ export const forgotPassword = catchAsync(
       return _next(new AppError('User not found', 404));
     }
     // 2) Generate the random token
-    const passwordResetExpireTime = 30; // 30 minutes
-    const currentDateTime = moment().tz('Africa/Cairo');
-    const expiryDate = currentDateTime.add(passwordResetExpireTime, 'minutes');
+    // const passwordResetExpireTime = 30; // 30 minutes
+    const currentDateTime = moment();
+    const expiryDate = currentDateTime.add(1, 'days');
     const resetToken = crypto.randomBytes(4).toString('hex');
     const resetTokenHashed = crypto
       .createHash('sha256')
