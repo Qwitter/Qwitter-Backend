@@ -9,7 +9,6 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
-import exp from 'constants';
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
