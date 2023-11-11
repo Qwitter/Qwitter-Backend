@@ -46,7 +46,13 @@ import { isLoggedIn } from '../middlewares/authMiddlewares';
  *       "410":
  *        $ref: '#/responses/410'
  */
-router.route('/google').get();
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+  }),
+);
 
 /**
  * @openapi
@@ -390,28 +396,29 @@ router
  */
 
 router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account',
-  }),
-);
-
-router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (req:any, res) => {
-    const user = req.user.user, token = req.user.token;
+  (req: any, res) => {
+    const user = req.user.user,
+      token = req.user.token;
     if (user.registered === false) {
       const email = user._json.email;
-      res.redirect(process.env.CLIENT_SIDE + `/i/flow/single-sign/callback?authenticationMethod=signup&token=${token}&email=${email}`);
+      res.redirect(
+        process.env.CLIENT_SIDE +
+          `/i/flow/single-sign/callback?authenticationMethod=signup&token=${token}&email=${email}`,
+      );
     } else {
-      res.redirect(process.env.CLIENT_SIDE + `/i/flow/single-sign/callback?authenticationMethod=login?token=${token}`);
+      res.redirect(
+        process.env.CLIENT_SIDE +
+          `/i/flow/single-sign/callback?authenticationMethod=login?token=${token}`,
+      );
     }
   },
 );
 
-router.route('/google/signup').post(validate(googleSignUpSchema), authController.signUpGoogle);
+router
+  .route('/google/signup')
+  .post(validate(googleSignUpSchema), authController.signUpGoogle);
 
 router
   .route('/change-password/')

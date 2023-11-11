@@ -61,7 +61,6 @@ export const forgotPassword = catchAsync(
     // 2) Generate the random token
     const passwordResetExpireTime = 10 * 60 * 1000; // 10 minutes
     const resetToken = crypto.randomBytes(4).toString('hex');
-    console.log(resetToken);
     const resetTokenHashed = crypto
       .createHash('sha256')
       .update(resetToken)
@@ -238,8 +237,9 @@ export const signUpGoogle = catchAsync(
     const payloadData = await verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
     const email = (payloadData as JwtPayload).email;
+    const name = (payloadData as JwtPayload).name;
 
-    if (!google_id || req.body.email != email) {
+    if (!google_id || !email || !name) {
       return _next(new AppError('Invalid access credentials', 409));
     }
 
@@ -255,10 +255,10 @@ export const signUpGoogle = catchAsync(
         [req.body.username] || (await createUniqueUserName(req.body.name, 6));
       const newUser = await prisma.user.create({
         data: {
-          name: req.body.name,
+          name: name,
           birthDate: req.body.birthDate,
           createdAt: new Date().toISOString(),
-          email: req.body.email,
+          email: email,
           userName: uniqueUserName[0],
           password: '',
           google_id: google_id,

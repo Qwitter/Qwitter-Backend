@@ -1,9 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { PrismaClient } from '@prisma/client';
-import {
-  generateJWTToken,
-} from '../controllers/authController';
+import { generateJWTToken } from '../controllers/authController';
 import { sign } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
@@ -26,11 +24,19 @@ export const configurePassport = () => {
             return done(null, {
               user: {
                 ...profile,
-                registered: false
+                registered: false,
               },
-              token: sign({ google_id: profile.id, email: profile._json.email }, process.env.JWT_SECRET as string, {
-                expiresIn: process.env.JWT_EXPIRES_IN,
-              })
+              token: sign(
+                {
+                  google_id: profile.id,
+                  email: profile._json.email,
+                  name: profile._json.name,
+                },
+                process.env.JWT_SECRET as string,
+                {
+                  expiresIn: process.env.JWT_EXPIRES_IN,
+                },
+              ),
             });
           } else {
             const token = generateJWTToken(user.id);
@@ -38,8 +44,8 @@ export const configurePassport = () => {
               user: user,
               token: token,
             };
-  
-            return done(null, response);              
+
+            return done(null, response);
           }
         } catch (error) {
           return done(error, undefined);
