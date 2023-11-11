@@ -138,11 +138,12 @@ export const changePassword = catchAsync(
     if (req.body.password !== req.body.passwordConfirmation) {
       return _next(new AppError('The passwords do not match', 400));
     }
+    const user = req.user as User;
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);
     await prisma.user.update({
       where: {
-        id: req.body.userId,
+        id: user.id,
       },
       data: {
         password: hashedPassword,
