@@ -9,9 +9,11 @@ const sendErrorDev = async (err: any, _req: Request, res: Response) => {
   });
 };
 const sendErrorProd = async (err: any, _req: Request, res: Response) => {
-  return res.status(err.statusCode).json({
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Something went wrong';
+  return res.status(statusCode).json({
     status: err.status,
-    message: err.message,
+    message: message,
   });
 };
 

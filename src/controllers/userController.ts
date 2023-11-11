@@ -65,6 +65,14 @@ export const deleteProfileBanner = catchAsync(
         message: 'File is deleted.',
       });
     });
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        profileBannerUrl: '',
+      },
+    });
   },
 );
 export const deleteProfilePicture = catchAsync(
@@ -81,6 +89,14 @@ export const deleteProfilePicture = catchAsync(
       res.status(200).send({
         message: 'File is deleted.',
       });
+    });
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        profileImageUrl: '',
+      },
     });
   },
 );
