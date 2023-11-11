@@ -108,7 +108,7 @@ export const resetPassword = catchAsync(
     }
     if (
       user.passwordResetExpires &&
-      user.passwordResetExpires > new Date(Date.now())
+      user.passwordResetExpires < new Date(Date.now())
     ) {
       return _next(new AppError('Token expired. Request another token.', 400));
     }
