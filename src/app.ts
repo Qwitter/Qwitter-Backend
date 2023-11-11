@@ -5,11 +5,12 @@ import { configurePassport } from './utils/passport';
 import authRouter from './routes/auth';
 import userRouter from './routes/users';
 import path from 'path';
-
+import cors from 'cors';
 import globalErrorHandler from './controllers/errorController';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use('/imgs', express.static(path.resolve('./public/imgs/')));
 
