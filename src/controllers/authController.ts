@@ -253,8 +253,7 @@ export const signUpGoogle = catchAsync(
     if (user) {
       _res.status(409).json({ message: 'User already exists' });
     } else {
-      const uniqueUserName =
-        [req.body.username] || (await createUniqueUserName(req.body.name, 6));
+      const uniqueUserName = await createUniqueUserName(name, 1);
       const newUser = await prisma.user.create({
         data: {
           name: name,
