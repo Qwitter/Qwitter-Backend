@@ -8,7 +8,8 @@ import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
-
+import moment from 'moment-timezone';
+import exp from 'constants';
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -59,7 +60,9 @@ export const forgotPassword = catchAsync(
       return _next(new AppError('User not found', 404));
     }
     // 2) Generate the random token
-    const passwordResetExpireTime = 10 * 60 * 1000; // 10 minutes
+    const passwordResetExpireTime = 30; // 30 minutes
+    const currentDateTime = moment().tz('Africa/Cairo');
+    const expiryDate = currentDateTime.add(passwordResetExpireTime, 'minutes');
     const resetToken = crypto.randomBytes(4).toString('hex');
     const resetTokenHashed = crypto
       .createHash('sha256')
@@ -71,7 +74,7 @@ export const forgotPassword = catchAsync(
       },
       data: {
         passwordResetToken: resetTokenHashed,
-        passwordResetExpires: new Date(Date.now() + passwordResetExpireTime),
+        passwordResetExpires: expiryDate.format(),
       },
     });
 
@@ -245,7 +248,7 @@ export const signUpGoogle = catchAsync(
 
     const user = await prisma.user.findFirst({
       where: {
-        email: req.body.email,
+        email: email,
       },
     });
     if (user) {
@@ -382,7 +385,7 @@ export const sendVerificationEmail = catchAsync(
       text: 'Email Verification: ' + verificationToken,
     };
 
-    sendEmail(verificationEmail);
+    await sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });
