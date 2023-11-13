@@ -1,3 +1,9 @@
+import express from 'express';
+import * as tweetController from '../controllers/tweetController';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+
+const router = express.Router();
+
 /**
  * @openapi
 * '/api/v1/timeline':
@@ -128,3 +134,9 @@
  *        description: Bad request
  
 */
+
+router
+  .route('/')
+  .get(isLoggedIn, tweetController.getTimeline);
+
+export default router;
