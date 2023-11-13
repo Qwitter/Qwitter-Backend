@@ -143,3 +143,21 @@ export const changeUserName = catchAsync(
     return _next();
   },
 );
+
+export const getUserFollowers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = ((req.user) as User).id;
+
+    const followers = await prisma.follow.findMany({
+      where: {
+        followedId: userId,
+      },
+      include: {
+        follower: true,
+      },
+    });
+
+    res.status(200).json(followers);
+    next();
+  }
+);
