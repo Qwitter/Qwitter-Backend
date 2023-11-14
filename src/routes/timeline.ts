@@ -135,8 +135,9 @@ const router = express.Router();
  
 */
 
-router
-  .route('/')
-  .get(isLoggedIn, tweetController.getTimeline);
+router.get('/', 
+  isLoggedIn,
+  tweetController.getTimeline
+);
 
 export default router;

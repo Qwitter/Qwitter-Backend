@@ -35,7 +35,7 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-router.post('/followers', 
+router.get('/followers', 
   isLoggedIn,
   userController.getUserFollowers
 );
