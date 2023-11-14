@@ -9,7 +9,8 @@ import { object, string } from 'zod';
  *      properties:
  *        tweets:
  *          type: array 
- *          example: [tweet1, tweet2, tweet3] 
+ *          items:
+ *            $ref: '#/components/schemas/tweet'
  */
   
 const createMessagePayload = {
