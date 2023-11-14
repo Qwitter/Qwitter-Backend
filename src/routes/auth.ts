@@ -410,7 +410,7 @@ router.get(
     } else {
       res.redirect(
         process.env.CLIENT_SIDE +
-          `/i/flow/single-sign/callback?authenticationMethod=login?token=${token}`,
+          `/i/flow/single-sign/callback?authenticationMethod=login&token=${token}`,
       );
     }
   },
