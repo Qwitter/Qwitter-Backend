@@ -35,10 +35,7 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-router.get('/followers', 
-  isLoggedIn,
-  userController.getUserFollowers
-);
+router.get('/followers', isLoggedIn, userController.getUserFollowers);
 /**
  * @openapi
  * '/api/v1/user/follow':
@@ -71,7 +68,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * '/api/v1/user/follow/{target_user_name}':
+ * '/api/v1/user/follow/{username}':
  *  post:
  *     tags:
  *     - User
@@ -83,7 +80,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         required: true
  *         schema:
@@ -103,7 +100,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * /api/v1/user/follow/{target_user_name}:
+ * /api/v1/user/follow/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -113,7 +110,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -164,7 +161,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * '/api/v1/user/block/{target_user_name}':
+ * '/api/v1/user/block/{username}':
  *  post:
  *     tags:
  *     - User
@@ -176,7 +173,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -197,7 +194,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * /api/v1/user/block/{target_user_name}:
+ * /api/v1/user/block/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -207,7 +204,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -258,13 +255,13 @@ router.get('/followers',
 
 /**
  * @openapi
- * '/api/v1/user/mute/{target_user_name}':
+ * '/api/v1/user/mute/{username}':
  *  post:
  *     tags:
  *     - User
  *     summary: mute a user
  *     parameters:
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -285,7 +282,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * /api/v1/user/mute/{target_user_name}:
+ * /api/v1/user/mute/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
@@ -295,7 +292,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: usermane of the target user
  *         required: true
@@ -317,7 +314,7 @@ router.get('/followers',
 
 /**
  * @openapi
- * '/api/v1/user/user_lookup?q={name}':
+ * '/api/v1/user/lookup':
  *  get:
  *     tags:
  *     - User Profile
@@ -329,7 +326,7 @@ router.get('/followers',
  *         required: true
  *         schema:
  *           type: string
- *       - name: q
+ *       - name: name
  *         in: query
  *         description: name or user name of the user
  *         required: true
@@ -379,6 +376,40 @@ router.get('/followers',
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/UploadImageResponse'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+/**
+ * @openapi
+ * '/api/v1/user/suggestions':
+ *  post:
+ *     tags:
+ *     - User
+ *     summary: Get suggestions for users to follow
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *          multipart/form-data:
+ *           schema:
+ *              $ref: '#/components/schemas/UploadImageInput'
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                  $ref: '#/components/schemas/User'
  *      409:
  *        description: Conflict
  *      400:
@@ -493,11 +524,11 @@ router.delete(
 );
 /**
  * @openapi
- * '/api/v1/user/profile':
+ * '/api/v1/user/{username}':
  *  get:
  *     tags:
- *     - User Profile
- *     summary: get user profile
+ *     - User
+ *     summary: get user details
  *     parameters:
  *       - name: authorization
  *         in: header
@@ -511,7 +542,7 @@ router.delete(
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserProfile'
+ *              $ref: '#/components/schemas/User'
  *      409:
  *        description: Conflict
  *      400:
@@ -520,7 +551,7 @@ router.delete(
 
 /**
  * @openapi
- * '/api/v1/user/user_profile':
+ * '/api/v1/user/profile':
  *  put:
  *     tags:
  *     - User Profile

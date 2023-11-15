@@ -50,6 +50,38 @@ import { object, string } from 'zod';
  *        passwordConfirmation:
  *          type: string
  *          default: stringPassword123
+ *    UpdatePasswordRequest:
+ *      type: object
+ *      required:
+ *        - password
+ *        - passwordConfirmation
+ *      properties:
+ *        oldPassword:
+ *          type: string
+ *          default: stringPassword123
+ *        newPassword:
+ *          type: string
+ *          default: stringPassword123
+ *    ChangeEmailRequest:
+ *      type: object
+ *      required:
+ *        - email
+ *      properties:
+ *        email:
+ *          type: string
+ *          default: a@gmail.com
+ *    ChangeEmailResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Email changed successfully
+ *    UpdatePasswordResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Password updated successfully
  *    SignUpResponse:
  *      type: object
  *      properties:
@@ -113,6 +145,14 @@ export const ForgetPasswordSchema = object({
  *        passwordConfirmation:
  *          type: string
  *          default: hamada
+ *    GoogleSignUpRequest:
+ *      type: object
+ *      required:
+ *        - birthdate
+ *      properties:
+ *        birthdate:
+ *          type: string
+ *          default: "2020-03-09T22:18:26.625Z"
  *    ChangePasswordSuccessResponse:
  *      type: object
  *      properties:
