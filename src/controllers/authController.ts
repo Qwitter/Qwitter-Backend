@@ -9,7 +9,6 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
-
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -60,9 +59,9 @@ export const forgotPassword = catchAsync(
       return _next(new AppError('User not found', 404));
     }
     // 2) Generate the random token
-    const passwordResetExpireTime = 30; // 30 minutes
-    const currentDateTime = moment().tz('Africa/Cairo');
-    const expiryDate = currentDateTime.add(passwordResetExpireTime, 'minutes');
+    // const passwordResetExpireTime = 30; // 30 minutes
+    const currentDateTime = moment();
+    const expiryDate = currentDateTime.add(1, 'days');
     const resetToken = crypto.randomBytes(4).toString('hex');
     const resetTokenHashed = crypto
       .createHash('sha256')
@@ -109,23 +108,25 @@ export const resetPassword = catchAsync(
     }
     if (
       user.passwordResetExpires &&
-      user.passwordResetExpires > new Date(Date.now())
+      user.passwordResetExpires < new Date(Date.now())
     ) {
       return _next(new AppError('Token expired. Request another token.', 400));
     }
-
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
     await prisma.user.update({
       where: {
         email: user.email,
       },
       data: {
-        passwordChangedAt: new Date(Date.now()),
         passwordResetExpires: undefined,
         passwordResetToken: undefined,
       },
     });
 
     _res.status(200).send({
+      token: token,
       message: 'Password reset was successful',
     });
   },
@@ -137,11 +138,12 @@ export const changePassword = catchAsync(
     if (req.body.password !== req.body.passwordConfirmation) {
       return _next(new AppError('The passwords do not match', 400));
     }
+    const user = req.user as User;
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);
     await prisma.user.update({
       where: {
-        id: req.body.userId,
+        id: user.id,
       },
       data: {
         password: hashedPassword,
@@ -254,8 +256,7 @@ export const signUpGoogle = catchAsync(
     if (user) {
       _res.status(409).json({ message: 'User already exists' });
     } else {
-      const uniqueUserName =
-        [req.body.username] || (await createUniqueUserName(req.body.name, 6));
+      const uniqueUserName = await createUniqueUserName(name, 1);
       const newUser = await prisma.user.create({
         data: {
           name: name,
