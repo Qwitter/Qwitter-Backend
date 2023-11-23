@@ -1,4 +1,5 @@
 import express from 'express';
+import { getTweet } from '../controllers/tweetController';
 const router = express.Router();
 
 /**
@@ -101,7 +102,7 @@ router.route('/').post();
  *        description: Unauthorized
  */
 
-router.route('/:id').delete().get();
+router.get('/:id',getTweet)
 
 /**
  * @openapi
@@ -229,3 +230,4 @@ router.route('/:id/retweets').get();
  *      400:
  *        description: Bad request
  */
+export default router;
