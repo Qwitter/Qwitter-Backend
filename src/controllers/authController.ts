@@ -289,7 +289,7 @@ export const signUpGoogle = catchAsync(
       });
       _res.status(200).json({
         token,
-        data: newObject,
+        user: newObject,
       });
     }
   },

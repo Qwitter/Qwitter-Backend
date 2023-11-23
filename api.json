@@ -47,6 +47,39 @@
           "passwordConfirmation": { "type": "string", "default": "hamada" }
         }
       },
+      "UpdatePasswordRequest": {
+        "type": "object",
+        "required": ["password", "passwordConfirmation"],
+        "properties": {
+          "oldPassword": { "type": "string", "default": "stringPassword123" },
+          "newPassword": { "type": "string", "default": "stringPassword123" }
+        }
+      },
+      "ChangeEmailRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": { "type": "string", "default": "a@gmail.com" }
+        }
+      },
+      "ChangeEmailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Email changed successfully"
+          }
+        }
+      },
+      "UpdatePasswordResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Password updated successfully"
+          }
+        }
+      },
       "SignUpResponse": {
         "type": "object",
         "properties": {
@@ -75,6 +108,32 @@
           "message": {
             "type": "string",
             "default": "Your account has been successfully verified"
+          }
+        }
+      },
+      "userNameSuggestionsResponse": {
+        "type": "object",
+        "properties": {
+          "suggestions": {
+            "type": "array",
+            "items": "string",
+            "default": [
+              "ahmedzahran6439a8",
+              "ahmedzahran39ccb4",
+              "ahmedzahranc6b400",
+              "ahmedzahranf44260",
+              "ahmedzahrane3d45d"
+            ]
+          }
+        }
+      },
+      "GoogleSignUpRequest": {
+        "type": "object",
+        "required": ["birthdate"],
+        "properties": {
+          "birthdate": {
+            "type": "string",
+            "default": "2020-03-09T22:18:26.625Z"
           }
         }
       },
@@ -107,6 +166,21 @@
             "type": "string",
             "default": "Verification Email has been sent"
           }
+        }
+      },
+      "ForgotPasswordResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Password reset email sent successfully"
+          }
+        }
+      },
+      "ForgotPasswordResponse404": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "default": "User not found" }
         }
       },
       "conversation": {
@@ -265,7 +339,7 @@
         "properties": {
           "tweets": {
             "type": "array",
-            "example": ["tweet1", "tweet2", "tweet3"]
+            "items": { "$ref": "#/components/schemas/tweet" }
           }
         }
       },
@@ -548,6 +622,16 @@
           "operation_succeeded": { "type": "boolean", "default": true }
         }
       },
+      "UploadImageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Image uploaded successfully"
+          },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
       "User": {
         "type": "object",
         "properties": {
@@ -583,13 +667,6 @@
         "type": "object",
         "required": ["img"],
         "properties": { "img": { "type": "string", "format": "binary" } }
-      },
-      "UploadImageResponse": {
-        "type": "object",
-        "properties": {
-          "operation_status": { "type": "boolean", "default": true },
-          "img_url": { "type": "string" }
-        }
       },
       "UserProfile": {
         "type": "object",
@@ -755,6 +832,67 @@
         }
       }
     },
+    "/api/v1/auth/check-password": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Check Password of user through token and password",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": { "type": "string", "default": 1896156612 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correct": { "type": "boolean", "default": true }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": {
+            "description": "Wrong Password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correct": { "type": "boolean", "default": false }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "tags": ["Authentication"],
@@ -864,22 +1002,40 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Send a Forgot Password request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "404": {
+            "description": "Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse404"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -909,13 +1065,53 @@
         }
       }
     },
+    "/api/v1/auth/google/signup": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Sign up with google through token and birthdate without password",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GoogleSignUpRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
     "/api/v1/auth/change-password": {
       "post": {
         "tags": ["Authentication"],
         "summary": "Change the password using only the token",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -937,6 +1133,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ChangePasswordSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/update-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Change the password using the token and old password",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePasswordSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/change-email": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Change the password using only the token",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangeEmailRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeEmailResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": {
+            "description": "Email Exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "default": "Email already exists"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
+    "/api/v1/auth/username-suggestions": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "get userName suggestions using only the token",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userName": { "type": "string", "default": "zahran1234" }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/userNameSuggestionsResponse"
                 }
               }
             }
@@ -1119,7 +1458,7 @@
       "get": {
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true
@@ -1161,7 +1500,7 @@
         "tags": ["Timeline"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1183,15 +1522,21 @@
         }
       }
     },
-    "/api/v1/tweets/user/{id}": {
+    "/api/v1/tweets/user/{username}": {
       "get": {
         "tags": ["Timeline"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "You can set it to media/replies/likes/mention Default is all tweets",
             "schema": { "type": "string" }
           }
         ],
@@ -1210,76 +1555,22 @@
         }
       }
     },
-    "/api/v1/tweets/user-mentioned/{id}": {
+    "/api/v1/tweets/lookup": {
       "get": {
         "tags": ["Timeline"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Tweets User Mentioned In",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/user-liked/{id}": {
-      "get": {
-        "tags": ["Timeline"],
-        "parameters": [
-          {
-            "name": "auth_key",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Tweets User Liked",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/search?q={word}": {
-      "get": {
-        "tags": ["Timeline"],
-        "parameters": [
-          {
-            "name": "auth_key",
-            "in": "header",
-            "description": "",
+            "description": "Authorization token",
             "required": true,
             "schema": { "type": "string" }
           },
           {
             "name": "word",
-            "in": "header",
-            "description": "Word to search",
+            "in": "query",
             "required": true,
+            "description": "Word to search",
             "schema": { "type": "string" }
           }
         ],
@@ -1316,46 +1607,12 @@
         }
       }
     },
-    "/api/v1/trends?trend={word}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "auth_key",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "word",
-            "in": "query",
-            "description": "Word to search",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "tags": ["Trends"],
-        "summary": "Get Tweets in Trend",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
     "/api/v1/tweets": {
       "post": {
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1389,7 +1646,7 @@
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1424,7 +1681,7 @@
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1459,7 +1716,7 @@
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1490,48 +1747,12 @@
         }
       }
     },
-    "/api/v1/tweets/{id}/qoutes": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "auth_key",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to get qoute tweets of",
-            "required": true,
-            "schema": { "type": "integer", "format": "int64" }
-          }
-        ],
-        "summary": "get qoute retweets of a tweet by Id",
-        "responses": {
-          "200": {
-            "description": "Tweet was found and got qoute tweets successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/getQouteRetweetsOfTweetResponse200"
-                }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
-        }
-      }
-    },
     "/api/v1/tweets/{id}/likes": {
       "get": {
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1567,7 +1788,7 @@
         "tags": ["Tweet"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1632,7 +1853,7 @@
         "summary": "get list of user objects that follow the user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1662,7 +1883,7 @@
         "summary": "get list of user objects that user follows",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1686,20 +1907,20 @@
         }
       }
     },
-    "/api/v1/user/follow/{target_user_name}": {
+    "/api/v1/user/follow/{username}": {
       "post": {
         "tags": ["User"],
         "summary": "follow a user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "required": true,
             "schema": { "type": "string" }
@@ -1724,14 +1945,14 @@
         "tags": ["User"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
@@ -1761,7 +1982,7 @@
         "summary": "get users blocked by the source user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1785,20 +2006,20 @@
         }
       }
     },
-    "/api/v1/user/block/{target_user_name}": {
+    "/api/v1/user/block/{username}": {
       "post": {
         "tags": ["User"],
         "summary": "block a user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
@@ -1824,14 +2045,14 @@
         "tags": ["User"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
@@ -1860,7 +2081,7 @@
         "tags": ["User"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -1885,13 +2106,13 @@
         }
       }
     },
-    "/api/v1/user/mute/{target_user_name}": {
+    "/api/v1/user/mute/{username}": {
       "post": {
         "tags": ["User"],
         "summary": "mute a user",
         "parameters": [
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
@@ -1917,14 +2138,14 @@
         "tags": ["User"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "target_user_name",
+            "name": "username",
             "in": "path",
             "description": "usermane of the target user",
             "required": true,
@@ -1948,20 +2169,20 @@
         }
       }
     },
-    "/api/v1/user/user_lookup?q={name}": {
+    "/api/v1/user/lookup": {
       "get": {
         "tags": ["User Profile"],
         "summary": "get list of user objects that contain the prompted name",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
             "schema": { "type": "string" }
           },
           {
-            "name": "q",
+            "name": "name",
             "in": "query",
             "description": "name or user name of the user",
             "required": true,
@@ -1985,13 +2206,13 @@
         }
       }
     },
-    "/api/v1/user/upload_profile_picture": {
+    "/api/v1/user/profile_picture": {
       "post": {
         "tags": ["User Profile"],
         "summary": "upload profile picture for the user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2023,7 +2244,7 @@
         "tags": ["User Profile"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2047,13 +2268,51 @@
         }
       }
     },
-    "/api/v1/user/upload_profile_banner": {
+    "/api/v1/user/suggestions": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Get suggestions for users to follow",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/user/profile_banner": {
       "post": {
         "tags": ["User Profile"],
         "summary": "upload profile banner for the user",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2085,7 +2344,7 @@
         "tags": ["User Profile"],
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2109,13 +2368,13 @@
         }
       }
     },
-    "/api/v1/user/profile": {
+    "/api/v1/user/{username}": {
       "get": {
-        "tags": ["User Profile"],
-        "summary": "get user profile",
+        "tags": ["User"],
+        "summary": "get user details",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2127,7 +2386,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserProfile" }
+                "schema": { "$ref": "#/components/schemas/User" }
               }
             }
           },
@@ -2136,13 +2395,13 @@
         }
       }
     },
-    "/api/v1/user/user_profile": {
+    "/api/v1/user/profile": {
       "put": {
         "tags": ["User Profile"],
         "summary": "update user profile",
         "parameters": [
           {
-            "name": "auth_key",
+            "name": "authorization",
             "in": "header",
             "description": "",
             "required": true,
@@ -2167,6 +2426,44 @@
           },
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/user/username": {
+      "patch": {
+        "tags": ["User Profile"],
+        "summary": "update userName",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userName": { "type": "string", "default": "zahran1234" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
         }
       }
     }
