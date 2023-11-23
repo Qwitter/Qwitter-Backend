@@ -384,7 +384,7 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
 /**
  * @openapi
  * '/api/v1/user/suggestions':
- *  post:
+ *  get:
  *     tags:
  *     - User
  *     summary: Get suggestions for users to follow
@@ -395,12 +395,6 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *      required: true
- *      content:
- *          multipart/form-data:
- *           schema:
- *              $ref: '#/components/schemas/UploadImageInput'
  *     responses:
  *      200:
  *        description: Success
