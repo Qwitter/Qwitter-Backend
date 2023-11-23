@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from 'zod';
+import { object, string, TypeOf,optional} from 'zod';
 
 /**
  * @openapi
@@ -101,14 +101,20 @@ import { object, string, TypeOf } from 'zod';
  *      properties:
  *        name:
  *          type: string
+ *          default: "any string"
+ *          required: true
  *        description:
  *          type: string
+ *          default: "any string"
  *        Location:
  *          type: string
+ *          default: "egypt"
  *        url:
  *          type: string
+ *          
  *        birth_date:
  *          type: string
+ *          required: true
  *    User:
  *      type: object
  *      properties:
@@ -148,3 +154,16 @@ export type CreateUserInput = Omit<
   TypeOf<typeof createUserSchema>,
   'body.passwordConfirmation'
 >;
+
+
+
+
+export const putUserProfileReqSchema=object({
+  body: object({
+    name:string().min(1).max(50),
+    description: optional(string()),
+    location: optional(string()),
+    url:optional(string().url()),
+    birth_date:string().datetime(),
+  }),
+});

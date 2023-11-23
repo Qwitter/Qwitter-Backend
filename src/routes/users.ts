@@ -1,7 +1,11 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { getUser, uploadProfilePicture } from '../controllers/userController';
+import { getUser, putUserProfile, uploadProfilePicture } from '../controllers/userController';
+import { validate } from '../utils/validator';
+import { putUserProfileReqSchema } from '../schemas/userSchema';
+
+
 const router = express.Router();
 
 /**
@@ -530,9 +534,16 @@ router.post(
  *        description: Bad request
  */
 
-router.get(
-  '/',
+router.put(
+  '/profile',
   isLoggedIn,
+  validate(putUserProfileReqSchema),
+  putUserProfile
+)
+
+
+router.get(
+  '/:username',
   getUser,
 );
 
