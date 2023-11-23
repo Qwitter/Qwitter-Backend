@@ -1,4 +1,8 @@
 import express from 'express';
+import { CreateTweetSchema } from '../schemas/tweetSchema';
+import { validate } from '../utils/validator';
+import { postTweet } from '../controllers/tweetController';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
 const router = express.Router();
 
 /**
@@ -30,7 +34,7 @@ const router = express.Router();
  *      403:
  *        description: Unauthorized
  */
-router.route('/').post();
+router.route('/').post(isLoggedIn, validate(CreateTweetSchema), postTweet);
 
 /**
  * @openapi

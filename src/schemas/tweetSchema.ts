@@ -1,3 +1,5 @@
+import { boolean, object, string } from 'zod';
+
 //entity
 /**
  * @openapi
@@ -285,6 +287,24 @@
  *        body:
  *          $ref: '#/components/schemas/tweet'
  */
+
+const CreateTweetPayload = {
+  body: object({
+    text: string({
+      required_error: 'Tweet Text should not be empty',
+    }),
+    source: string({
+      required_error: 'Please indicate the source of the request [Iphone,....]',
+    }),
+    coordinates: string().nullable(),
+    replyToTweetId: string(),
+    retweetedId: string(),
+    sensitive: boolean(),
+  }),
+};
+export const CreateTweetSchema = object({
+  ...CreateTweetPayload,
+});
 
 /////////////////////////////////////////////////////////
 

@@ -5,9 +5,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
 
 datasource db {
   provider = "postgresql"
@@ -113,7 +113,7 @@ model Tweet {
   likesCount Int @default(0)
 
   sensitive   Boolean       @default(false)
-  deletedAt   DateTime      @db.Timestamp()
+  deletedAt   DateTime?      @db.Timestamp()
   likes       Like[]
   TweetEntity TweetEntity[] @relation("HasEntity")
 
