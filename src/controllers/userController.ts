@@ -202,5 +202,14 @@ export const putUserProfile = catchAsync(
       ...resposeObject
     } = updatedUser;
     res.status(200).json(resposeObject);
+  
   },
 );
+
+
+
+// export const blockUser=catchAsync(
+//   async (_req: Request, res: Response, _next: NextFunction) => {
+   
+//   },
+// );
