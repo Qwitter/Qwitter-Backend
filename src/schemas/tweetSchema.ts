@@ -298,10 +298,10 @@ const CreateTweetPayload = {
     source: string({
       required_error: 'Please indicate the source of the request [Iphone,....]',
     }),
-    coordinates: string().nullable(),
-    replyToTweetId: string().nullable(),
-    retweetedId: string().nullable(),
-    sensitive: boolean(),
+    coordinates: string().optional(),
+    replyToTweetId: string().optional(),
+    retweetedId: string().optional(),
+    sensitive: string(),
   }),
 };
 export const CreateTweetSchema = object({

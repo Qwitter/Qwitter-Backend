@@ -9,6 +9,7 @@ import {
 } from '../controllers/tweetController';
 import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
+import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
 
 /**
@@ -40,7 +41,14 @@ const router = express.Router();
  *      403:
  *        description: Unauthorized
  */
-router.route('/').post(isLoggedIn, validate(CreateTweetSchema), postTweet);
+router
+  .route('/')
+  .post(
+    isLoggedIn,
+    uploadTweetMediaMiddleware,
+    validate(CreateTweetSchema),
+    postTweet,
+  );
 
 /**
  * @openapi

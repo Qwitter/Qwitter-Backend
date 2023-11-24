@@ -16,7 +16,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/imgs', express.static(path.resolve('./public/imgs/')));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: 'secret_key',
