@@ -343,8 +343,13 @@ export const CreateTweetSchema = object({
  *        status:
  *          type: string
  *          default: success
- *        body:
+ *        tweet:
  *          $ref: '#/components/schemas/tweet'
+ *        user:
+ *          $ref: '#/components/schemas/User'
+
+ *    
+ * 
  */
 
 /////////////////////////////////////////////////////////
