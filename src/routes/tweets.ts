@@ -1,6 +1,6 @@
 import express from 'express';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { getTweetReplies } from '../controllers/tweetController';
+import { getTweetReplies, getTweetRetweets } from '../controllers/tweetController';
 import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { validate } from '../utils/validator';
 const router = express.Router();
@@ -209,7 +209,9 @@ router.route('/:id/likes').get();
  *      403:
  *        description: Unauthorized
  */
-router.route('/:id/retweets').get();
+router
+  .route('/:id/retweets')
+  .get(isLoggedIn, validate(getTweetRepliesSchema), getTweetRetweets);
 
 /**
  * @openapi

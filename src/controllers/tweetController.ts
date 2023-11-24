@@ -94,3 +94,40 @@ export const getTweetReplies = catchAsync(
     next();
   }
 );
+
+export const getTweetRetweets = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tweetId = req.params.id;
+
+    const tweet = await prisma.tweet.findUnique({
+      where: {
+        id: tweetId,
+      },
+    });
+
+    if (!tweet) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Tweet not found',
+      });
+      return;
+    }
+
+    const retweeters = await prisma.tweet
+    .findMany({
+      where: {
+        retweetedId: tweetId,
+      },
+      include: {
+        author: true,
+      },
+    });
+    
+    res.status(200).json({
+      status: 'success',
+      retweeters: retweeters?.map((retweet) => retweet.author as User),
+    });
+
+    next();
+  }
+);
