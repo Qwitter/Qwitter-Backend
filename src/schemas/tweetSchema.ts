@@ -275,9 +275,11 @@ import { boolean, object, string } from 'zod';
  *        sensitive:
  *          type: boolean
  *          default: false
- *        entityId:
- *          type: string
- *          default: 3847329049023859093
+ *        media:
+ *          type: array
+ *          items:
+ *           type: string
+ *           default: jikshd3847329049023859093
  *    addTweetresponse200:
  *      type: object
  *      properties:
@@ -297,8 +299,8 @@ const CreateTweetPayload = {
       required_error: 'Please indicate the source of the request [Iphone,....]',
     }),
     coordinates: string().nullable(),
-    replyToTweetId: string(),
-    retweetedId: string(),
+    replyToTweetId: string().nullable(),
+    retweetedId: string().nullable(),
     sensitive: boolean(),
   }),
 };

@@ -233,3 +233,5 @@ router.route('/:id/retweets').get();
  *      400:
  *        description: Bad request
  */
+
+export default router;

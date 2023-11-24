@@ -5,6 +5,8 @@ import { configurePassport } from './utils/passport';
 import authRouter from './routes/auth';
 import userRouter from './routes/users';
 import timelineRouter from './routes/timeline';
+import tweetRouter from './routes/tweets';
+
 import path from 'path';
 import cors from 'cors';
 import globalErrorHandler from './controllers/errorController';
@@ -31,7 +33,7 @@ configurePassport();
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/timeline', timelineRouter);
-
+app.use('/api/v1/tweets', tweetRouter);
 app.use(globalErrorHandler);
 
 export default app;

@@ -66,12 +66,87 @@ export const postTweet = catchAsync(
         createdAt: new Date().toISOString(),
         source: req.body.source,
         coordinates: req.body.coordinates,
+        replyToTweetId: req.body.replyToTweetId
+          ? req.body.replyToTweetId
+          : null,
+        retweetedId: req.body.retweetedId ? req.body.retweetedId : null,
         userId: userId,
       },
+      select: {
+        createdAt: true,
+        id: true,
+        text: true,
+        source: true,
+        coordinates: true,
+        userId: false, // Exclude the 'userId' field
+        replyToTweetId: true,
+        replyCount: true,
+        retweetedId: true,
+        retweetCount: true,
+        qouteTweetedId: true,
+        qouteCount: true,
+        likesCount: true,
+        sensitive: true,
+        deletedAt: true,
+      },
     });
-    console.log(createdTweet);
+
+    // Extracting entities
+    const hashtags = extractHashtags(req.body.text);
+    const mentions = extractMentions(req.body.text);
+    const urls = extractUrls(req.body.text);
+    const media = req.body.media;
+
+    // Creating entities and linking it with tweet
+
+    let entitiesId: string[] = [];
+    for (const hashtag of hashtags) {
+      const existingHashtag = await prisma.hashtag.findFirst({
+        where: {
+          text: hashtag,
+        },
+      });
+      if (existingHashtag) {
+        await prisma.hashtag.update({
+          where: {
+            text: hashtag,
+          },
+          data: {
+            count: existingHashtag.count + 1,
+          },
+        });
+      } else {
+        await prisma.create;
+      }
+    }
+
+    const returnedTweet = { ...createdTweet, userName: currentUser.userName };
     return res.status(201).json({
-      tweet: createdTweet,
+      status: 'success',
+      tweet: returnedTweet,
     });
   },
 );
+function extractHashtags(inputString: string): string[] {
+  // Regular expression to find hashtags
+  const hashtagRegex = /#(\w+)/g;
+  // Use match() to find all occurrences of the hashtag pattern in the input string
+  const hashtags = inputString.match(hashtagRegex);
+  // If there are hashtags, return them; otherwise, return an empty array
+  return hashtags ? hashtags : [];
+}
+function extractMentions(inputString: string): string[] {
+  const mentionRegex = /@(\w+)/g;
+  // Use match() to find all occurrences of the mention pattern in the input string
+  const mentions = inputString.match(mentionRegex);
+  // If there are mentions, return them; otherwise, return an empty array
+  return mentions ? mentions : [];
+}
+function extractUrls(inputString: string): string[] {
+  // Regular expression to find URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  // Use match() to find all occurrences of the URL pattern in the input string
+  const urls = inputString.match(urlRegex);
+  // If there are URLs, return them; otherwise, return an empty array
+  return urls ? urls : [];
+}
