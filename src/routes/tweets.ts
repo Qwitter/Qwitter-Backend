@@ -1,4 +1,8 @@
 import express from 'express';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { getTweetReplies } from '../controllers/tweetController';
+import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
+import { validate } from '../utils/validator';
 const router = express.Router();
 
 /**
@@ -135,7 +139,9 @@ router.route('/:id').delete().get();
  *      403:
  *        description: Unauthorized
  */
-router.route('/:id/replies').get();
+router
+  .route('/:id/replies')
+  .get(isLoggedIn, validate(getTweetRepliesSchema), getTweetReplies);
 
 /**
  * @openapi
@@ -229,3 +235,5 @@ router.route('/:id/retweets').get();
  *      400:
  *        description: Bad request
  */
+
+export default router;

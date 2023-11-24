@@ -55,3 +55,42 @@ export const getTimeline = catchAsync(
       next();
     }
 ); 
+
+export const getTweetReplies = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tweetId = req.params.id;
+
+    const tweet = await prisma.tweet.findUnique({
+      where: {
+        id: tweetId,
+      },
+    });
+
+    if (!tweet) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Tweet not found',
+      });
+      return;
+    }
+
+    const replies = await prisma.tweet.findMany({
+      where: {
+        replyToTweetId: tweetId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        TweetEntity: true,
+      },
+    });
+
+    res.status(200).json({
+      status: 'success',
+      replies: replies,
+    });
+
+    next();
+  }
+);

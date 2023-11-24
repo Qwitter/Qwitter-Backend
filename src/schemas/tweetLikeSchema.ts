@@ -39,3 +39,12 @@ const tweetToggleLikeSchemaPayload = {
 export const tweetLikeSchema = object({
   ...tweetToggleLikeSchemaPayload,
 });
+
+
+export const getTweetRepliesSchema = object({
+  params: object({
+    id: string({
+      required_error: 'Tweet ID is required',
+    }),
+  }),
+});
