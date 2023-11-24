@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { googleSignUpSchema, loginSchema } from '../schemas/authSchema';
+import { googleSignUpSchema, loginSchema, updatePasswordSchema } from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -568,8 +568,9 @@ router
  *
  *
  */
-
-router.route('/update-password/').post();
+router
+  .route('/update-password/')
+  .post(isLoggedIn, validate(updatePasswordSchema), authController.updatePassword);
 
 /**
  * @openapi

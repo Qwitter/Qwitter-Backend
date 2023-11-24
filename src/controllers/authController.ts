@@ -9,6 +9,7 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
+
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -154,6 +155,35 @@ export const changePassword = catchAsync(
       message: 'Password Changed Successfully',
     });
   },
+);
+
+export const updatePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { oldPassword, newPassword } = req.body;
+
+    const user = req.user as User;
+    const hashedOldPassword = await hashPassword(oldPassword);
+    const isPasswordCorrect = hashedOldPassword === user.password;
+
+    if (!isPasswordCorrect) {
+      return next(new AppError('Incorrect old password', 401));
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashedPassword,
+        passwordChangedAt: new Date(Date.now()),
+      },
+    });
+
+    res.status(200).json({
+      message: 'Password changed successfully',
+    });
+  }
 );
 
 const hashPassword = async (password: string) => {
