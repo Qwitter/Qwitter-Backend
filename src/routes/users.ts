@@ -1,12 +1,12 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { getUser, putUserProfile, uploadProfilePicture } from '../controllers/userController';
 import { validate } from '../utils/validator';
-import { putUserProfileReqSchema, updateUserNameSchemaPayload } from '../schemas/userSchema';
+import {
+  putUserProfileReqSchema,
+  updateUserNameSchemaPayload,
+} from '../schemas/userSchema';
 import * as userController from '../controllers/userController';
-
-
 
 const router = express.Router();
 
@@ -583,17 +583,11 @@ router.put(
   '/profile',
   isLoggedIn,
   validate(putUserProfileReqSchema),
-  putUserProfile
-)
-
-
-router.get(
-  '/:username',
-  getUser,
+  userController.putUserProfile,
 );
 
+router.get('/:username', userController.getUser);
 
-router.get('/', isLoggedIn, userController.getUser);
 /**
  * @openapi
  * '/api/v1/user/username':
@@ -643,6 +637,5 @@ router
     isLoggedIn,
     userController.changeUserName,
   );
-
 
 export default router;
