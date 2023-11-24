@@ -7,7 +7,7 @@ const router = express.Router();
  *  post:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -38,7 +38,7 @@ router.route('/').post();
  *  delete:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -73,7 +73,7 @@ router.route('/').post();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -109,7 +109,7 @@ router.route('/:id').delete().get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -139,45 +139,11 @@ router.route('/:id/replies').get();
 
 /**
  * @openapi
- * /api/v1/tweets/{id}/qoutes:
- *  get:
- *     tags: [Tweet]
- *     parameters:
- *       - name: auth_key
- *         in: header
- *         description: ''
- *         required: true
- *         schema:
- *           type: string
- *       - name: id
- *         in: path
- *         description: Tweet id to get qoute tweets of
- *         required: true
- *         schema:
- *           type: integer
- *           format: int64
- *     summary: get qoute retweets of a tweet by Id
- *     responses:
- *      200:
- *        description: Tweet was found and got qoute tweets successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/getQouteRetweetsOfTweetResponse200'
- *      404:
- *        description: Tweet was Not Found
- *      403:
- *        description: Unauthorized
- */
-router.route('/:id/quotes').get();
-
-/**
- * @openapi
  * /api/v1/tweets/{id}/likes:
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -211,7 +177,7 @@ router.route('/:id/likes').get();
  *  get:
  *     tags: [Tweet]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true

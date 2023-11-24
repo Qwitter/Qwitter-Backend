@@ -5,7 +5,7 @@ const router = express.Router();
  * '/api/v1/notifications/{userId}':
  *   get:
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true

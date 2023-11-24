@@ -3,7 +3,9 @@ import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import { getUser, putUserProfile, uploadProfilePicture } from '../controllers/userController';
 import { validate } from '../utils/validator';
-import { putUserProfileReqSchema } from '../schemas/userSchema';
+import { putUserProfileReqSchema, updateUserNameSchemaPayload } from '../schemas/userSchema';
+import * as userController from '../controllers/userController';
+
 
 
 const router = express.Router();
@@ -16,7 +18,7 @@ const router = express.Router();
  *     - User
  *     summary: get list of user objects that follow the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -37,7 +39,7 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-
+router.get('/followers', isLoggedIn, userController.getUserFollowers);
 /**
  * @openapi
  * '/api/v1/user/follow':
@@ -46,7 +48,7 @@ const router = express.Router();
  *     - User
  *     summary: get list of user objects that user follows
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -70,19 +72,19 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/user/follow/{target_user_name}':
+ * '/api/v1/user/follow/{username}':
  *  post:
  *     tags:
  *     - User
  *     summary: follow a user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         required: true
  *         schema:
@@ -102,17 +104,17 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/user/follow/{target_user_name}:
+ * /api/v1/user/follow/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -140,7 +142,7 @@ const router = express.Router();
  *     - User
  *     summary: get users blocked by the source user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -163,19 +165,19 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/user/block/{target_user_name}':
+ * '/api/v1/user/block/{username}':
  *  post:
  *     tags:
  *     - User
  *     summary: block a user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -196,17 +198,17 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/user/block/{target_user_name}:
+ * /api/v1/user/block/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -233,7 +235,7 @@ const router = express.Router();
  *     tags:
  *     - User
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -257,13 +259,13 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/user/mute/{target_user_name}':
+ * '/api/v1/user/mute/{username}':
  *  post:
  *     tags:
  *     - User
  *     summary: mute a user
  *     parameters:
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: username of the target user
  *         required: true
@@ -284,17 +286,17 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/v1/user/mute/{target_user_name}:
+ * /api/v1/user/mute/{username}:
  *  delete:
  *     tags: [User]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: target_user_name
+ *       - name: username
  *         in: path
  *         description: usermane of the target user
  *         required: true
@@ -316,19 +318,19 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/user/user_lookup?q={name}':
+ * '/api/v1/user/lookup':
  *  get:
  *     tags:
  *     - User Profile
  *     summary: get list of user objects that contain the prompted name
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
  *         schema:
  *           type: string
- *       - name: q
+ *       - name: name
  *         in: query
  *         description: name or user name of the user
  *         required: true
@@ -359,7 +361,7 @@ const router = express.Router();
  *     - User Profile
  *     summary: upload profile picture for the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -383,20 +385,49 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
+/**
+ * @openapi
+ * '/api/v1/user/suggestions':
+ *  get:
+ *     tags:
+ *     - User
+ *     summary: Get suggestions for users to follow
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                  $ref: '#/components/schemas/User'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
 
 router.post(
   '/profile_picture',
   isLoggedIn,
   uploadImageMiddleware,
-  uploadProfilePicture,
+  userController.uploadProfilePicture,
 );
+
 /**
  * @openapi
- * '/api/v1/user/upload_profile_picture':
+ * '/api/v1/user/profile_picture':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -415,16 +446,21 @@ router.post(
  *      400:
  *        description: Bad request
  */
+router.delete(
+  '/profile_picture',
+  isLoggedIn,
+  userController.deleteProfilePicture,
+);
 
 /**
  * @openapi
- * '/api/v1/user/upload_profile_banner':
+ * '/api/v1/user/profile_banner':
  *  post:
  *     tags:
  *     - User Profile
  *     summary: upload profile banner for the user
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -448,14 +484,19 @@ router.post(
  *      400:
  *        description: Bad request
  */
-
+router.post(
+  '/profile_banner',
+  isLoggedIn,
+  uploadImageMiddleware,
+  userController.uploadProfileBanner,
+);
 /**
  * @openapi
- * '/api/v1/user/upload_profile_banner':
+ * '/api/v1/user/profile_banner':
  *  delete:
  *     tags: [User Profile]
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -474,16 +515,20 @@ router.post(
  *      400:
  *        description: Bad request
  */
-
+router.delete(
+  '/profile_banner',
+  isLoggedIn,
+  userController.deleteProfileBanner,
+);
 /**
  * @openapi
- * '/api/v1/user/profile':
+ * '/api/v1/user/{username}':
  *  get:
  *     tags:
- *     - User Profile
- *     summary: get user profile
+ *     - User
+ *     summary: get user details
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -495,7 +540,7 @@ router.post(
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserProfile'
+ *              $ref: '#/components/schemas/User'
  *      409:
  *        description: Conflict
  *      400:
@@ -504,13 +549,13 @@ router.post(
 
 /**
  * @openapi
- * '/api/v1/user/user_profile':
+ * '/api/v1/user/profile':
  *  put:
  *     tags:
  *     - User Profile
  *     summary: update user profile
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -546,6 +591,58 @@ router.get(
   '/:username',
   getUser,
 );
+
+
+router.get('/', isLoggedIn, userController.getUser);
+/**
+ * @openapi
+ * '/api/v1/user/username':
+ *  patch:
+ *     tags:
+ *     - User Profile
+ *     summary: update userName
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userName:
+ *                 type: string
+ *                 default: zahran1234
+ *     responses:
+ *       "200":
+ *        description: Success
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ */
+router
+  .route('/username')
+  .patch(
+    validate(updateUserNameSchemaPayload),
+    isLoggedIn,
+    userController.changeUserName,
+  );
 
 
 export default router;

@@ -19,6 +19,14 @@ import { object, string, TypeOf,optional} from 'zod';
  *        operation_succeeded:
  *          type: boolean
  *          default: true
+ *    UploadImageResponse:
+ *      type: object
+ *      properties:
+ *        message:
+ *          type: string
+ *          default: Image uploaded successfully
+ *        user:
+ *          $ref: '#/components/schemas/User'
  *
  */
 
@@ -80,14 +88,6 @@ import { object, string, TypeOf,optional} from 'zod';
  *        img:
  *          type: string
  *          format: binary
- *    UploadImageResponse:
- *      type: object
- *      properties:
- *        operation_status:
- *          type: boolean
- *          default: true
- *        img_url:
- *          type: string
  *
  */
 
@@ -143,6 +143,14 @@ const createUserSchemaPayload = {
     path: ['passwordConfirmation'],
   }),
 };
+
+export const updateUserNameSchemaPayload = object({
+  body: object({
+    userName: string({
+      required_error: 'userName is required',
+    }).min(5),
+  }),
+});
 
 export const createUserSchema = object({
   ...createUserSchemaPayload,

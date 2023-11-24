@@ -6,9 +6,9 @@ import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail';
 import { emailType } from '../types/email-types';
 import { hash } from 'bcrypt';
-import { sign, verify } from 'jsonwebtoken';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
-
+import moment from 'moment-timezone';
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -59,29 +59,31 @@ export const forgotPassword = catchAsync(
       return _next(new AppError('User not found', 404));
     }
     // 2) Generate the random token
-    const passwordResetExpireTime = 10 * 60 * 1000; // 10 minutes
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // const passwordResetExpireTime = 30; // 30 minutes
+    const currentDateTime = moment();
+    const expiryDate = currentDateTime.add(1, 'days');
+    const resetToken = crypto.randomBytes(4).toString('hex');
     const resetTokenHashed = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         email: user.email,
       },
       data: {
         passwordResetToken: resetTokenHashed,
-        passwordResetExpires: new Date(Date.now() + passwordResetExpireTime),
+        passwordResetExpires: expiryDate.format(),
       },
     });
-    console.log(updatedUser);
+
     // 3) Send it to user email
 
     // TODO: The subject should have the link to the frontend page where the user will send the password and
     // the password confirm to send a patch request to the server
     const resetEmail: emailType = {
       to: user.email,
-      subject: 'Email Verif',
+      subject: 'Password Reset',
       text: 'Reset Password ' + resetToken,
     };
     await sendEmail(resetEmail);
@@ -106,23 +108,25 @@ export const resetPassword = catchAsync(
     }
     if (
       user.passwordResetExpires &&
-      user.passwordResetExpires > new Date(Date.now())
+      user.passwordResetExpires < new Date(Date.now())
     ) {
       return _next(new AppError('Token expired. Request another token.', 400));
     }
-
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
     await prisma.user.update({
       where: {
         email: user.email,
       },
       data: {
-        passwordChangedAt: new Date(Date.now()),
         passwordResetExpires: undefined,
         passwordResetToken: undefined,
       },
     });
 
     _res.status(200).send({
+      token: token,
       message: 'Password reset was successful',
     });
   },
@@ -134,11 +138,12 @@ export const changePassword = catchAsync(
     if (req.body.password !== req.body.passwordConfirmation) {
       return _next(new AppError('The passwords do not match', 400));
     }
+    const user = req.user as User;
     // Update the user with the new password
     const hashedPassword = await hashPassword(req.body.password);
     await prisma.user.update({
       where: {
-        id: req.body.userId,
+        id: user.id,
       },
       data: {
         password: hashedPassword,
@@ -221,6 +226,72 @@ export const signUp = catchAsync(
           suggestions: uniqueUserName.slice(1, 6),
         });
       }
+    }
+  },
+);
+
+export const signUpGoogle = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    const auth_header: string = req.headers.authorization as string;
+
+    if (!auth_header || !auth_header.startsWith('Bearer')) {
+      return _next(new AppError('Unauthorized access', 401));
+    }
+
+    const token: string = auth_header.split(' ')[1];
+    const payloadData = await verify(token, process.env.JWT_SECRET as string);
+    const google_id = (payloadData as JwtPayload).google_id;
+    const email = (payloadData as JwtPayload).email;
+    const name = (payloadData as JwtPayload).name;
+
+    if (!google_id || !email || !name) {
+      return _next(new AppError('Invalid access credentials', 409));
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    if (user) {
+      _res.status(409).json({ message: 'User already exists' });
+    } else {
+      const uniqueUserName = await createUniqueUserName(name, 1);
+      const newUser = await prisma.user.create({
+        data: {
+          name: name,
+          birthDate: req.body.birthDate,
+          createdAt: new Date().toISOString(),
+          email: email,
+          userName: uniqueUserName[0],
+          password: '',
+          google_id: google_id,
+        },
+        select: {
+          id: true,
+          name: true,
+          birthDate: true,
+          location: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          userName: true,
+        },
+      });
+      const { id, ...newObject } = newUser;
+      const token = sign({ id: id }, process.env.JWT_SECRET as string, {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      });
+      _res.status(200).json({
+        token,
+        user: newObject,
+      });
     }
   },
 );
@@ -315,7 +386,7 @@ export const sendVerificationEmail = catchAsync(
       text: 'Email Verification: ' + verificationToken,
     };
 
-    sendEmail(verificationEmail);
+    await sendEmail(verificationEmail);
     res.status(200).send({
       message: 'Sent Verification Email Successfully ',
     });

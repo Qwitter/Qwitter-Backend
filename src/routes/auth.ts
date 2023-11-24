@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { loginSchema } from '../schemas/authSchema';
+import { googleSignUpSchema, loginSchema } from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -46,7 +46,13 @@ import { isLoggedIn } from '../middlewares/authMiddlewares';
  *       "410":
  *        $ref: '#/responses/410'
  */
-router.route('/google').get();
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+  }),
+);
 
 /**
  * @openapi
@@ -140,6 +146,63 @@ router
   .route('/check-existence')
   .post(validate(checkExistenceSchema), authController.checkExistence);
 
+/**
+ * @openapi
+ * '/api/v1/auth/check-password':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Check Password of user through token and password
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 default: 1896156612
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               correct:
+ *                 type: boolean
+ *                 default: true
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        description: Wrong Password
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               correct:
+ *                 type: boolean
+ *                 default: false
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "410":
+ *        $ref: '#/responses/410'
+ */
+router.route('/check-password').get();
 /**
  * @openapi
  * '/api/v1/auth/login':
@@ -346,13 +409,82 @@ router
 
 /**
  * @openapi
+ * '/api/v1/auth/google/signup':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Sign up with google through token and birthdate without password
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/GoogleSignUpRequest'
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/LoginResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req: any, res) => {
+    const user = req.user.user,
+      token = req.user.token;
+    if (user.registered === false) {
+      const email = user._json.email;
+      res.redirect(
+        process.env.CLIENT_SIDE +
+          `/i/flow/single-sign/callback?authenticationMethod=signup&token=${token}&email=${email}`,
+      );
+    } else {
+      res.redirect(
+        process.env.CLIENT_SIDE +
+          `/i/flow/single-sign/callback?authenticationMethod=login&token=${token}`,
+      );
+    }
+  },
+);
+
+router
+  .route('/google/signup')
+  .post(validate(googleSignUpSchema), authController.signUpGoogle);
+/**
+ * @openapi
  * '/api/v1/auth/change-password':
  *  post:
  *     tags:
  *     - Authentication
  *     summary: Change the password using only the token
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
@@ -389,28 +521,110 @@ router
  *
  */
 
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account',
-  }),
-);
-
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (_req, res) => {
-    res.status(200).json({
-      message: 'Success',
-      data: _req.user,
-    });
-  },
-);
-
 router
   .route('/change-password/')
   .post(isLoggedIn, authController.changePassword);
+/**
+ * @openapi
+ * '/api/v1/auth/update-password':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Change the password using the token and old password
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/UpdatePasswordRequest'
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/UpdatePasswordSuccessResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+
+router.route('/update-password/').post();
+
+/**
+ * @openapi
+ * '/api/v1/auth/change-email':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: Change the password using only the token
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/ChangeEmailRequest'
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ChangeEmailResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        description: Email Exists
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 default: Email already exists
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+
+router.route('/change-email/').post();
 
 router.route('/logout').post(authController.logout);
 
@@ -432,7 +646,7 @@ router.route('/logout').post(authController.logout);
  *                 type: string
  *                 default: zahran1234
  *     parameters:
- *       - name: auth_key
+ *       - name: authorization
  *         in: header
  *         description: ''
  *         required: true
