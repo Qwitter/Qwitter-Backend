@@ -280,14 +280,14 @@ export const getTweet = catchAsync(
     let hashtags = [];
     let mentions = [];
     let retweetedTweetID = null;
-
+    let originalTweeter=null;
     let {tweet,tweetingUser} = await getTweetAndUserById(req.params.id);
+    originalTweeter=tweetingUser?.userName
     if (tweet?.retweetedId != null) {
       retweetedTweetID = tweet.retweetedId;
       let tempRetweet = (await getTweetAndUserById(retweetedTweetID))
       tweetingUser=tempRetweet.tweetingUser
       tweet=tempRetweet.tweet
-      console.log(tweet)
     }
     if (!tweet) {
       new AppError('Tweet was Not Found', 404);
@@ -329,7 +329,7 @@ export const getTweet = catchAsync(
           tweet:{
             createdAt: tweet.createdAt,
             id: tweet.id,
-            userName: tweetingUser?.userName,
+            userName: originalTweeter,
             replyCount: tweet.replyCount,
             retweetCount: tweet.retweetCount,
             likesCount: tweet.likesCount,
