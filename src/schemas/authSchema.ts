@@ -263,3 +263,13 @@ const updatePasswordPayload = {
 export const updatePasswordSchema = object({
   ...updatePasswordPayload,
 });
+
+const checkPasswordPayload = {
+  body: object({
+    password: string({ required_error: 'Password is required' }),
+  }),
+};
+
+export const checkPasswordSchema = object({
+  ...checkPasswordPayload,
+});

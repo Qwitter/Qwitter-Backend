@@ -538,3 +538,21 @@ export const userNameSuggestions = catchAsync(
     _next();
   },
 );
+
+
+export const checkPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    const { password } = req.body;
+
+    const user = req.user as User;
+    const hashedOldPassword = await hashPassword(password);
+    const isPasswordCorrect = hashedOldPassword === user.password;
+
+    res.status(200).json({
+      correct: isPasswordCorrect,
+    });
+
+    next();
+  }
+);
