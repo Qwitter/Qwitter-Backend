@@ -163,6 +163,14 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *        description: Bad request
  */
 
+router
+  .route('/block')
+  .get(
+    isLoggedIn,
+    userController.getBlockedUsers,
+  );
+
+
 /**
  * @openapi
  * '/api/v1/user/block/{username}':

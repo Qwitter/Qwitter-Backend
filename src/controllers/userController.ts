@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
-import { getUserByUsername,blockUserByIDs,getUserBlocked,unblockUserByIDs} from '../repositories/userRepository';
+import { getUserByUsername,blockUserByIDs,getUserBlocked,unblockUserByIDs, getBlockedUsersByID} from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
 
@@ -208,6 +208,14 @@ export const putUserProfile = catchAsync(
 );
 
 
+export const getBlockedUsers=catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const blockedUsers=await getBlockedUsersByID((_req.user as User).id)
+    res.json(blockedUsers).status(200)
+    
+  },
+);
+
 
 export const blockUser=catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -262,3 +270,4 @@ export const unblockUser=catchAsync(
     _next()
   },
 );
+
