@@ -113,7 +113,7 @@ model Tweet {
   likesCount Int @default(0)
 
   sensitive   Boolean       @default(false)
-  deletedAt   DateTime      @db.Timestamp()
+  deletedAt   DateTime?      @db.Timestamp()
   likes       Like[]
   TweetEntity TweetEntity[] @relation("HasEntity")
 
@@ -153,6 +153,7 @@ model Hashtag {
 model Media {
   id       String @default(uuid())
   url      String @unique
+  type     String @default("none")
   entity   Entity @relation(fields: [entityId], references: [id])
   entityId String @unique
 
@@ -188,8 +189,8 @@ model messageEntity {
 }
 
 model Entity {
-  id String @default(uuid())
-
+  id            String @default(uuid())
+  type          String @default("none")
   Mention       Mention?
   Hashtag       Hashtag?
   Media         Media?
@@ -228,7 +229,7 @@ model Message {
 
 model Notification {
   id                  String                @default(uuid())
-  text                String
+  text                String                @default("none")
   deleted             Boolean               @default(false)
   seen                Boolean               @default(false)
   createdAt           DateTime              @db.Timestamp()
