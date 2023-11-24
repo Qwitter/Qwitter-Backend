@@ -123,7 +123,7 @@ export const getUser = catchAsync(
         createdAt: user.createdAt,
         profileBannerUrl: user.profileBannerUrl,
         profileImageUrl: user.profileImageUrl,
-        email: user.email,
+        email: user.email.toLowerCase(),
       };
       res.json(resposeObject).status(200);
     } else {
