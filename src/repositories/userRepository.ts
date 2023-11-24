@@ -7,3 +7,22 @@ export const getUserByUsername = async (user_name: string) => {
     },
   });
 };
+
+
+export const getUserBlocked=async (blockingUser: string,blockedUser: string) => {
+  return await prisma.block.findUnique({
+    where: {
+      blockerId_blockedId:{blockedId:blockedUser,blockerId:blockingUser}
+    },
+  });
+};
+
+
+export const blockUserByIDs=async (blockingUser: string,blockedUser: string) => {
+  return await prisma.block.create({
+    data: {
+      blockedId:blockedUser,
+      blockerId:blockingUser
+    }
+  })
+};
