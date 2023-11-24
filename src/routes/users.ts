@@ -163,6 +163,14 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *        description: Bad request
  */
 
+router
+  .route('/block')
+  .get(
+    isLoggedIn,
+    userController.getBlockedUsers,
+  );
+
+
 /**
  * @openapi
  * '/api/v1/user/block/{username}':
@@ -196,6 +204,15 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *        description: Bad request
  */
 
+
+
+router
+  .route('/block/:username')
+  .post(
+    isLoggedIn,
+    userController.blockUser,
+  );
+
 /**
  * @openapi
  * /api/v1/user/block/{username}:
@@ -227,6 +244,14 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *      400:
  *        description: Bad request
  */
+
+
+router
+  .route('/block/:username')
+  .delete(
+    isLoggedIn,
+    userController.unblockUser,
+  );
 
 /**
  * @openapi

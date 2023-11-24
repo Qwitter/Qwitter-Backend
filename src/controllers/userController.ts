@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
+import { getUserByUsername,blockUserByIDs,getUserBlocked,unblockUserByIDs, getBlockedUsersByID} from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
 
@@ -207,9 +208,66 @@ export const putUserProfile = catchAsync(
 );
 
 
+export const getBlockedUsers=catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const blockedUsers=await getBlockedUsersByID((_req.user as User).id)
+    res.json(blockedUsers).status(200)
+    
+  },
+);
 
-// export const blockUser=catchAsync(
-//   async (_req: Request, res: Response, _next: NextFunction) => {
-   
-//   },
-// );
+
+export const blockUser=catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const blockingUser= _req.user as User
+    const blockedUser=await getUserByUsername(_req.params.username.toLowerCase()) 
+    if(!blockedUser)
+    {
+      return _next(new AppError('user not found', 404));
+    }
+    else if(await getUserBlocked(blockingUser?.id,blockedUser.id))
+    {
+      return _next(new AppError('user already blocked', 404));
+    }
+    else{
+      const block=await blockUserByIDs(blockingUser.id,blockedUser.id)
+      if(block)
+      {
+        res.json({"operation_succeeded": true}).status(200)
+      }
+      else{
+        res.json({"operation_succeeded": false}).status(404)
+      } 
+    }
+    _next()
+  },
+);
+
+
+
+export const unblockUser=catchAsync(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    const blockingUser= _req.user as User
+    const blockedUser=await getUserByUsername(_req.params.username.toLowerCase()) 
+    if(!blockedUser)
+    {
+      return _next(new AppError('user not found', 404));
+    }
+    else if(!(await getUserBlocked(blockingUser?.id,blockedUser.id)))
+    {
+      return _next(new AppError('user not blocked', 404));
+    }
+    else{
+      const block=await unblockUserByIDs(blockingUser.id,blockedUser.id)
+      if(block)
+      {
+        res.json({"operation_succeeded": true}).status(200)
+      }
+      else{
+        res.json({"operation_succeeded": false}).status(404)
+      } 
+    }
+    _next()
+  },
+);
+
