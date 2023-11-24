@@ -20,7 +20,7 @@ export const login = catchAsync(
       const userEmail = await prisma.user
         .findUnique({
           where: {
-            email: email_or_username,
+            email: email_or_username.toLowerCase(),
             password: hashedPassword,
           },
         })
@@ -30,7 +30,7 @@ export const login = catchAsync(
       const userUsername = await prisma.user
         .findUnique({
           where: {
-            userName: email_or_username,
+            userName: email_or_username.toLowerCase(),
             password: hashedPassword,
           },
         })
@@ -54,7 +54,7 @@ export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
     const user = await prisma.user.findUnique({
-      where: { email: req.body.email },
+      where: { email: req.body.email.toLowerCase() },
     });
     if (!user) {
       return _next(new AppError('User not found', 404));
@@ -70,7 +70,7 @@ export const forgotPassword = catchAsync(
       .digest('hex');
     await prisma.user.update({
       where: {
-        email: user.email,
+        email: user.email.toLowerCase(),
       },
       data: {
         passwordResetToken: resetTokenHashed,
@@ -83,7 +83,7 @@ export const forgotPassword = catchAsync(
     // TODO: The subject should have the link to the frontend page where the user will send the password and
     // the password confirm to send a patch request to the server
     const resetEmail: emailType = {
-      to: user.email,
+      to: user.email.toLowerCase(),
       subject: 'Password Reset',
       text: 'Reset Password ' + resetToken,
     };
@@ -118,7 +118,7 @@ export const resetPassword = catchAsync(
     });
     await prisma.user.update({
       where: {
-        email: user.email,
+        email: user.email.toLowerCase(),
       },
       data: {
         passwordResetExpires: undefined,
@@ -194,7 +194,7 @@ export const signUp = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const user = await prisma.user.findFirst({
       where: {
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
       },
     });
     if (user) {
@@ -203,7 +203,7 @@ export const signUp = catchAsync(
     } else {
       const verify = await prisma.emailVerification.findFirst({
         where: {
-          email: req.body.email,
+          email: req.body.email.toLowerCase(),
         },
       });
       if (!verify) {
@@ -212,7 +212,7 @@ export const signUp = catchAsync(
       } else if (!verify.verified) {
         await prisma.emailVerification.delete({
           where: {
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
           },
         });
         _res.status(403).json({ message: 'Email is not Verified' });
@@ -225,7 +225,7 @@ export const signUp = catchAsync(
             name: req.body.name,
             birthDate: req.body.birthDate,
             createdAt: new Date().toISOString(),
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
             userName: uniqueUserName[0],
             password: hashedPassword,
           },
@@ -271,7 +271,7 @@ export const signUpGoogle = catchAsync(
     const token: string = auth_header.split(' ')[1];
     const payloadData = await verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
-    const email = (payloadData as JwtPayload).email;
+    const email = (payloadData as JwtPayload).email.toLowerCase();
     const name = (payloadData as JwtPayload).name;
 
     if (!google_id || !email || !name) {
@@ -280,7 +280,7 @@ export const signUpGoogle = catchAsync(
 
     const user = await prisma.user.findFirst({
       where: {
-        email: email,
+        email: email.toLowerCase(),
       },
     });
     if (user) {
@@ -292,7 +292,7 @@ export const signUpGoogle = catchAsync(
           name: name,
           birthDate: req.body.birthDate,
           createdAt: new Date().toISOString(),
-          email: email,
+          email: email.toLowerCase(),
           userName: uniqueUserName[0],
           password: '',
           google_id: google_id,
@@ -391,13 +391,13 @@ export const sendVerificationEmail = catchAsync(
 
     const existingVerificationCode = await prisma.emailVerification.findFirst({
       where: {
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
       },
     });
     if (existingVerificationCode) {
       await prisma.emailVerification.update({
         where: {
-          email: req.body.email,
+          email: req.body.email.toLowerCase(),
         },
         data: {
           code: verificationTokenHashed,
@@ -406,12 +406,12 @@ export const sendVerificationEmail = catchAsync(
       });
     } else {
       await prisma.emailVerification.create({
-        data: { email: req.body.email, code: verificationTokenHashed },
+        data: { email: req.body.email.toLowerCase(), code: verificationTokenHashed },
       });
     }
     // Send it to user email
     const verificationEmail: emailType = {
-      to: req.body.email,
+      to: req.body.email.toLowerCase(),
       subject: 'Email Verification',
       text: 'Email Verification: ' + verificationToken,
     };
@@ -446,7 +446,7 @@ export const verifyEmail = catchAsync(
     // Check if user already exists
     const user = await prisma.user.findFirst({
       where: {
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
       },
     });
     if (user) {
@@ -463,7 +463,7 @@ export const verifyEmail = catchAsync(
       const existingVerificationCode = await prisma.emailVerification.findFirst(
         {
           where: {
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
           },
         },
       );
@@ -479,7 +479,7 @@ export const verifyEmail = catchAsync(
       } else {
         await prisma.emailVerification.update({
           where: {
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
           },
           data: {
             verified: true,
@@ -553,6 +553,61 @@ export const checkPassword = catchAsync(
       correct: isPasswordCorrect,
     });
 
+    next();
+  }
+);
+
+
+export const changeEmail=catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user=req.user as User
+    const tempUser=await prisma.user.findFirst({
+      where:{
+        email:req.body.email.toLowerCase()
+      }
+    })
+    if(tempUser)
+    {
+      return next(new AppError('email is already used', 404));
+    }
+    const verified=await prisma.emailVerification.findFirst({where:{email:req.body.email.toLowerCase()}})
+    if(!verified)
+    {
+      return next(new AppError('email not verified', 404));
+    }
+    else{
+      await prisma.emailVerification.delete({
+        where:{
+          email:user.email.toLowerCase()
+        }
+      })
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          email:req.body.email.toLowerCase()
+        },
+      });
+
+
+      res.json({
+        userName: updatedUser.userName,
+        name: updatedUser.name,
+        birthDate: updatedUser.birthDate,
+        url: updatedUser.url,
+        description: updatedUser.description,
+        protected: updatedUser.protected,
+        verified: updatedUser.verified,
+        followersCount: updatedUser.followersCount,
+        followingCount: updatedUser.followingCount,
+        createdAt: updatedUser.createdAt,
+        profileBannerUrl: updatedUser.profileBannerUrl,
+        profileImageUrl: updatedUser.profileImageUrl,
+        email: updatedUser.email,
+      }).status(200)
+  
+    }
     next();
   }
 );
