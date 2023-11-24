@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { googleSignUpSchema, loginSchema } from '../schemas/authSchema';
+import { checkPasswordSchema, googleSignUpSchema, loginSchema, updatePasswordSchema } from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -202,7 +202,11 @@ router
  *       "410":
  *        $ref: '#/responses/410'
  */
-router.route('/check-password').get();
+router
+  .route('/check-password/')
+  .get(isLoggedIn, validate(checkPasswordSchema), authController.checkPassword);
+
+
 /**
  * @openapi
  * '/api/v1/auth/login':
@@ -568,8 +572,9 @@ router
  *
  *
  */
-
-router.route('/update-password/').post();
+router
+  .route('/update-password/')
+  .post(isLoggedIn, validate(updatePasswordSchema), authController.updatePassword);
 
 /**
  * @openapi

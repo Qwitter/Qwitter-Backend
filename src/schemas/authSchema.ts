@@ -252,3 +252,24 @@ const loginPayloadSchema = object({
 });
 
 export const loginSchema = loginPayloadSchema;
+
+const updatePasswordPayload = {
+  body: object({
+    oldPassword: string({ required_error: 'Old password is required' }),
+    newPassword: string({ required_error: 'New password is required' }),
+  }),
+};
+
+export const updatePasswordSchema = object({
+  ...updatePasswordPayload,
+});
+
+const checkPasswordPayload = {
+  body: object({
+    password: string({ required_error: 'Password is required' }),
+  }),
+};
+
+export const checkPasswordSchema = object({
+  ...checkPasswordPayload,
+});

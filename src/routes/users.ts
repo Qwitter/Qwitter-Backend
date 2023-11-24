@@ -1,9 +1,13 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import * as userController from '../controllers/userController';
-import { updateUserNameSchemaPayload } from '../schemas/userSchema';
 import { validate } from '../utils/validator';
+import {
+  putUserProfileReqSchema,
+  updateUserNameSchemaPayload,
+} from '../schemas/userSchema';
+import * as userController from '../controllers/userController';
+
 const router = express.Router();
 
 /**
@@ -575,7 +579,15 @@ router.delete(
  *        description: Bad request
  */
 
-router.get('/', isLoggedIn, userController.getUser);
+router.put(
+  '/profile',
+  isLoggedIn,
+  validate(putUserProfileReqSchema),
+  userController.putUserProfile,
+);
+
+router.get('/:username', userController.getUser);
+
 /**
  * @openapi
  * '/api/v1/user/username':
