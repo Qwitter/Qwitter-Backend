@@ -237,6 +237,14 @@ router
  *        description: Bad request
  */
 
+
+router
+  .route('/block/:username')
+  .delete(
+    isLoggedIn,
+    userController.unblockUser,
+  );
+
 /**
  * @openapi
  * '/api/v1/user/mute':

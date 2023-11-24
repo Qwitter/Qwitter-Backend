@@ -26,3 +26,12 @@ export const blockUserByIDs=async (blockingUser: string,blockedUser: string) => 
     }
   })
 };
+
+
+export const unblockUserByIDs=async (blockingUser: string,blockedUser: string) => {
+  return await prisma.block.delete({
+    where: {
+      blockerId_blockedId:{blockedId:blockedUser,blockerId:blockingUser}
+    },
+  })
+};
