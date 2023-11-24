@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../utils/catchAsync';
 import prisma from '../client';
 import { User } from '@prisma/client';
@@ -219,3 +219,8 @@ export const getTweet=catchAsync(async (req: Request, res: Response, next: NextF
   }
   next()
 })
+
+
+
+
+

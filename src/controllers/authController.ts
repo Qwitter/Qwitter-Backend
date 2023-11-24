@@ -556,3 +556,62 @@ export const checkPassword = catchAsync(
     next();
   }
 );
+
+
+export const changeEmail=catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user=req.user as User
+    const tempUser=await prisma.user.findFirst({
+      where:{
+        email:req.body.email
+      }
+    })
+    if(tempUser)
+    {
+      return next(new AppError('email is already used', 404));
+    }
+    const verified=await prisma.emailVerification.findFirst({where:{email:req.body.email}})
+    if(!verified)
+    {
+      return next(new AppError('email not verified', 404));
+    }
+    else{
+      await prisma.emailVerification.delete({
+        where:{
+          email:user.email
+        }
+      })
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          email:req.body.email
+        },
+      });
+
+
+      res.json({
+        userName: updatedUser.userName,
+        name: updatedUser.name,
+        birthDate: updatedUser.birthDate,
+        url: updatedUser.url,
+        description: updatedUser.description,
+        protected: updatedUser.protected,
+        verified: updatedUser.verified,
+        followersCount: updatedUser.followersCount,
+        followingCount: updatedUser.followingCount,
+        createdAt: updatedUser.createdAt,
+        profileBannerUrl: updatedUser.profileBannerUrl,
+        profileImageUrl: updatedUser.profileImageUrl,
+        email: updatedUser.email,
+      }).status(200)
+  
+    }
+
+    
+    
+
+    next();
+  }
+);

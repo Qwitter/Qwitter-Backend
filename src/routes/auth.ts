@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { checkPasswordSchema, googleSignUpSchema, loginSchema, updatePasswordSchema } from '../schemas/authSchema';
+import { checkPasswordSchema, googleSignUpSchema, loginSchema, updatePasswordSchema,changeEmailSchema } from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -681,5 +681,14 @@ router.route('/logout').post(authController.logout);
 router
   .route('/username-suggestions')
   .post(isLoggedIn, authController.userNameSuggestions);
+
+
+
+
+  router
+  .route('/change-email')
+  .post(isLoggedIn, validate(changeEmailSchema),authController.changeEmail);
+
+
 
 export default router;

@@ -270,6 +270,16 @@ const checkPasswordPayload = {
   }),
 };
 
+
+
 export const checkPasswordSchema = object({
   ...checkPasswordPayload,
 });
+
+
+
+export const changeEmailSchema=object({
+  body:object({
+    email: string({required_error:'new email is required'}).email()
+  })
+})
