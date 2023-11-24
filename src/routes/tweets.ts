@@ -1,9 +1,15 @@
 import express from 'express';
-import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { getTweetReplies, getTweetRetweets } from '../controllers/tweetController';
-import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
+import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
+import { postTweet } from '../controllers/tweetController';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import {
+  getTweetReplies,
+  getTweetRetweets,
+} from '../controllers/tweetController';
+import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
+import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
 
 /**
@@ -35,7 +41,14 @@ const router = express.Router();
  *      403:
  *        description: Unauthorized
  */
-router.route('/').post();
+router
+  .route('/')
+  .post(
+    isLoggedIn,
+    uploadTweetMediaMiddleware,
+    validate(CreateTweetSchema),
+    postTweet,
+  );
 
 /**
  * @openapi
@@ -106,7 +119,7 @@ router.route('/').post();
  *        description: Unauthorized
  */
 
-router.get('/:id',getTweet)
+router.get('/:id', getTweet);
 
 /**
  * @openapi

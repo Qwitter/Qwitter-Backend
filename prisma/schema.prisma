@@ -5,9 +5,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
 
 datasource db {
   provider = "postgresql"
@@ -132,8 +132,7 @@ model Like {
 model Mention {
   id            String @default(uuid())
   mentionedUser User   @relation(fields: [userId], references: [id])
-  index         Int
-  userId        String
+  userId        String @unique
   entity        Entity @relation(fields: [entityId], references: [id])
   entityId      String @unique
 
@@ -142,7 +141,6 @@ model Mention {
 
 model Hashtag {
   text     String
-  index    Int
   count    Int
   entity   Entity @relation(fields: [entityId], references: [id])
   entityId String @unique
@@ -163,7 +161,6 @@ model Media {
 model Url {
   id       String @default(uuid())
   text     String
-  index    Int
   entity   Entity @relation(fields: [entityId], references: [id])
   entityId String @unique
 
