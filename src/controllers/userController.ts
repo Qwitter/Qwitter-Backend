@@ -233,10 +233,10 @@ export const blockUser=catchAsync(
       const block=await blockUserByIDs(blockingUser.id,blockedUser.id)
       if(block)
       {
-        res.json({"operation_succeeded": true}).status(200)
+        res.json({"status": "success"}).status(200)
       }
       else{
-        res.json({"operation_succeeded": false}).status(404)
+        res.json({"status": "success"}).status(404)
       } 
     }
     _next()
@@ -261,10 +261,10 @@ export const unblockUser=catchAsync(
       const block=await unblockUserByIDs(blockingUser.id,blockedUser.id)
       if(block)
       {
-        res.json({"operation_succeeded": true}).status(200)
+        res.json({"status": "success"}).status(200)
       }
       else{
-        res.json({"operation_succeeded": false}).status(404)
+        res.json({"status": "failute"}).status(404)
       } 
     }
     _next()
@@ -303,7 +303,7 @@ export const muteUser = catchAsync(
       },
     });
 
-    res.status(200).json({ message: 'User muted successfully' });
+    res.status(200).json({ status: "success", message: 'User muted successfully' });
     next();
   },
 );
@@ -337,7 +337,7 @@ export const unmuteUser = catchAsync(
       where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
     });
 
-    res.status(200).json({ message: 'User unmuted successfully' });
+    res.status(200).json({ status: "success", message: 'User unmuted successfully' });
     next();
   },
 );
@@ -395,7 +395,7 @@ export const followUser = catchAsync(
       },
     });
 
-    res.status(200).json({ message: 'User followed successfully' });
+    res.status(200).json({ status: "success", message: 'User followed successfully' });
     next();
   },
 );
@@ -429,7 +429,7 @@ export const unfollowUser = catchAsync(
       where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
     });
 
-    res.status(200).json({ message: 'User unfollowed successfully' });
+    res.status(200).json({ status: "success", message: 'User unfollowed successfully' });
     next();
   },
 );
