@@ -16,9 +16,9 @@ import { object, string, TypeOf,optional} from 'zod';
  *    UserInteractionResponse:
  *      type: object
  *      properties:
- *        operation_succeeded:
- *          type: boolean
- *          default: true
+ *        status:
+ *          type: string
+ *          default: success
  *    UploadImageResponse:
  *      type: object
  *      properties:

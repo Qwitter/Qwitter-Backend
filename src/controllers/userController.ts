@@ -233,10 +233,10 @@ export const blockUser=catchAsync(
       const block=await blockUserByIDs(blockingUser.id,blockedUser.id)
       if(block)
       {
-        res.json({"operation_succeeded": true}).status(200)
+        res.json({"status": "success"}).status(200)
       }
       else{
-        res.json({"operation_succeeded": false}).status(404)
+        res.json({"status": "success"}).status(404)
       } 
     }
     _next()
@@ -261,13 +261,176 @@ export const unblockUser=catchAsync(
       const block=await unblockUserByIDs(blockingUser.id,blockedUser.id)
       if(block)
       {
-        res.json({"operation_succeeded": true}).status(200)
+        res.json({"status": "success"}).status(200)
       }
       else{
-        res.json({"operation_succeeded": false}).status(404)
+        res.json({"status": "failute"}).status(404)
       } 
     }
     _next()
+  },
+);
+
+export const muteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const muterId = (req.user as User).id;
+
+    const userToMute = await prisma.user.findUnique({
+      where: { userName:username },
+    });
+
+    if (!userToMute) {
+      return next(new AppError('User to mute not found', 404));
+    }
+
+    if (muterId == userToMute.id) {
+      return next(new AppError("Can't Mute Yourself", 401));
+    }
+
+    const existingMute = await prisma.mute.findUnique({
+      where: { muterId_mutedId: { muterId, mutedId: userToMute.id } },
+    });
+
+    if (existingMute) {
+      return next(new AppError('User is already muted', 400));
+    }
+
+    await prisma.mute.create({
+      data: {
+        muterId,
+        mutedId: userToMute.id,
+      },
+    });
+
+    res.status(200).json({ status: "success", message: 'User muted successfully' });
+    next();
+  },
+);
+
+export const unmuteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const muterId = (req.user as User).id;
+
+    const userToUnmute = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToUnmute) {
+      return next(new AppError('User to unmute not found', 404));
+    }
+
+    if (muterId == userToUnmute.id) {
+      return next(new AppError("Can't Unmute Yourself", 401));
+    }
+
+    const existingMute = await prisma.mute.findUnique({
+      where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
+    });
+
+    if (!existingMute) {
+      return next(new AppError('User is not muted', 400));
+    }
+
+    await prisma.mute.delete({
+      where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
+    });
+
+    res.status(200).json({ status: "success", message: 'User unmuted successfully' });
+    next();
+  },
+);
+
+
+
+export const getUsersMutedByCurrentUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const muterId = (req.user as User).id;
+
+    const mutedUsers = await prisma.mute.findMany({
+      where: {
+        muterId,
+      },
+      include: {
+        muted: true,
+      },
+    });
+
+    res.status(200).json(mutedUsers.map((user) => user.muted));
+    next();
+  },
+);
+
+
+export const followUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const followerId = (req.user as User).id;
+
+    const userToFollow = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToFollow) {
+      return next(new AppError('User to follow not found', 404));
+    }
+
+    if (userToFollow.id == followerId) {
+      return next(new AppError("Can't follow youself", 401));
+    }
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToFollow.id } },
+    });
+
+    if (existingFollow) {
+      return next(new AppError('User is already followed', 400));
+    }
+
+    await prisma.follow.create({
+      data: {
+        folowererId: followerId,
+        followedId: userToFollow.id,
+      },
+    });
+
+    res.status(200).json({ status: "success", message: 'User followed successfully' });
+    next();
+  },
+);
+
+export const unfollowUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const followerId = (req.user as User).id;
+
+    const userToUnfollow = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToUnfollow) {
+      return next(new AppError('User to unfollow not found', 404));
+    }
+
+    if (userToUnfollow.id == followerId) {
+      return next(new AppError("Can't unfollow youself", 401));
+    }
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+    });
+
+    if (!existingFollow) {
+      return next(new AppError('User is not followed', 400));
+    }
+
+    await prisma.follow.delete({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+    });
+
+    res.status(200).json({ status: "success", message: 'User unfollowed successfully' });
+    next();
   },
 );
 
