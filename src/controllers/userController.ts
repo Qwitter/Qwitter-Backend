@@ -361,3 +361,76 @@ export const getUsersMutedByCurrentUser = catchAsync(
     next();
   },
 );
+
+
+export const followUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const followerId = (req.user as User).id;
+
+    const userToFollow = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToFollow) {
+      return next(new AppError('User to follow not found', 404));
+    }
+
+    if (userToFollow.id == followerId) {
+      return next(new AppError("Can't follow youself", 401));
+    }
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToFollow.id } },
+    });
+
+    if (existingFollow) {
+      return next(new AppError('User is already followed', 400));
+    }
+
+    await prisma.follow.create({
+      data: {
+        folowererId: followerId,
+        followedId: userToFollow.id,
+      },
+    });
+
+    res.status(200).json({ message: 'User followed successfully' });
+    next();
+  },
+);
+
+export const unfollowUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const followerId = (req.user as User).id;
+
+    const userToUnfollow = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToUnfollow) {
+      return next(new AppError('User to unfollow not found', 404));
+    }
+
+    if (userToUnfollow.id == followerId) {
+      return next(new AppError("Can't unfollow youself", 401));
+    }
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+    });
+
+    if (!existingFollow) {
+      return next(new AppError('User is not followed', 400));
+    }
+
+    await prisma.follow.delete({
+      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+    });
+
+    res.status(200).json({ message: 'User unfollowed successfully' });
+    next();
+  },
+);
+

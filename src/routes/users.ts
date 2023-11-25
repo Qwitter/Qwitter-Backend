@@ -101,6 +101,7 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *      400:
  *        description: Bad request
  */
+router.post('/follow/:username', isLoggedIn, userController.followUser);
 
 /**
  * @openapi
@@ -133,6 +134,7 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *      400:
  *        description: Bad request
  */
+router.delete('/follow/:username', isLoggedIn, userController.unfollowUser);
 
 /**
  * @openapi
