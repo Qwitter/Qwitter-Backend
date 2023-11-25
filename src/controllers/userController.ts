@@ -271,3 +271,93 @@ export const unblockUser=catchAsync(
   },
 );
 
+export const muteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const muterId = (req.user as User).id;
+
+    const userToMute = await prisma.user.findUnique({
+      where: { userName:username },
+    });
+
+    if (!userToMute) {
+      return next(new AppError('User to mute not found', 404));
+    }
+
+    if (muterId == userToMute.id) {
+      return next(new AppError("Can't Mute Yourself", 401));
+    }
+
+    const existingMute = await prisma.mute.findUnique({
+      where: { muterId_mutedId: { muterId, mutedId: userToMute.id } },
+    });
+
+    if (existingMute) {
+      return next(new AppError('User is already muted', 400));
+    }
+
+    await prisma.mute.create({
+      data: {
+        muterId,
+        mutedId: userToMute.id,
+      },
+    });
+
+    res.status(200).json({ message: 'User muted successfully' });
+    next();
+  },
+);
+
+export const unmuteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params;
+    const muterId = (req.user as User).id;
+
+    const userToUnmute = await prisma.user.findUnique({
+      where: { userName: username },
+    });
+
+    if (!userToUnmute) {
+      return next(new AppError('User to unmute not found', 404));
+    }
+
+    if (muterId == userToUnmute.id) {
+      return next(new AppError("Can't Unmute Yourself", 401));
+    }
+
+    const existingMute = await prisma.mute.findUnique({
+      where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
+    });
+
+    if (!existingMute) {
+      return next(new AppError('User is not muted', 400));
+    }
+
+    await prisma.mute.delete({
+      where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
+    });
+
+    res.status(200).json({ message: 'User unmuted successfully' });
+    next();
+  },
+);
+
+
+
+export const getUsersMutedByCurrentUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const muterId = (req.user as User).id;
+
+    const mutedUsers = await prisma.mute.findMany({
+      where: {
+        muterId,
+      },
+      include: {
+        muted: true,
+      },
+    });
+
+    res.status(200).json(mutedUsers.map((user) => user.muted));
+    next();
+  },
+);

@@ -281,6 +281,7 @@ router
  *      400:
  *        description: Bad request
  */
+router.get('/mute/', isLoggedIn, userController.getUsersMutedByCurrentUser);
 
 /**
  * @openapi
@@ -308,6 +309,7 @@ router
  *      400:
  *        description: Bad request
  */
+router.post('/mute/:username', isLoggedIn, userController.muteUser);
 
 /**
  * @openapi
@@ -340,6 +342,7 @@ router
  *      400:
  *        description: Bad request
  */
+router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
 
 /**
  * @openapi
