@@ -11,12 +11,13 @@ import { getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
-
 /**
  * @openapi
  * /api/v1/tweets:
  *  post:
  *     tags: [Tweet]
+ *     consumes:
+ *       - multipart/form-data
  *     parameters:
  *       - name: authorization
  *         in: header
@@ -26,11 +27,11 @@ const router = express.Router();
  *           type: string
  *     summary: add tweet
  *     requestBody:
- *      required: true
- *      content:
- *        application/json:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
  *           schema:
- *              $ref: '#/components/schemas/CreateTweetPayload'
+ *             $ref: '#/components/schemas/CreateTweetPayload'
  *     responses:
  *      200:
  *        description: Tweet was added successfully
@@ -41,6 +42,7 @@ const router = express.Router();
  *      403:
  *        description: Unauthorized
  */
+
 router
   .route('/')
   .post(
@@ -229,10 +231,30 @@ router
 
 /**
  * @openapi
- * '/api/v1/tweets/toggle-like':
+ * '/api/v1/tweets/like':
  *  post:
  *     tags: [Tweet]
- *     summary: Toggle Like a Tweet
+ *     summary: Like a Tweet
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              $ref: '#/components/schemas/TweetToggleLikeInput'
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/TweetToggleLikeResponse'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ *  delete:
+ *     tags: [Tweet]
+ *     summary: Unlike a tweet
  *     requestBody:
  *      required: true
  *      content:

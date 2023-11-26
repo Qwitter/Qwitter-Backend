@@ -26,7 +26,7 @@ export const tweetMediaStorage = multer.diskStorage({
     _file: Express.Multer.File,
     callback: (error: Error | null, destination: string) => void,
   ) {
-    callback(null, `public/imgs/tweets`);
+    callback(null, `public/imgs/tweet`);
   },
   filename: function (
     req: UserRequest,

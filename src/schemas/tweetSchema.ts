@@ -26,6 +26,24 @@ import { object, string } from 'zod';
  *             $ref: '#/components/schemas/url'
  */
 
+//Media
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *
+ *    UploadMediaInput:
+ *      type: object
+ *      required:
+ *        - media
+ *      properties:
+ *        media:
+ *          type: string
+ *          format: binary
+ *
+ */
+
 /**
  * @openapi
  * components:
@@ -33,14 +51,16 @@ import { object, string } from 'zod';
  *     media:
  *       type: object
  *       properties:
- *         value:
+ *         url:
  *           type: string
  *           example: 'qwitter/photos/213902323'
  *           description: The value of the entity.
  *         type:
  *           type: string
- *           example: 'photo'
- *           description: The type of the entity (e.g., 'hashtag', 'photo').
+ *           example: 'image'
+ *         id:
+ *           type: string
+ *           example: 21893u2039kldfs-skdlm
  */
 
 /**
@@ -50,10 +70,14 @@ import { object, string } from 'zod';
  *     hashtag:
  *       type: object
  *       properties:
- *         value:
+ *         text:
  *           type: string
  *           example: '#Palestine'
- *           description: The value of the entity.
+ *           description: The value of the hashtag with #
+ *         count:
+ *           type: number
+ *           example: 15
+ *           description: The count of the tweets & messages referencing this hasthag
  */
 
 //entity
@@ -62,12 +86,8 @@ import { object, string } from 'zod';
  * components:
  *   schemas:
  *     url:
- *       type: object
- *       properties:
- *         value:
- *           type: string
- *           example: 'qwitter/photos/213902323'
- *           description: The value of the entity.
+ *       type: string
+ *       example: qwitter.com
  */
 
 /**
@@ -75,12 +95,9 @@ import { object, string } from 'zod';
  * components:
  *   schemas:
  *     mention:
- *       type: object
- *       properties:
- *         mentionedUsername:
- *           type: string
- *           example: 'ahmedoshelmy'
- *           description: The value of the entity.
+ *       type: string
+ *       example: ahmedoshelmy
+ *       description: The usernames of the mentioned users if any
  */
 
 //tweet
@@ -139,6 +156,8 @@ import { object, string } from 'zod';
  *          default: false
  *        entities:
  *          $ref: '#/components/schemas/entityArray'
+ *        author:
+ *          $ref: '#/components/schemas/User'
  *
  */
 
@@ -269,7 +288,7 @@ import { object, string } from 'zod';
  *        retweetedId:
  *          type: string
  *          default: 1718938551163691349
- *        qouteTweetedId:
+ *        quoteTweetedId:
  *          type: string
  *          default: 1718938551163691349
  *        sensitive:
@@ -278,8 +297,11 @@ import { object, string } from 'zod';
  *        media:
  *          type: array
  *          items:
- *           type: string
- *           default: jikshd3847329049023859093
+ *            type: string
+ *            format: binary
+ *      required:
+ *        - text
+ 
  *    addTweetresponse200:
  *      type: object
  *      properties:

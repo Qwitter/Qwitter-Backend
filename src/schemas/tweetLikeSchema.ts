@@ -7,22 +7,16 @@ import { object, string } from 'zod';
  *    TweetToggleLikeInput:
  *      type: object
  *      required:
- *        - used_id
  *        - tweet_id
  *      properties:
- *        used_id:
- *          type: string
- *          default: 1215
  *        tweet_id:
  *          type: string
  *          default: 150123
  *    TweetToggleLikeResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean
- *        is_liked:
- *          type: boolean
+ *        status:
+ *          type: string
  */
 
 const tweetToggleLikeSchemaPayload = {
@@ -39,7 +33,6 @@ const tweetToggleLikeSchemaPayload = {
 export const tweetLikeSchema = object({
   ...tweetToggleLikeSchemaPayload,
 });
-
 
 export const getTweetRepliesSchema = object({
   params: object({

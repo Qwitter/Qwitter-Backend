@@ -2,7 +2,13 @@ import express from 'express';
 import passport from 'passport';
 import * as authController from '../controllers/authController';
 import { validate } from '../utils/validator';
-import { checkPasswordSchema, googleSignUpSchema, loginSchema, updatePasswordSchema,changeEmailSchema } from '../schemas/authSchema';
+import {
+  checkPasswordSchema,
+  googleSignUpSchema,
+  loginSchema,
+  updatePasswordSchema,
+  changeEmailSchema,
+} from '../schemas/authSchema';
 
 const router = express.Router();
 import {
@@ -149,7 +155,7 @@ router
 /**
  * @openapi
  * '/api/v1/auth/check-password':
- *  get:
+ *  post:
  *     tags:
  *     - Authentication
  *     summary: Check Password of user through token and password
@@ -204,8 +210,11 @@ router
  */
 router
   .route('/check-password/')
-  .get(isLoggedIn, validate(checkPasswordSchema), authController.checkPassword);
-
+  .post(
+    isLoggedIn,
+    validate(checkPasswordSchema),
+    authController.checkPassword,
+  );
 
 /**
  * @openapi
@@ -574,7 +583,11 @@ router
  */
 router
   .route('/update-password/')
-  .post(isLoggedIn, validate(updatePasswordSchema), authController.updatePassword);
+  .post(
+    isLoggedIn,
+    validate(updatePasswordSchema),
+    authController.updatePassword,
+  );
 
 /**
  * @openapi
@@ -582,7 +595,7 @@ router
  *  post:
  *     tags:
  *     - Authentication
- *     summary: Change the password using only the token
+ *     summary: Change the email using the token. The email should be verified first
  *     parameters:
  *       - name: authorization
  *         in: header
@@ -680,15 +693,10 @@ router.route('/logout').post(authController.logout);
 
 router
   .route('/username-suggestions')
-  .post(isLoggedIn, authController.userNameSuggestions);
+  .get(isLoggedIn, authController.userNameSuggestions);
 
-
-
-
-  router
+router
   .route('/change-email')
-  .post(isLoggedIn, validate(changeEmailSchema),authController.changeEmail);
-
-
+  .post(isLoggedIn, validate(changeEmailSchema), authController.changeEmail);
 
 export default router;
