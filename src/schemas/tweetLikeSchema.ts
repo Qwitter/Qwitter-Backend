@@ -41,3 +41,11 @@ export const getTweetRepliesSchema = object({
     }),
   }),
 });
+
+export const getTweetLikesSchema = object({
+  params: object({
+    id: string({
+      required_error: 'Tweet ID is required',
+    }),
+  }),
+});

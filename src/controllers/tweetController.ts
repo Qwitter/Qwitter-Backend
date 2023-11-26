@@ -51,7 +51,25 @@ export const getTimeline = catchAsync(
         createdAt: 'desc',
       },
       include: {
-        author: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+            userName: true,
+            birthDate: true,
+          }
+        },
         replyToTweet: true,
         reTweet: true,
         qouteTweet: true,
@@ -365,3 +383,46 @@ export const getTweet = catchAsync(
     next();
   },
 );
+
+export const getTweetLikers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    const tweetLikers = await prisma.like.findMany({
+      where: {
+        tweetId: id,
+      },
+      include: {
+        liker: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+            userName: true,
+            birthDate: true,
+          },
+        },
+      },
+    });
+
+    const likers = tweetLikers.map((like) => like.liker);
+
+    res.status(200).json({
+      status: 'success',
+      likers,
+    });
+
+    next();
+  },
+);
+
