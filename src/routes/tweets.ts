@@ -1,20 +1,13 @@
 import express from 'express';
 import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
-import {
-  getTweetLikers,
-  postTweet,
-  getUserLikedTweets,
-} from '../controllers/tweetController';
+import { getTweetLikers, postTweet } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
   getTweetReplies,
   getTweetRetweets,
 } from '../controllers/tweetController';
-import {
-  getTweetLikesSchema,
-  getTweetRepliesSchema,
-} from '../schemas/tweetLikeSchema';
+import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
@@ -282,38 +275,4 @@ router
  *      400:
  *        description: Bad request
  */
-
-/**
- * @openapi
- * '/api/v1/tweets/user/{username}':
- *  get:
- *     tags:
- *     - Tweet
- *     parameters:
- *       - name: authorization
- *         in: header
- *         description: ''
- *         required: true
- *       - name: page
- *         in: param
- *       - name: limit
- *         in: param
- *         schema:
- *           type: string
- *     summary: Get User Tweets
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/ReturnListOfTweets'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
- */
-
-router.route('/user/:username/like').get(isLoggedIn, getUserLikedTweets);
-
 export default router;
