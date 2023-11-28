@@ -329,14 +329,13 @@ router.route('/:id/like').post().delete();
  *         description: If the hashtag is in the query, only the tweets including that hashtag will be returned
  *         schema:
  *           type: string
- *     summary: Get Timeline, Search for Tweets and search for tweets that include a hashtag
  *       - name: page
  *         in: param
  *       - name: limit
  *         in: param
  *         schema:
  *           type: string
- *     summary: Get User Tweets
+ *     summary: Get Timeline, Search for Tweets and search for tweets that include a hashtag
  *     responses:
  *      200:
  *        description: Success
