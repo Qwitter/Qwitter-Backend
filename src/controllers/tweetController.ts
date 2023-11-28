@@ -342,6 +342,13 @@ export const getTweet = catchAsync(
           mentions.push({ mentionedUsername: user?.userName });
         }
       }
+      const liked=await prisma.like.findFirst({
+        where:{
+          userId:(req.user as User)?.id,
+          tweetId:req.params.id
+        }
+      })
+  
       const responseBody = {
         status: 'success',
           tweet:{
@@ -356,6 +363,8 @@ export const getTweet = catchAsync(
             coordinates: tweet.coordinates,
             replyToTweetId: tweet.replyToTweetId,
             retweetedID: retweetedTweetID,
+            liked:liked!=null,
+            bookmarked:false,
             entities: {
               hashtags: hashtags,
               media: medias,
@@ -426,32 +435,5 @@ export const getTweetLikers = catchAsync(
   },
 );
 
-
-export const getStatus = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user)
-    const currentUser=req.user as User
-    const tweet=await prisma.tweet.findFirst({
-      where:{
-        id:req.params.id
-      }
-    })
-    if(!tweet)
-    {
-      new AppError('Tweet was Not Found', 404);
-    }
-    const liked=await prisma.like.findFirst({
-      where:{
-        userId:currentUser?.id,
-        tweetId:req.params.id
-      }
-    })
-    res.json({
-      liked:liked!=null,
-      bookmarked:false
-    }).status(200)
-    next();
-  }
-)
 
 
