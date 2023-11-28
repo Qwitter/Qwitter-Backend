@@ -10,6 +10,7 @@ import {
   createMention,
   getMention,
   getTweetEntities,
+  searchHastagsByWord,
 } from '../repositories/entityRepository';
 import { incrementHashtagCount } from '../repositories/entityRepository';
 import { createEntity } from '../repositories/entityRepository';
@@ -83,16 +84,16 @@ const getTimeline = async (req: Request) => {
     skip,
     take: parsedLimit,
   });
-  let responses=[]
-  for (var tweet of timelineTweets){
-    const liked= await prisma.like.findFirst({
-      where:{
-        userId:(req.user as User)?.id,
-        tweetId:tweet.id
-      }
-    })
-    let response={...tweet,liked:liked!=null}
-    responses.push(response)
+  let responses = [];
+  for (var tweet of timelineTweets) {
+    const liked = await prisma.like.findFirst({
+      where: {
+        userId: (req.user as User)?.id,
+        tweetId: tweet.id,
+      },
+    });
+    let response = { ...tweet, liked: liked != null };
+    responses.push(response);
   }
 
   return responses;
@@ -230,7 +231,7 @@ function extractMentions(inputString: string): string[] {
 export const getTweetReplies = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const tweetId = req.params.id;
-    let responses=[]
+    let responses = [];
     const tweet = await prisma.tweet.findUnique({
       where: {
         id: tweetId,
@@ -256,20 +257,16 @@ export const getTweetReplies = catchAsync(
         TweetEntity: true,
       },
     });
-    for (var reply of replies){
-      const liked= await prisma.like.findFirst({
-        where:{
-          userId:(req.user as User)?.id,
-          tweetId:reply.id
-        }
-      })
-      let response={...tweet,liked:liked!=null}
-      responses.push(response)
-      
+    for (var reply of replies) {
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: reply.id,
+        },
+      });
+      let response = { ...tweet, liked: liked != null };
+      responses.push(response);
     }
-
-
-    
 
     res.status(200).json({
       status: 'success',
@@ -363,13 +360,13 @@ export const getTweet = catchAsync(
           mentions.push({ mentionedUsername: user?.userName });
         }
       }
-      const liked=await prisma.like.findFirst({
-        where:{
-          userId:(req.user as User)?.id,
-          tweetId:req.params.id
-        }
-      })
-  
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: req.params.id,
+        },
+      });
+
       const responseBody = {
         status: 'success',
         tweet: {
@@ -384,7 +381,7 @@ export const getTweet = catchAsync(
           coordinates: tweet.coordinates,
           replyToTweetId: tweet.replyToTweetId,
           retweetedID: retweetedTweetID,
-          liked:liked!=null,
+          liked: liked != null,
           entities: {
             hashtags: hashtags,
             media: medias,
@@ -470,7 +467,7 @@ export const searchTweets = catchAsync(
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
     const skip = (parsedPage - 1) * parsedLimit;
-    let responses=[]
+    let responses = [];
     let tweets;
     if (hashtag) {
       tweets = await searchTweet(
@@ -484,16 +481,15 @@ export const searchTweets = catchAsync(
     } else {
       tweets = await getTimeline(req);
     }
-    for (var tweet of tweets){
-      const liked= await prisma.like.findFirst({
-        where:{
-          userId:(req.user as User)?.id,
-          tweetId:tweet.id
-        }
-      })
-      let response={...tweet,liked:liked!=null}
-      responses.push(response)
-      
+    for (var tweet of tweets) {
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: tweet.id,
+        },
+      });
+      let response = { ...tweet, liked: liked != null };
+      responses.push(response);
     }
     res.status(200).json({ tweets: responses });
     next();
@@ -502,7 +498,7 @@ export const searchTweets = catchAsync(
 export const getUserTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;
-    let responses=[]
+    let responses = [];
     const user = await getUserByUsername(userName);
     // Checking that the user exists
     if (!user) {
@@ -512,18 +508,25 @@ export const getUserTweets = catchAsync(
       });
     }
     const tweets = await getTweetsCreatedByUser(user.id);
-    for (var tweet of tweets){
-      const liked= await prisma.like.findFirst({
-        where:{
-          userId:(req.user as User)?.id,
-          tweetId:tweet.id
-        }
-      })
-      let response={...tweet,liked:liked!=null}
-      responses.push(response)
+    for (var tweet of tweets) {
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: tweet.id,
+        },
+      });
+      let response = { ...tweet, liked: liked != null };
+      responses.push(response);
     }
     return res.status(200).json({
-      tweets:responses,
+      tweets: responses,
     });
+  },
+);
+export const searchHastags = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { q } = req.params;
+    const hashtags = await searchHastagsByWord(q);
+    return res.status(200).json(hashtags);
   },
 );

@@ -6,6 +6,7 @@ import {
   getTweetLikers,
   getUserTweets,
   postTweet,
+  searchHastags,
   searchTweets,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
@@ -13,7 +14,10 @@ import {
   getTweetReplies,
   getTweetRetweets,
 } from '../controllers/tweetController';
-import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
+import {
+  getTweetLikesSchema,
+  getTweetRepliesSchema,
+} from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 import { tweetExists } from '../middlewares/tweetExists';
@@ -374,6 +378,6 @@ router.route('/').get(isLoggedIn, searchTweets);
  *      400:
  *        description: Bad request
  */
-router.route('/hashatgs').get(isLoggedIn, searchTweets);
+router.route('/hashatgs').get(isLoggedIn, searchHastags);
 
 export default router;
