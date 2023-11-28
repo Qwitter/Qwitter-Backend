@@ -145,6 +145,12 @@ import { object, string } from 'zod';
  *        replyToTweetId:
  *          type: string
  *          default: 1718938551163691349
+ *        liked:
+ *          type: boolean
+ *          default: true
+ *        bookmarked:
+ *          type: boolean
+ *          default: false
  *        retweetedId:
  *          type: string
  *          default: 1718938551163691349
@@ -350,6 +356,23 @@ export const CreateTweetSchema = object({
  *        deletedAt:
  *          type: string
  *          default: 2023-10-27 10:43:00
+ */
+
+
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    getStatusResponse:
+ *      type: object
+ *      properties:
+ *        liked:
+ *          type: boolean
+ *          default: true
+ *        bookmarked:
+ *          type: boolean
+ *          default: false
  */
 
 /////////////////////////////////////////////////////////
