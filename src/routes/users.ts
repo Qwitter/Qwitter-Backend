@@ -623,7 +623,7 @@ router.put(
  *      400:
  *        description: Bad request
  */
-router.get('/', isLoggedIn, userController.getUser);
+router.get('/', isLoggedIn, userController.getRequestingUser);
 
 /**
  * @openapi
