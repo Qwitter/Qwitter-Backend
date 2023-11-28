@@ -2,6 +2,7 @@ import express from 'express';
 import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
 import {
+  deleteTweet,
   getTweetLikers,
   getUserTweets,
   postTweet,
@@ -17,6 +18,7 @@ import {
 } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
+import { tweetExists } from '../middlewares/tweetExists';
 const router = express.Router();
 /**
  * @openapi
@@ -93,6 +95,7 @@ router
  *      403:
  *        description: Unauthorized
  */
+router.delete('/:id', tweetExists, deleteTweet);
 
 /**
  * @openapi
