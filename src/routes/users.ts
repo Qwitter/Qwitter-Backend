@@ -1,6 +1,6 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
-import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { isLoggedIn, mobileLoggedIn } from '../middlewares/authMiddlewares';
 import { validate } from '../utils/validator';
 import {
   putUserProfileReqSchema,
@@ -623,7 +623,7 @@ router.put(
  *      400:
  *        description: Bad request
  */
-router.get('/', isLoggedIn, userController.getRequestingUser);
+router.get('/', mobileLoggedIn, userController.getRequestingUser);
 
 /**
  * @openapi

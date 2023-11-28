@@ -11,6 +11,7 @@ import {
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
+import { sign } from 'jsonwebtoken';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -142,6 +143,9 @@ export const getUser = catchAsync(
 export const getRequestingUser = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const user = req.user as User;
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
     if (user) {
       const resposeObject = {
         userName: user.userName,
@@ -158,7 +162,7 @@ export const getRequestingUser = catchAsync(
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
       };
-      res.json(resposeObject).status(200);
+      res.json({ user: resposeObject, token }).status(200);
     } else {
       return _next(new AppError('User not found', 404));
     }
