@@ -352,6 +352,23 @@ export const CreateTweetSchema = object({
  *          default: 2023-10-27 10:43:00
  */
 
+
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    getStatusResponse:
+ *      type: object
+ *      properties:
+ *        liked:
+ *          type: boolean
+ *          default: true
+ *        bookmarked:
+ *          type: boolean
+ *          default: false
+ */
+
 /////////////////////////////////////////////////////////
 
 //Get tweet by id

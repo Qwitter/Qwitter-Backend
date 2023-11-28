@@ -426,3 +426,32 @@ export const getTweetLikers = catchAsync(
   },
 );
 
+
+export const getStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.user)
+    const currentUser=req.user as User
+    const tweet=await prisma.tweet.findFirst({
+      where:{
+        id:req.params.id
+      }
+    })
+    if(!tweet)
+    {
+      new AppError('Tweet was Not Found', 404);
+    }
+    const liked=await prisma.like.findFirst({
+      where:{
+        userId:currentUser?.id,
+        tweetId:req.params.id
+      }
+    })
+    res.json({
+      liked:liked!=null,
+      bookmarked:false
+    }).status(200)
+    next();
+  }
+)
+
+

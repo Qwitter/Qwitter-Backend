@@ -8,7 +8,7 @@ import {
   getTweetRetweets,
 } from '../controllers/tweetController';
 import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
-import { getTweet } from '../controllers/tweetController';
+import { getTweet,getStatus } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
 /**
@@ -275,4 +275,51 @@ router
  *      400:
  *        description: Bad request
  */
+
+
+
+
+
+
+/**
+ * @openapi
+ * /api/v1/tweets/:id/get-status:
+ *  get:
+ *     tags: [Tweet]
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: id
+ *         in: path
+ *         description: Tweet id to get status of
+ *         required: true
+ *         schema:
+ *           type: string
+ *     summary: get status of tweet indicated by id relevant to the authintincating user
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/getStatusResponse'
+ *              
+ *      404:
+ *        description: Tweet was Not Found
+ *      403:
+ *        description: Unauthorized
+ */
+
+
+router
+  .route('/:id/get-status')
+  .get(isLoggedIn, getStatus);
+
+
+
+
 export default router;
