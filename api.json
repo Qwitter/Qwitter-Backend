@@ -365,18 +365,12 @@
       },
       "TweetToggleLikeInput": {
         "type": "object",
-        "required": ["used_id", "tweet_id"],
-        "properties": {
-          "used_id": { "type": "string", "default": 1215 },
-          "tweet_id": { "type": "string", "default": 150123 }
-        }
+        "required": ["tweet_id"],
+        "properties": { "tweet_id": { "type": "string", "default": 150123 } }
       },
       "TweetToggleLikeResponse": {
         "type": "object",
-        "properties": {
-          "success": { "type": "boolean" },
-          "is_liked": { "type": "boolean" }
-        }
+        "properties": { "status": { "type": "string" } }
       },
       "entityArray": {
         "type": "object",
@@ -399,50 +393,43 @@
           }
         }
       },
+      "UploadMediaInput": {
+        "type": "object",
+        "required": ["media"],
+        "properties": { "media": { "type": "string", "format": "binary" } }
+      },
       "media": {
         "type": "object",
         "properties": {
-          "value": {
+          "url": {
             "type": "string",
             "example": "qwitter/photos/213902323",
             "description": "The value of the entity."
           },
-          "type": {
-            "type": "string",
-            "example": "photo",
-            "description": "The type of the entity (e.g., 'hashtag', 'photo')."
-          }
+          "type": { "type": "string", "example": "image" },
+          "id": { "type": "string", "example": "21893u2039kldfs-skdlm" }
         }
       },
       "hashtag": {
         "type": "object",
         "properties": {
-          "value": {
+          "text": {
             "type": "string",
             "example": "#Palestine",
-            "description": "The value of the entity."
+            "description": "The value of the hashtag with"
+          },
+          "count": {
+            "type": "number",
+            "example": 15,
+            "description": "The count of the tweets & messages referencing this hasthag"
           }
         }
       },
-      "url": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string",
-            "example": "qwitter/photos/213902323",
-            "description": "The value of the entity."
-          }
-        }
-      },
+      "url": { "type": "string", "example": "qwitter.com" },
       "mention": {
-        "type": "object",
-        "properties": {
-          "mentionedUsername": {
-            "type": "string",
-            "example": "ahmedoshelmy",
-            "description": "The value of the entity."
-          }
-        }
+        "type": "string",
+        "example": "ahmedoshelmy",
+        "description": "The usernames of the mentioned users if any"
       },
       "tweet": {
         "type": "object",
@@ -471,7 +458,8 @@
             "default": 1718938551163691300
           },
           "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" }
+          "entities": { "$ref": "#/components/schemas/entityArray" },
+          "author": { "$ref": "#/components/schemas/User" }
         }
       },
       "reply": {
@@ -535,13 +523,17 @@
             "default": 1718938551163691300
           },
           "retweetedId": { "type": "string", "default": 1718938551163691300 },
-          "qouteTweetedId": {
+          "quoteTweetedId": {
             "type": "string",
             "default": 1718938551163691300
           },
           "sensitive": { "type": "boolean", "default": false },
-          "entityId": { "type": "string", "default": 3847329049023859000 }
-        }
+          "media": {
+            "type": "array",
+            "items": { "type": "string", "format": "binary" }
+          }
+        },
+        "required": ["text"]
       },
       "addTweetresponse200": {
         "type": "object",
@@ -566,7 +558,8 @@
         "type": "object",
         "properties": {
           "status": { "type": "string", "default": "success" },
-          "body": { "$ref": "#/components/schemas/tweet" }
+          "tweet": { "$ref": "#/components/schemas/tweet" },
+          "user": { "$ref": "#/components/schemas/User" }
         }
       },
       "getRepliesOfTweetResponse200": {
@@ -618,9 +611,7 @@
       },
       "UserInteractionResponse": {
         "type": "object",
-        "properties": {
-          "operation_succeeded": { "type": "boolean", "default": true }
-        }
+        "properties": { "status": { "type": "string", "default": "success" } }
       },
       "UploadImageResponse": {
         "type": "object",
@@ -671,11 +662,15 @@
       "UserProfile": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "Location": { "type": "string" },
+          "name": {
+            "type": "string",
+            "default": "any string",
+            "required": true
+          },
+          "description": { "type": "string", "default": "any string" },
+          "Location": { "type": "string", "default": "egypt" },
           "url": { "type": "string" },
-          "birth_date": { "type": "string" }
+          "birth_date": { "type": "string", "required": true }
         }
       }
     }
@@ -833,7 +828,7 @@
       }
     },
     "/api/v1/auth/check-password": {
-      "get": {
+      "post": {
         "tags": ["Authentication"],
         "summary": "Check Password of user through token and password",
         "parameters": [
@@ -1174,7 +1169,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdatePasswordSuccessResponse"
+                  "$ref": "#/components/schemas/UpdatePasswordResponse"
                 }
               }
             }
@@ -1192,7 +1187,7 @@
     "/api/v1/auth/change-email": {
       "post": {
         "tags": ["Authentication"],
-        "summary": "Change the password using only the token",
+        "summary": "Change the email using the token. The email should be verified first",
         "parameters": [
           {
             "name": "authorization",
@@ -1495,36 +1490,9 @@
         }
       }
     },
-    "/api/v1/timeline": {
+    "/api/v1/tweets": {
       "get": {
-        "tags": ["Timeline"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Timeline",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/user/{username}": {
-      "get": {
-        "tags": ["Timeline"],
+        "tags": ["Tweet"],
         "parameters": [
           {
             "name": "authorization",
@@ -1534,47 +1502,133 @@
             "schema": { "type": "string" }
           },
           {
-            "name": "type",
+            "name": "q",
             "in": "query",
-            "description": "You can set it to media/replies/likes/mention Default is all tweets",
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get User Tweets",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/lookup": {
-      "get": {
-        "tags": ["Timeline"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization token",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "word",
-            "in": "query",
-            "required": true,
             "description": "Word to search",
             "schema": { "type": "string" }
+          },
+          {
+            "name": "hashtag",
+            "in": "query",
+            "description": "If the hashtag is in the query, only the tweets including that hashtag will be returned",
+            "schema": { "type": "string" }
           }
         ],
-        "summary": "Search Tweets",
+        "summary": "Get Timeline, Search for Tweets and search for tweets that include a hashtag",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      },
+      "post": {
+        "tags": ["Tweet"],
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "summary": "add tweet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/CreateTweetPayload" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tweet was added successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/addTweetresponse200" }
+              }
+            }
+          },
+          "403": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/like": {
+      "get": {
+        "tags": ["Tweet"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "summary": "Get Tweets that the user liked",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/replies": {
+      "get": {
+        "tags": ["Tweet"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "summary": "Not Determined YETTT !!!!!!!!!!",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/media": {
+      "get": {
+        "tags": ["Tweet"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "summary": "Get Tweets of user that include media",
         "responses": {
           "200": {
             "description": "Success",
@@ -1604,40 +1658,6 @@
           },
           "400": { "description": "Bad request" },
           "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets": {
-      "post": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "add tweet",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateTweetPayload" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tweet was added successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/addTweetresponse200" }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" }
         }
       }
     },
@@ -1747,7 +1767,7 @@
         }
       }
     },
-    "/api/v1/tweets/{id}/likes": {
+    "/api/v1/tweets/{id}/like": {
       "get": {
         "tags": ["Tweet"],
         "parameters": [
@@ -1766,7 +1786,7 @@
             "schema": { "type": "integer", "format": "int64" }
           }
         ],
-        "summary": "get likers usernames of a tweet by Id",
+        "summary": "get likers users of a tweet by Id",
         "responses": {
           "200": {
             "description": "Tweet was found and got likers usernames successfully",
@@ -1780,6 +1800,42 @@
           },
           "403": { "description": "Unauthorized" },
           "404": { "description": "Tweet was Not Found" }
+        }
+      },
+      "post": {
+        "tags": ["Tweet"],
+        "summary": "Like a Tweet",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TweetToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      },
+      "delete": {
+        "tags": ["Tweet"],
+        "summary": "Unlike a tweet",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TweetToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
         }
       }
     },
@@ -1819,25 +1875,60 @@
         }
       }
     },
-    "/api/v1/tweets/toggle-like": {
-      "post": {
-        "tags": ["Tweet"],
-        "summary": "Toggle Like a Tweet",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/TweetToggleLikeInput" }
-            }
+    "/api/v1/tweets/user/{username}": {
+      "get": {
+        "tags": ["Tweets"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
           }
-        },
+        ],
+        "summary": "Get Tweets that the user created only",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/tweets/hashtags": {
+      "get": {
+        "tags": ["Tweet"],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Word to get hashtags similar to or indentical to that word",
+            "schema": { "type": "string" }
+          }
+        ],
+        "summary": "Returns suggestions for hashtags",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TweetToggleLikeResponse"
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/hashtag" }
                 }
               }
             }
@@ -2269,7 +2360,7 @@
       }
     },
     "/api/v1/user/suggestions": {
-      "post": {
+      "get": {
         "tags": ["User"],
         "summary": "Get suggestions for users to follow",
         "parameters": [
@@ -2281,14 +2372,6 @@
             "schema": { "type": "string" }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Success",

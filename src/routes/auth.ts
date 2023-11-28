@@ -563,7 +563,7 @@ router
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UpdatePasswordSuccessResponse'
+ *              $ref: '#/components/schemas/UpdatePasswordResponse'
  *       "400":
  *        $ref: '#/responses/400'
  *       "401":
