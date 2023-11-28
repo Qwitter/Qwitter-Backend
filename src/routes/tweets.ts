@@ -1,13 +1,20 @@
 import express from 'express';
 import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
-import { getTweetLikers, postTweet } from '../controllers/tweetController';
+import {
+  getTweetLikers,
+  getUserTweets,
+  postTweet,
+} from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
   getTweetReplies,
   getTweetRetweets,
 } from '../controllers/tweetController';
-import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
+import {
+  getTweetLikesSchema,
+  getTweetRepliesSchema,
+} from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
@@ -192,7 +199,7 @@ router
  *        description: Unauthorized
  */
 router
-  .route('/:id/likes')
+  .route('/:id/like')
   .get(isLoggedIn, validate(getTweetLikesSchema), getTweetLikers);
 
 /**
@@ -233,7 +240,35 @@ router
 
 /**
  * @openapi
- * '/api/v1/tweets/like':
+ * '/api/v1/tweets/user/{username}':
+ *  get:
+ *     tags:
+ *     - Tweets
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     summary: Get Tweets that the user created only
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ReturnListOfTweets'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
+
+/**
+ * @openapi
+ * '/api/v1/tweets/{id}/like':
  *  post:
  *     tags: [Tweet]
  *     summary: Like a Tweet
@@ -275,4 +310,7 @@ router
  *      400:
  *        description: Bad request
  */
+
+router.route('/:id/like').post().delete();
+
 export default router;
