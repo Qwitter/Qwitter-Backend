@@ -21,6 +21,7 @@ import {
 import {
   deleteTweetById,
   getTweetAndUserById,
+  getTweetsLikedById,
   searchTweet,
 } from '../repositories/tweetRepository';
 
@@ -528,5 +529,35 @@ export const searchHastags = catchAsync(
     const { q } = req.params;
     const hashtags = await searchHastagsByWord(q);
     return res.status(200).json(hashtags);
+  },
+);
+export const getUserLikedTweets = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userName = req.params.username;
+
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const user = await getUserByUsername(userName);
+
+    if (!user) {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+      return;
+    }
+
+    const tweets = await getTweetsLikedById(
+      (user as User).id as string,
+      skip,
+      parsedLimit,
+    );
+
+    res.status(200).json({ tweets: tweets });
+    next();
   },
 );
