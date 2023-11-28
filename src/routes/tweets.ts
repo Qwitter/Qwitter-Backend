@@ -172,7 +172,7 @@ router
 
 /**
  * @openapi
- * /api/v1/tweets/{id}/likes:
+ * /api/v1/tweets/{id}/like:
  *  get:
  *     tags: [Tweet]
  *     parameters:
@@ -189,7 +189,7 @@ router
  *         schema:
  *           type: integer
  *           format: int64
- *     summary: get likers usernames of a tweet by Id
+ *     summary: get likers users of a tweet by Id
  *     responses:
  *      200:
  *        description: Tweet was found and got likers usernames successfully
@@ -247,7 +247,7 @@ router
  * '/api/v1/tweets/user/{username}':
  *  get:
  *     tags:
- *     - Tweets
+ *     - Tweet
  *     parameters:
  *       - name: authorization
  *         in: header
@@ -276,12 +276,6 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *  post:
  *     tags: [Tweet]
  *     summary: Like a Tweet
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/TweetToggleLikeInput'
  *     responses:
  *      200:
  *        description: Success
@@ -296,12 +290,6 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *  delete:
  *     tags: [Tweet]
  *     summary: Unlike a tweet
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *              $ref: '#/components/schemas/TweetToggleLikeInput'
  *     responses:
  *      200:
  *        description: Success
@@ -315,7 +303,80 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *        description: Bad request
  */
 
-router.route('/').get(isLoggedIn, searchTweets);
 router.route('/:id/like').post().delete();
+
+/**
+ * @openapi
+ * '/api/v1/tweets':
+ *  get:
+ *     tags:
+ *     - Tweet
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: q
+ *         in: query
+ *         description: 'Word to search'
+ *         schema:
+ *           type: string
+ *       - name: hashtag
+ *         in: query
+ *         description: If the hashtag is in the query, only the tweets including that hashtag will be returned
+ *         schema:
+ *           type: string
+ *     summary: Get Timeline, Search for Tweets and search for tweets that include a hashtag
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ReturnListOfTweets'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.route('/').get(isLoggedIn, searchTweets);
+
+/**
+ * @openapi
+ * '/api/v1/tweets/hashtags':
+ *  get:
+ *     tags:
+ *     - Tweet
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: q
+ *         in: query
+ *         description: Word to get hashtags similar to or indentical to that word
+ *         schema:
+ *           type: string
+ *     summary: Returns suggestions for hashtags
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/hashtag'
+ *
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.route('/hashatgs').get(isLoggedIn, searchTweets);
 
 export default router;

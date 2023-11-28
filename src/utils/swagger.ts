@@ -9,6 +9,8 @@ const options: swaggerJsdoc.Options = {
     info: {
       title: 'REST API Docs',
       version,
+      description:
+        'For any pagination add page,limit as query parameters. Default is limit 10',
     },
     servers: [{ url: process.env.URL }],
     components: {
