@@ -3,11 +3,10 @@ import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
 import {
   deleteTweet,
-  postTweet,
   getTweetLikers,
   getUserTweets,
   postTweet,
-  searchTweets
+  searchTweets,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {

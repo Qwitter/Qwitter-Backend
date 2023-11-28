@@ -50,28 +50,28 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            location: true,
-            url: true,
-            description: true,
-            protected: true,
-            verified: true,
-            followersCount: true,
-            followingCount: true,
-            createdAt: true,
-            profileBannerUrl: true,
-            profileImageUrl: true,
-            email: true,
-            userName: true,
-            birthDate: true,
-          },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          location: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          email: true,
+          userName: true,
+          birthDate: true,
         },
       },
       replyToTweet: true,
@@ -454,7 +454,7 @@ export const searchTweets = catchAsync(
 
     res.status(200).json({ tweets: tweets });
     next();
-   },
+  },
 );
 export const getUserTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
