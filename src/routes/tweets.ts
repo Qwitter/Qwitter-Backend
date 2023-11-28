@@ -3,9 +3,11 @@ import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
 import {
   deleteTweet,
+  postTweet,
   getTweetLikers,
   getUserTweets,
   postTweet,
+  searchTweets
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
@@ -314,6 +316,7 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *        description: Bad request
  */
 
+router.route('/').get(isLoggedIn, searchTweets);
 router.route('/:id/like').post().delete();
 
 export default router;

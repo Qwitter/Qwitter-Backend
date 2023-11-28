@@ -20,37 +20,35 @@ import {
 import {
   deleteTweetById,
   getTweetAndUserById,
+  searchTweet,
 } from '../repositories/tweetRepository';
 
-export const getTimeline = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const currentUser = req.user as User;
-    const userId = currentUser.id;
+const getTimeline = async (req: Request) => {
+  const currentUser = req.user as User;
+  const userId = currentUser.id;
+  const following = await prisma.follow.findMany({
+    where: {
+      folowererId: userId,
+    },
+    select: {
+      followedId: true,
+    },
+  });
 
-    const following = await prisma.follow.findMany({
-      where: {
-        folowererId: userId,
-      },
-      select: {
-        followedId: true,
-      },
-    });
+  const followingIds = following.map((follow) => follow.followedId);
 
-    const followingIds = following.map((follow) => follow.followedId);
+  followingIds.push(userId);
 
-    followingIds.push(userId);
+  const { page = '1', limit = '10' } = req.query;
+  const parsedPage = parseInt(page as string, 10);
+  const parsedLimit = parseInt(limit as string, 10);
 
-    const { page = '1', limit = '10' } = req.query;
-    const parsedPage = parseInt(page as string, 10);
-    const parsedLimit = parseInt(limit as string, 10);
+  const skip = (parsedPage - 1) * parsedLimit;
 
-    const skip = (parsedPage - 1) * parsedLimit;
-
-    const timelineTweets = await prisma.tweet.findMany({
-      where: {
-        userId: {
-          in: followingIds,
-        },
+  const timelineTweets = await prisma.tweet.findMany({
+    where: {
+      userId: {
+        in: followingIds,
       },
       orderBy: {
         createdAt: 'desc',
@@ -75,23 +73,19 @@ export const getTimeline = catchAsync(
             birthDate: true,
           },
         },
-        replyToTweet: true,
-        reTweet: true,
-        qouteTweet: true,
-        likes: true,
-        TweetEntity: true,
       },
-      skip,
-      take: parsedLimit,
-    });
+      replyToTweet: true,
+      reTweet: true,
+      qouteTweet: true,
+      likes: true,
+      TweetEntity: true,
+    },
+    skip,
+    take: parsedLimit,
+  });
 
-    res.status(200).json({
-      tweets: timelineTweets,
-    });
-
-    next();
-  },
-);
+  return timelineTweets;
+};
 
 export const postTweet = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -437,6 +431,31 @@ export const getTweetLikers = catchAsync(
   },
 );
 
+export const searchTweets = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { q, hashtag, page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    let tweets;
+    if (hashtag) {
+      tweets = await searchTweet(
+        null,
+        (hashtag as string).trim(),
+        skip,
+        parsedLimit,
+      );
+    } else if (q) {
+      tweets = await searchTweet((q as string).trim(), null, skip, parsedLimit);
+    } else {
+      tweets = await getTimeline(req);
+    }
+
+    res.status(200).json({ tweets: tweets });
+    next();
+   },
+);
 export const getUserTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;

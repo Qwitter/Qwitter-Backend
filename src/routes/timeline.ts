@@ -139,6 +139,4 @@ const router = express.Router();
  
 */
 
-router.get('/', isLoggedIn, tweetController.getTimeline);
-
 export default router;
