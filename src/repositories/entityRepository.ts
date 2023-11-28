@@ -117,3 +117,16 @@ export const incrementHashtagCount = async (text: string) => {
     },
   });
 };
+
+export const searchHastagsByWord = async (text: string) => {
+  if (!text) {
+    return await prisma.hashtag.findMany();
+  }
+  return await prisma.hashtag.findMany({
+    where: {
+      text: {
+        contains: text,
+      },
+    },
+  });
+};
