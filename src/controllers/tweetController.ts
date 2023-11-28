@@ -13,9 +13,11 @@ import {
 } from '../repositories/entityRepository';
 import { incrementHashtagCount } from '../repositories/entityRepository';
 import { createEntity } from '../repositories/entityRepository';
-import { getUserByUsername } from '../repositories/userRepository';
+import {
+  getTweetsCreatedByUser,
+  getUserByUsername,
+} from '../repositories/userRepository';
 import { getTweetAndUserById } from '../repositories/tweetRepository';
-
 
 export const getTimeline = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -68,7 +70,7 @@ export const getTimeline = catchAsync(
             email: true,
             userName: true,
             birthDate: true,
-          }
+          },
         },
         replyToTweet: true,
         reTweet: true,
@@ -298,25 +300,22 @@ export const getTweet = catchAsync(
     let hashtags = [];
     let mentions = [];
     let retweetedTweetID = null;
-    let originalTweeter=null;
-    let {tweet,tweetingUser} = await getTweetAndUserById(req.params.id);
-    originalTweeter=tweetingUser?.userName
+    let originalTweeter = null;
+    let { tweet, tweetingUser } = await getTweetAndUserById(req.params.id);
+    originalTweeter = tweetingUser?.userName;
     if (tweet?.retweetedId != null) {
       retweetedTweetID = tweet.retweetedId;
-      let tempRetweet = (await getTweetAndUserById(retweetedTweetID))
-      tweetingUser=tempRetweet.tweetingUser
-      tweet=tempRetweet.tweet
+      let tempRetweet = await getTweetAndUserById(retweetedTweetID);
+      tweetingUser = tempRetweet.tweetingUser;
+      tweet = tempRetweet.tweet;
     }
     if (!tweet) {
       new AppError('Tweet was Not Found', 404);
     } else if (tweet.deletedAt != null) {
       new AppError('Tweet was deleted', 410);
-    }
-    else if(!tweetingUser)
-    {
+    } else if (!tweetingUser) {
       new AppError('user account was deleted', 404);
-    } 
-    else {
+    } else {
       const tweetEntities = tweet?.TweetEntity;
       for (var entity of tweetEntities) {
         let tempEnitity = await prisma.entity.findFirst({
@@ -344,39 +343,39 @@ export const getTweet = catchAsync(
       }
       const responseBody = {
         status: 'success',
-          tweet:{
-            createdAt: tweet.createdAt,
-            id: tweet.id,
-            userName: originalTweeter,
-            replyCount: tweet.replyCount,
-            retweetCount: tweet.retweetCount,
-            likesCount: tweet.likesCount,
-            text: tweet.text,
-            source: tweet.source,
-            coordinates: tweet.coordinates,
-            replyToTweetId: tweet.replyToTweetId,
-            retweetedID: retweetedTweetID,
-            entities: {
-              hashtags: hashtags,
-              media: medias,
-              mentions: mentions,
-            },
+        tweet: {
+          createdAt: tweet.createdAt,
+          id: tweet.id,
+          userName: originalTweeter,
+          replyCount: tweet.replyCount,
+          retweetCount: tweet.retweetCount,
+          likesCount: tweet.likesCount,
+          text: tweet.text,
+          source: tweet.source,
+          coordinates: tweet.coordinates,
+          replyToTweetId: tweet.replyToTweetId,
+          retweetedID: retweetedTweetID,
+          entities: {
+            hashtags: hashtags,
+            media: medias,
+            mentions: mentions,
           },
-          user:{
-            userName: tweetingUser.userName,
-            name: tweetingUser.name,
-            birthDate: tweetingUser.birthDate,
-            url: tweetingUser.url,
-            description: tweetingUser.description,
-            protected: tweetingUser.protected,
-            verified: tweetingUser.verified,
-            followersCount: tweetingUser.followersCount,
-            followingCount: tweetingUser.followingCount,
-            createdAt: tweetingUser.createdAt,
-            profileBannerUrl: tweetingUser.profileBannerUrl,
-            profileImageUrl: tweetingUser.profileImageUrl,
-            email: tweetingUser.email.toLowerCase(),
-          }
+        },
+        user: {
+          userName: tweetingUser.userName,
+          name: tweetingUser.name,
+          birthDate: tweetingUser.birthDate,
+          url: tweetingUser.url,
+          description: tweetingUser.description,
+          protected: tweetingUser.protected,
+          verified: tweetingUser.verified,
+          followersCount: tweetingUser.followersCount,
+          followingCount: tweetingUser.followingCount,
+          createdAt: tweetingUser.createdAt,
+          profileBannerUrl: tweetingUser.profileBannerUrl,
+          profileImageUrl: tweetingUser.profileImageUrl,
+          email: tweetingUser.email.toLowerCase(),
+        },
       };
       res.status(200).json(responseBody);
     }
@@ -426,3 +425,21 @@ export const getTweetLikers = catchAsync(
   },
 );
 
+export const getUserTweets = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { userName } = req.params;
+
+    const user = await getUserByUsername(userName);
+    // Checking that the user exists
+    if (!user) {
+      return res.status(404).json({
+        tweets: [],
+        message: 'User Not found',
+      });
+    }
+    const tweets = await getTweetsCreatedByUser(user.id);
+    return res.status(200).json({
+      tweets,
+    });
+  },
+);
