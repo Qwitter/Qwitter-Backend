@@ -17,7 +17,10 @@ import {
   getTweetsCreatedByUser,
   getUserByUsername,
 } from '../repositories/userRepository';
-import { getTweetAndUserById } from '../repositories/tweetRepository';
+import {
+  deleteTweetById,
+  getTweetAndUserById,
+} from '../repositories/tweetRepository';
 
 export const getTimeline = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -380,6 +383,15 @@ export const getTweet = catchAsync(
       res.status(200).json(responseBody);
     }
     next();
+  },
+);
+
+export const deleteTweet = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    await deleteTweetById(req.params.id);
+    return res.status(204).json({
+      message: 'Tweet deleted',
+    });
   },
 );
 
