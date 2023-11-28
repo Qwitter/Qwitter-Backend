@@ -165,13 +165,7 @@ router.delete('/follow/:username', isLoggedIn, userController.unfollowUser);
  *        description: Bad request
  */
 
-router
-  .route('/block')
-  .get(
-    isLoggedIn,
-    userController.getBlockedUsers,
-  );
-
+router.route('/block').get(isLoggedIn, userController.getBlockedUsers);
 
 /**
  * @openapi
@@ -206,14 +200,7 @@ router
  *        description: Bad request
  */
 
-
-
-router
-  .route('/block/:username')
-  .post(
-    isLoggedIn,
-    userController.blockUser,
-  );
+router.route('/block/:username').post(isLoggedIn, userController.blockUser);
 
 /**
  * @openapi
@@ -247,13 +234,7 @@ router
  *        description: Bad request
  */
 
-
-router
-  .route('/block/:username')
-  .delete(
-    isLoggedIn,
-    userController.unblockUser,
-  );
+router.route('/block/:username').delete(isLoggedIn, userController.unblockUser);
 
 /**
  * @openapi
@@ -576,6 +557,7 @@ router.delete(
  *      400:
  *        description: Bad request
  */
+router.get('/:username', userController.getUser);
 
 /**
  * @openapi
@@ -615,8 +597,33 @@ router.put(
   validate(putUserProfileReqSchema),
   userController.putUserProfile,
 );
-
-router.get('/:username', userController.getUser);
+/**
+ * @openapi
+ * '/api/v1/user/':
+ *  get:
+ *     tags:
+ *     - User
+ *     summary: get user details of the requesting user using auth key
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.get('/', isLoggedIn, userController.getUser);
 
 /**
  * @openapi

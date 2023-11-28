@@ -4,5 +4,5 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/**/*.test.ts'],
   clearMocks: true,
-  setupFilesAfterEnv: ['<rootDir>\\src\\singleton.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/singleton.ts'],
 };

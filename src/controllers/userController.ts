@@ -2,7 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
-import { getUserByUsername,blockUserByIDs,getUserBlocked,unblockUserByIDs, getBlockedUsersByID} from '../repositories/userRepository';
+import {
+  getUserByUsername,
+  blockUserByIDs,
+  getUserBlocked,
+  unblockUserByIDs,
+  getBlockedUsersByID,
+} from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
 
@@ -133,6 +139,32 @@ export const getUser = catchAsync(
   },
 );
 
+export const getRequestingUser = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const user = req.user as User;
+    if (user) {
+      const resposeObject = {
+        userName: user.userName,
+        name: user.name,
+        birthDate: user.birthDate,
+        url: user.url,
+        description: user.description,
+        protected: user.protected,
+        verified: user.verified,
+        followersCount: user.followersCount,
+        followingCount: user.followingCount,
+        createdAt: user.createdAt,
+        profileBannerUrl: user.profileBannerUrl,
+        profileImageUrl: user.profileImageUrl,
+        email: user.email.toLowerCase(),
+      };
+      res.json(resposeObject).status(200);
+    } else {
+      return _next(new AppError('User not found', 404));
+    }
+  },
+);
+
 export const changeUserName = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const newUserName = req.body.userName;
@@ -203,71 +235,57 @@ export const putUserProfile = catchAsync(
       ...resposeObject
     } = updatedUser;
     res.status(200).json(resposeObject);
-  
   },
 );
 
-
-export const getBlockedUsers=catchAsync(
+export const getBlockedUsers = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    const blockedUsers=await getBlockedUsersByID((_req.user as User).id)
-    res.json(blockedUsers).status(200)
-    
+    const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
+    res.json(blockedUsers).status(200);
   },
 );
 
-
-export const blockUser=catchAsync(
+export const blockUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    const blockingUser= _req.user as User
-    const blockedUser=await getUserByUsername(_req.params.username.toLowerCase()) 
-    if(!blockedUser)
-    {
+    const blockingUser = _req.user as User;
+    const blockedUser = await getUserByUsername(
+      _req.params.username.toLowerCase(),
+    );
+    if (!blockedUser) {
       return _next(new AppError('user not found', 404));
-    }
-    else if(await getUserBlocked(blockingUser?.id,blockedUser.id))
-    {
+    } else if (await getUserBlocked(blockingUser?.id, blockedUser.id)) {
       return _next(new AppError('user already blocked', 404));
-    }
-    else{
-      const block=await blockUserByIDs(blockingUser.id,blockedUser.id)
-      if(block)
-      {
-        res.json({"status": "success"}).status(200)
+    } else {
+      const block = await blockUserByIDs(blockingUser.id, blockedUser.id);
+      if (block) {
+        res.json({ status: 'success' }).status(200);
+      } else {
+        res.json({ status: 'success' }).status(404);
       }
-      else{
-        res.json({"status": "success"}).status(404)
-      } 
     }
-    _next()
+    _next();
   },
 );
 
-
-
-export const unblockUser=catchAsync(
+export const unblockUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    const blockingUser= _req.user as User
-    const blockedUser=await getUserByUsername(_req.params.username.toLowerCase()) 
-    if(!blockedUser)
-    {
+    const blockingUser = _req.user as User;
+    const blockedUser = await getUserByUsername(
+      _req.params.username.toLowerCase(),
+    );
+    if (!blockedUser) {
       return _next(new AppError('user not found', 404));
-    }
-    else if(!(await getUserBlocked(blockingUser?.id,blockedUser.id)))
-    {
+    } else if (!(await getUserBlocked(blockingUser?.id, blockedUser.id))) {
       return _next(new AppError('user not blocked', 404));
-    }
-    else{
-      const block=await unblockUserByIDs(blockingUser.id,blockedUser.id)
-      if(block)
-      {
-        res.json({"status": "success"}).status(200)
+    } else {
+      const block = await unblockUserByIDs(blockingUser.id, blockedUser.id);
+      if (block) {
+        res.json({ status: 'success' }).status(200);
+      } else {
+        res.json({ status: 'failute' }).status(404);
       }
-      else{
-        res.json({"status": "failute"}).status(404)
-      } 
     }
-    _next()
+    _next();
   },
 );
 
@@ -277,7 +295,7 @@ export const muteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToMute = await prisma.user.findUnique({
-      where: { userName:username },
+      where: { userName: username },
     });
 
     if (!userToMute) {
@@ -303,7 +321,9 @@ export const muteUser = catchAsync(
       },
     });
 
-    res.status(200).json({ status: "success", message: 'User muted successfully' });
+    res
+      .status(200)
+      .json({ status: 'success', message: 'User muted successfully' });
     next();
   },
 );
@@ -337,12 +357,12 @@ export const unmuteUser = catchAsync(
       where: { muterId_mutedId: { muterId, mutedId: userToUnmute.id } },
     });
 
-    res.status(200).json({ status: "success", message: 'User unmuted successfully' });
+    res
+      .status(200)
+      .json({ status: 'success', message: 'User unmuted successfully' });
     next();
   },
 );
-
-
 
 export const getUsersMutedByCurrentUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -362,7 +382,6 @@ export const getUsersMutedByCurrentUser = catchAsync(
   },
 );
 
-
 export const followUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
@@ -381,7 +400,12 @@ export const followUser = catchAsync(
     }
 
     const existingFollow = await prisma.follow.findUnique({
-      where: { folowererId_followedId: { folowererId: followerId, followedId: userToFollow.id } },
+      where: {
+        folowererId_followedId: {
+          folowererId: followerId,
+          followedId: userToFollow.id,
+        },
+      },
     });
 
     if (existingFollow) {
@@ -395,7 +419,9 @@ export const followUser = catchAsync(
       },
     });
 
-    res.status(200).json({ status: "success", message: 'User followed successfully' });
+    res
+      .status(200)
+      .json({ status: 'success', message: 'User followed successfully' });
     next();
   },
 );
@@ -418,7 +444,12 @@ export const unfollowUser = catchAsync(
     }
 
     const existingFollow = await prisma.follow.findUnique({
-      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+      where: {
+        folowererId_followedId: {
+          folowererId: followerId,
+          followedId: userToUnfollow.id,
+        },
+      },
     });
 
     if (!existingFollow) {
@@ -426,11 +457,17 @@ export const unfollowUser = catchAsync(
     }
 
     await prisma.follow.delete({
-      where: { folowererId_followedId: { folowererId: followerId, followedId: userToUnfollow.id } },
+      where: {
+        folowererId_followedId: {
+          folowererId: followerId,
+          followedId: userToUnfollow.id,
+        },
+      },
     });
 
-    res.status(200).json({ status: "success", message: 'User unfollowed successfully' });
+    res
+      .status(200)
+      .json({ status: 'success', message: 'User unfollowed successfully' });
     next();
   },
 );
-
