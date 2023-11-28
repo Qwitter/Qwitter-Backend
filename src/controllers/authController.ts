@@ -183,7 +183,7 @@ export const updatePassword = catchAsync(
     res.status(200).json({
       message: 'Password changed successfully',
     });
-  }
+  },
 );
 
 const hashPassword = async (password: string) => {
@@ -406,7 +406,10 @@ export const sendVerificationEmail = catchAsync(
       });
     } else {
       await prisma.emailVerification.create({
-        data: { email: req.body.email.toLowerCase(), code: verificationTokenHashed },
+        data: {
+          email: req.body.email.toLowerCase(),
+          code: verificationTokenHashed,
+        },
       });
     }
     // Send it to user email
@@ -502,7 +505,11 @@ export async function createUniqueUserName(
   const suggestions: string[] = [];
   while (countOfUniqueUserNames) {
     let userName = name.replace(/\s+/g, '').toLowerCase();
-    userName += crypto.randomBytes(3).toString('hex');
+    const max_len = 15;
+    const added_bytes = 3;
+    if (userName.length > max_len - added_bytes * 2)
+      userName = userName.substring(0, max_len - added_bytes * 2);
+    userName += crypto.randomBytes(added_bytes).toString('hex');
     if (suggestions.find((element) => element === userName)) {
       continue;
     }
@@ -539,10 +546,8 @@ export const userNameSuggestions = catchAsync(
   },
 );
 
-
 export const checkPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const { password } = req.body;
 
     const user = req.user as User;
@@ -554,60 +559,58 @@ export const checkPassword = catchAsync(
     });
 
     next();
-  }
+  },
 );
 
-
-export const changeEmail=catchAsync(
+export const changeEmail = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user=req.user as User
-    const tempUser=await prisma.user.findFirst({
-      where:{
-        email:req.body.email.toLowerCase()
-      }
-    })
-    if(tempUser)
-    {
+    const user = req.user as User;
+    const tempUser = await prisma.user.findFirst({
+      where: {
+        email: req.body.email.toLowerCase(),
+      },
+    });
+    if (tempUser) {
       return next(new AppError('email is already used', 404));
     }
-    const verified=await prisma.emailVerification.findFirst({where:{email:req.body.email.toLowerCase()}})
-    if(!verified)
-    {
+    const verified = await prisma.emailVerification.findFirst({
+      where: { email: req.body.email.toLowerCase() },
+    });
+    if (!verified) {
       return next(new AppError('email not verified', 404));
-    }
-    else{
+    } else {
       await prisma.emailVerification.delete({
-        where:{
-          email:user.email.toLowerCase()
-        }
-      })
+        where: {
+          email: user.email.toLowerCase(),
+        },
+      });
       const updatedUser = await prisma.user.update({
         where: {
           id: user.id,
         },
         data: {
-          email:req.body.email.toLowerCase()
+          email: req.body.email.toLowerCase(),
         },
       });
 
-
-      res.json({
-        userName: updatedUser.userName,
-        name: updatedUser.name,
-        birthDate: updatedUser.birthDate,
-        url: updatedUser.url,
-        description: updatedUser.description,
-        protected: updatedUser.protected,
-        verified: updatedUser.verified,
-        followersCount: updatedUser.followersCount,
-        followingCount: updatedUser.followingCount,
-        createdAt: updatedUser.createdAt,
-        profileBannerUrl: updatedUser.profileBannerUrl,
-        profileImageUrl: updatedUser.profileImageUrl,
-        email: updatedUser.email,
-      }).status(200)
-  
+      res
+        .json({
+          userName: updatedUser.userName,
+          name: updatedUser.name,
+          birthDate: updatedUser.birthDate,
+          url: updatedUser.url,
+          description: updatedUser.description,
+          protected: updatedUser.protected,
+          verified: updatedUser.verified,
+          followersCount: updatedUser.followersCount,
+          followingCount: updatedUser.followingCount,
+          createdAt: updatedUser.createdAt,
+          profileBannerUrl: updatedUser.profileBannerUrl,
+          profileImageUrl: updatedUser.profileImageUrl,
+          email: updatedUser.email,
+        })
+        .status(200);
     }
     next();
-  }
+  },
 );
