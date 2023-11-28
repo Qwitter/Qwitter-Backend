@@ -30,29 +30,7 @@ const router = express.Router();
 *      400:
 *        description: Bad request
 
- * '/api/v1/tweets/user/{username}':
- *  get:
- *     tags:
- *     - Timeline
- *     parameters:
- *       - name: authorization
- *         in: header
- *         description: ''
- *         required: true
- *         schema:
- *           type: string
- *     summary: Get User Tweets
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/ReturnListOfTweets'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request 
+ 
  
 
  * '/api/v1/tweets/user/{username}/like':

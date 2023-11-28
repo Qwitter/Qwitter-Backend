@@ -163,4 +163,20 @@ export const searchTweet = async (
   }
 
   return Querytweets;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: tweet?.userId,
+    },
+  });
+  return { tweet: tweet, tweetingUser: user };
+};
+export const deleteTweetById = async (tweetId: string) => {
+  await prisma.tweet.update({
+    where: {
+      id: tweetId,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
 };

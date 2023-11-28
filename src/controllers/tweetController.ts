@@ -13,8 +13,12 @@ import {
 } from '../repositories/entityRepository';
 import { incrementHashtagCount } from '../repositories/entityRepository';
 import { createEntity } from '../repositories/entityRepository';
-import { getUserByUsername } from '../repositories/userRepository';
 import {
+  getTweetsCreatedByUser,
+  getUserByUsername,
+} from '../repositories/userRepository';
+import {
+  deleteTweetById,
   getTweetAndUserById,
   searchTweet,
 } from '../repositories/tweetRepository';
@@ -22,7 +26,6 @@ import {
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
   const userId = currentUser.id;
-
   const following = await prisma.follow.findMany({
     where: {
       folowererId: userId,
@@ -47,28 +50,28 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          location: true,
-          url: true,
-          description: true,
-          protected: true,
-          verified: true,
-          followersCount: true,
-          followingCount: true,
-          createdAt: true,
-          profileBannerUrl: true,
-          profileImageUrl: true,
-          email: true,
-          userName: true,
-          birthDate: true,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+            userName: true,
+            birthDate: true,
+          },
         },
       },
       replyToTweet: true,
@@ -377,6 +380,15 @@ export const getTweet = catchAsync(
   },
 );
 
+export const deleteTweet = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    await deleteTweetById(req.params.id);
+    return res.status(204).json({
+      message: 'Tweet deleted',
+    });
+  },
+);
+
 export const getTweetLikers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
@@ -442,5 +454,23 @@ export const searchTweets = catchAsync(
 
     res.status(200).json({ tweets: tweets });
     next();
+   },
+);
+export const getUserTweets = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { userName } = req.params;
+
+    const user = await getUserByUsername(userName);
+    // Checking that the user exists
+    if (!user) {
+      return res.status(404).json({
+        tweets: [],
+        message: 'User Not found',
+      });
+    }
+    const tweets = await getTweetsCreatedByUser(user.id);
+    return res.status(200).json({
+      tweets,
+    });
   },
 );
