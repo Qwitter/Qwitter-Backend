@@ -1,13 +1,20 @@
 import express from 'express';
 import { CreateTweetSchema } from '../schemas/tweetSchema';
 import { validate } from '../utils/validator';
-import { getTweetLikers, postTweet } from '../controllers/tweetController';
+import {
+  getTweetLikers,
+  postTweet,
+  searchTweets,
+} from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
   getTweetReplies,
   getTweetRetweets,
 } from '../controllers/tweetController';
-import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
+import {
+  getTweetLikesSchema,
+  getTweetRepliesSchema,
+} from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 const router = express.Router();
@@ -275,4 +282,7 @@ router
  *      400:
  *        description: Bad request
  */
+
+router.route('/').get(isLoggedIn, searchTweets);
+
 export default router;
