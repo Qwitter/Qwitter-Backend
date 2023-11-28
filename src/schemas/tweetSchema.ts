@@ -145,6 +145,12 @@ import { object, string } from 'zod';
  *        replyToTweetId:
  *          type: string
  *          default: 1718938551163691349
+ *        liked:
+ *          type: boolean
+ *          default: true
+ *        bookmarked:
+ *          type: boolean
+ *          default: false
  *        retweetedId:
  *          type: string
  *          default: 1718938551163691349

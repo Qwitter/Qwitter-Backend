@@ -338,6 +338,13 @@ export const getTweet = catchAsync(
           mentions.push({ mentionedUsername: user?.userName });
         }
       }
+      const liked=await prisma.like.findFirst({
+        where:{
+          userId:(req.user as User)?.id,
+          tweetId:req.params.id
+        }
+      })
+  
       const responseBody = {
         status: 'success',
         tweet: {
@@ -352,6 +359,7 @@ export const getTweet = catchAsync(
           coordinates: tweet.coordinates,
           replyToTweetId: tweet.replyToTweetId,
           retweetedID: retweetedTweetID,
+          liked:liked!=null,
           entities: {
             hashtags: hashtags,
             media: medias,

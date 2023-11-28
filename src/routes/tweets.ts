@@ -13,10 +13,7 @@ import {
   getTweetReplies,
   getTweetRetweets,
 } from '../controllers/tweetController';
-import {
-  getTweetLikesSchema,
-  getTweetRepliesSchema,
-} from '../schemas/tweetLikeSchema';
+import { getTweetLikesSchema, getTweetRepliesSchema } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
 import { tweetExists } from '../middlewares/tweetExists';
