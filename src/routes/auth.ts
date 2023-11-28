@@ -642,8 +642,6 @@ router
  *
  */
 
-router.route('/change-email/').post();
-
 router.route('/logout').post(authController.logout);
 
 /**
