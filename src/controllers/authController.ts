@@ -269,7 +269,7 @@ export const signUpGoogle = catchAsync(
     }
 
     const token: string = auth_header.split(' ')[1];
-    const payloadData = await verify(token, process.env.JWT_SECRET as string);
+    const payloadData = verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
     const email = (payloadData as JwtPayload).email.toLowerCase();
     const name = (payloadData as JwtPayload).name;

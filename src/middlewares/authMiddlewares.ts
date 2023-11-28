@@ -14,8 +14,11 @@ export const isLoggedIn = catchAsync(
       return next(new AppError('Unauthorized access', 401));
     }
     const token: string = auth_header.split(' ')[1];
-    const payloadData = await verify(token, process.env.JWT_SECRET as string);
-    if (!(payloadData as JwtPayload).id) {
+    const payloadData = verify(token, process.env.JWT_SECRET as string);
+    if (
+      !(payloadData as JwtPayload).id &&
+      !(payloadData as JwtPayload).google_id
+    ) {
       return next(new AppError('Invalid access credentials', 409));
     }
     if (
@@ -26,9 +29,13 @@ export const isLoggedIn = catchAsync(
     }
     const user = await prisma.user.findFirst({
       where: {
-        id: (payloadData as JwtPayload).id,
+        OR: [
+          { id: (payloadData as JwtPayload).id },
+          { google_id: (payloadData as JwtPayload).google_id },
+        ],
       },
     });
+
     req.user = user as User;
     if (!user) {
       return next(new AppError('User not found', 404));
