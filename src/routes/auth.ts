@@ -647,7 +647,7 @@ router.route('/logout').post(authController.logout);
 /**
  * @openapi
  * '/api/v1/auth/username-suggestions':
- *  get:
+ *  post:
  *     tags:
  *     - Authentication
  *     summary: get userName suggestions using only the token
@@ -691,7 +691,7 @@ router.route('/logout').post(authController.logout);
 
 router
   .route('/username-suggestions')
-  .get(isLoggedIn, authController.userNameSuggestions);
+  .post(isLoggedIn, authController.userNameSuggestions);
 
 router
   .route('/change-email')
