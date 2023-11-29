@@ -17,6 +17,7 @@ import { createEntity } from '../repositories/entityRepository';
 import {
   getTweetsCreatedByUser,
   getUserByUsername,
+  isUserFollowing,
 } from '../repositories/userRepository';
 import {
   deleteTweetById,
@@ -95,7 +96,8 @@ const getTimeline = async (req: Request) => {
         tweetId: tweet.id,
       },
     });
-    let response = { ...tweet, liked: liked != null };
+    const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+    let response = { ...tweet, liked: liked != null, isFollowing };
     responses.push(response);
   }
 
@@ -269,7 +271,8 @@ export const getTweetReplies = catchAsync(
           tweetId: reply.id,
         },
       });
-      let response = { ...tweet, liked: liked != null };
+      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
 
@@ -495,7 +498,10 @@ export const searchTweets = catchAsync(
           tweetId: tweet.id,
         },
       });
-      let response = { ...tweet, liked: liked != null };
+      const tweeterUserID = (await getUserByUsername(tweet.author.userName))?.id;
+      if(!tweeterUserID) continue;
+      const isFollowing = await isUserFollowing((req.user as User).id, tweeterUserID);
+      let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
     res.status(200).json({ tweets: responses });
@@ -523,7 +529,8 @@ export const getUserTweets = catchAsync(
           tweetId: tweet.id,
         },
       });
-      let response = { ...tweet, liked: liked != null };
+      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
     return res.status(200).json({
@@ -552,7 +559,8 @@ export const getUserReplies = catchAsync(
           tweetId: tweet.id,
         },
       });
-      let response = { ...tweet, liked: liked != null };
+      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
     return res.status(200).json({
