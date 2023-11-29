@@ -463,7 +463,7 @@ export const getUserSuggestions = catchAsync(
       let followersArray=await prisma.follow.findMany({
         take:10,
         where:{
-          folowererId:followedIDs[randomIndex].followedId
+          folowererId:followedIDs[randomIndex].followedId,
         },
       })
       for(let j=0;j<followersArray.length && suggestions.length<50;j++)
@@ -472,7 +472,8 @@ export const getUserSuggestions = catchAsync(
           suggestionsIDs.add(followersArray[j].followedId)
           suggestions.push(await prisma.user.findUnique({
             where:{
-              id:followersArray[j].followedId
+              id:followersArray[j].followedId,
+              deletedAt:null
             },
             select: {
               name: true,
@@ -513,7 +514,8 @@ export const getUserSuggestions = catchAsync(
           suggestionsIDs.add(popUsers[i])
           suggestions.push(await prisma.user.findFirst({
             where:{
-              id:popUsers[i].id
+              id:popUsers[i].id,
+              deletedAt:null
             },
             select: {
               name: true,
