@@ -48,10 +48,7 @@ export const mobileLoggedIn = catchAsync(
     }
     const token: string = auth_header.split(' ')[1];
     const payloadData = verify(token, process.env.JWT_SECRET as string);
-    if (
-      !(payloadData as JwtPayload).id &&
-      !(payloadData as JwtPayload).google_id
-    ) {
+    if (!(payloadData as JwtPayload).google_id) {
       return next(new AppError('Invalid access credentials', 409));
     }
     if (
@@ -62,10 +59,7 @@ export const mobileLoggedIn = catchAsync(
     }
     const user = await prisma.user.findFirst({
       where: {
-        OR: [
-          { id: (payloadData as JwtPayload).id },
-          { google_id: (payloadData as JwtPayload).google_id },
-        ],
+        google_id: (payloadData as JwtPayload).google_id,
       },
     });
 

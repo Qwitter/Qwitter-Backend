@@ -358,8 +358,6 @@ export const CreateTweetSchema = object({
  *          default: 2023-10-27 10:43:00
  */
 
-
-
 /**
  * @openapi
  * components:
@@ -390,11 +388,8 @@ export const CreateTweetSchema = object({
  *          default: success
  *        tweet:
  *          $ref: '#/components/schemas/tweet'
- *        user:
- *          $ref: '#/components/schemas/User'
-
- *    
- * 
+ *
+ *
  */
 
 /////////////////////////////////////////////////////////

@@ -11,7 +11,6 @@ import {
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
-import { sign } from 'jsonwebtoken';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -143,29 +142,22 @@ export const getUser = catchAsync(
 export const getRequestingUser = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const user = req.user as User;
-    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-    if (user) {
-      const resposeObject = {
-        userName: user.userName,
-        name: user.name,
-        birthDate: user.birthDate,
-        url: user.url,
-        description: user.description,
-        protected: user.protected,
-        verified: user.verified,
-        followersCount: user.followersCount,
-        followingCount: user.followingCount,
-        createdAt: user.createdAt,
-        profileBannerUrl: user.profileBannerUrl,
-        profileImageUrl: user.profileImageUrl,
-        email: user.email.toLowerCase(),
-      };
-      res.json({ user: resposeObject, token }).status(200);
-    } else {
-      return _next(new AppError('User not found', 404));
-    }
+    const resposeObject = {
+      userName: user.userName,
+      name: user.name,
+      birthDate: user.birthDate,
+      url: user.url,
+      description: user.description,
+      protected: user.protected,
+      verified: user.verified,
+      followersCount: user.followersCount,
+      followingCount: user.followingCount,
+      createdAt: user.createdAt,
+      profileBannerUrl: user.profileBannerUrl,
+      profileImageUrl: user.profileImageUrl,
+      email: user.email.toLowerCase(),
+    };
+    res.status(200).json({ user: resposeObject });
   },
 );
 

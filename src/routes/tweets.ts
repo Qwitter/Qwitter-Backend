@@ -8,6 +8,7 @@ import {
   postTweet,
   searchHastags,
   searchTweets,
+  getUserLikedTweets,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
@@ -303,7 +304,6 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *      400:
  *        description: Bad request
  */
-
 router.route('/:id/like').post().delete();
 
 /**
@@ -327,6 +327,12 @@ router.route('/:id/like').post().delete();
  *       - name: hashtag
  *         in: query
  *         description: If the hashtag is in the query, only the tweets including that hashtag will be returned
+ *         schema:
+ *           type: string
+ *       - name: page
+ *         in: param
+ *       - name: limit
+ *         in: param
  *         schema:
  *           type: string
  *     summary: Get Timeline, Search for Tweets and search for tweets that include a hashtag
@@ -379,5 +385,7 @@ router.route('/').get(isLoggedIn, searchTweets);
  *        description: Bad request
  */
 router.route('/hashatgs').get(isLoggedIn, searchHastags);
+
+router.route('/user/:username/like').get(isLoggedIn, getUserLikedTweets);
 
 export default router;

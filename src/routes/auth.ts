@@ -18,7 +18,7 @@ import {
   checkExistenceSchema,
   signUpSchema,
 } from '../schemas/authSchema';
-import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { isLoggedIn, mobileLoggedIn } from '../middlewares/authMiddlewares';
 /**
  * @openapi
  * '/api/v1/auth/google':
@@ -422,6 +422,45 @@ router
 
 /**
  * @openapi
+ * '/api/v1/auth/google/login':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Login with google through token from mobile app
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       "200":
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/LoginResponse'
+ *       "400":
+ *        $ref: '#/responses/400'
+ *       "401":
+ *        $ref: '#/responses/401'
+ *       "404":
+ *        $ref: '#/responses/404'
+ *       "403":
+ *        $ref: '#/responses/403'
+ *       "408":
+ *        $ref: '#/responses/408'
+ *       "409":
+ *        $ref: '#/responses/409'
+ *       "410":
+ *        $ref: '#/responses/410'
+ *
+ *
+ */
+router.route('/google/login').post(mobileLoggedIn, authController.signUpGoogle);
+/**
+ * @openapi
  * '/api/v1/auth/google/signup':
  *  post:
  *     tags:
@@ -464,7 +503,9 @@ router
  *
  *
  */
-
+router
+  .route('/google/signup')
+  .post(validate(googleSignUpSchema), authController.signUpGoogle);
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
@@ -486,9 +527,6 @@ router.get(
   },
 );
 
-router
-  .route('/google/signup')
-  .post(validate(googleSignUpSchema), authController.signUpGoogle);
 /**
  * @openapi
  * '/api/v1/auth/change-password':

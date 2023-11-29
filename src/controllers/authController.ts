@@ -325,6 +325,16 @@ export const signUpGoogle = catchAsync(
     }
   },
 );
+export const logInGoogle = catchAsync(
+  async (req: Request, _res: Response, _next: NextFunction) => {
+    const user = req.user as User;
+    const token = signJWT(user.id);
+    _res.status(200).json({
+      token,
+      user,
+    });
+  },
+);
 
 export const checkExistence = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
@@ -614,3 +624,9 @@ export const changeEmail = catchAsync(
     next();
   },
 );
+
+export const signJWT = (id: string) => {
+  return sign({ id: id }, process.env.JWT_SECRET as string, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
