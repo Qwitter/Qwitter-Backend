@@ -84,4 +84,4 @@ export const uploadMedia = multer({
 });
 
 export const uploadImageMiddleware = upload.single('photo');
-export const uploadTweetMediaMiddleware = uploadMedia.array('media', 5);
+export const uploadTweetMediaMiddleware = uploadMedia.array('media[]', 5);
