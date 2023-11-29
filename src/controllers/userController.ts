@@ -22,12 +22,15 @@ export const uploadProfilePicture = catchAsync(
       );
     }
     const user = _req.user as User;
+    const url = process.env.url?.startsWith('http')
+      ? process.env.URL
+      : 'https://' + process.env.URL;
     const updatedUser = await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        profileImageUrl: `${process.env.URL}/imgs/user${_req.url}/${photoName}`,
+        profileImageUrl: `${url}/imgs/user${_req.url}/${photoName}`,
       },
     });
     return res.status(200).json({

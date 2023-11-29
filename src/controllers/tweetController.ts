@@ -269,7 +269,7 @@ export const getTweetReplies = catchAsync(
         createdAt: 'desc',
       },
       include: {
-        TweetEntity: true,
+        author: {},
       },
     });
     for (var reply of replies) {
