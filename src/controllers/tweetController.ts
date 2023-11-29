@@ -23,6 +23,7 @@ import {
   getTweetAndUserById,
   getTweetsLikedById,
   searchTweet,
+  getTweetsMediaById,
 } from '../repositories/tweetRepository';
 
 const getTimeline = async (req: Request) => {
@@ -52,6 +53,7 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
+      deletedAt: null,
     },
     orderBy: {
       createdAt: 'desc',
@@ -236,6 +238,7 @@ export const getTweetReplies = catchAsync(
     const tweet = await prisma.tweet.findUnique({
       where: {
         id: tweetId,
+        deletedAt: null,
       },
     });
 
@@ -250,6 +253,7 @@ export const getTweetReplies = catchAsync(
     const replies = await prisma.tweet.findMany({
       where: {
         replyToTweetId: tweetId,
+        deletedAt: null,
       },
       orderBy: {
         createdAt: 'desc',
@@ -285,6 +289,7 @@ export const getTweetRetweets = catchAsync(
     const tweet = await prisma.tweet.findUnique({
       where: {
         id: tweetId,
+        deletedAt: null,
       },
     });
 
@@ -299,6 +304,7 @@ export const getTweetRetweets = catchAsync(
     const retweeters = await prisma.tweet.findMany({
       where: {
         retweetedId: tweetId,
+        deletedAt: null,
       },
       include: {
         author: true,
@@ -552,6 +558,37 @@ export const getUserLikedTweets = catchAsync(
     }
 
     const tweets = await getTweetsLikedById(
+      (user as User).id as string,
+      skip,
+      parsedLimit,
+    );
+
+    res.status(200).json({ tweets: tweets });
+    next();
+  },
+);
+
+export const getUserMediaTweets = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userName = req.params.username;
+
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const user = await getUserByUsername(userName);
+
+    if (!user) {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+      return;
+    }
+
+    const tweets = await getTweetsMediaById(
       (user as User).id as string,
       skip,
       parsedLimit,
