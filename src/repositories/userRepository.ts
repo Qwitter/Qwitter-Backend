@@ -168,10 +168,17 @@ export const getUsersByName = async (
 };
 
 export const getNumOfTweets = async (userName: string) => {
-  return await prisma.user.findFirst({
+  if (!userName) return 0;
+  const user = await prisma.user.findFirst({
     where: {
       userName: userName,
       Tweet: { some: { deletedAt: null } },
     },
-  }).Tweet.length;
+    include: {
+      Tweet: {},
+    },
+  });
+  if (!user) return 0;
+  if (!user.Tweet) return 0;
+  return user.Tweet.length;
 };

@@ -59,8 +59,6 @@ describe('GET /user', () => {
   });
 });
 
-
-
 describe('POST /follow/:username', () => {
   test('this should send follow request to the authinticatin user with header containing token and return a failure message', async () => {
     jest.mock('bcrypt');
@@ -98,13 +96,12 @@ describe('POST /follow/:username', () => {
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.follow.findFirst.mockResolvedValue(null);
 
-    
     const res = await Request(app)
       .post('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(401);
-    expect(res.body.message).toBe("Can't follow youself")
+    expect(res.body.message).toBe("Can't follow youself");
   });
 
   test('this should send follow request with header containing token and return a success message', async () => {
@@ -162,18 +159,17 @@ describe('POST /follow/:username', () => {
       passwordResetExpires: null,
       google_id: '',
     };
-    
+
     prismaMock.user.findFirst.mockResolvedValue(targeUser);
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.follow.findFirst.mockResolvedValue(null);
 
-    
     const res = await Request(app)
       .post('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("User followed successfully")
+    expect(res.body.message).toBe('User followed successfully');
   });
   test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
     jest.mock('bcrypt');
@@ -230,18 +226,20 @@ describe('POST /follow/:username', () => {
       passwordResetExpires: null,
       google_id: '',
     };
-    
+
     prismaMock.user.findFirst.mockResolvedValue(targeUser);
     prismaMock.user.findUnique.mockResolvedValue(user);
-    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+    prismaMock.follow.findUnique.mockResolvedValue({
+      folowererId: 'fake_id',
+      followedId: 'fake_id',
+    });
 
-    
     const res = await Request(app)
       .post('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe("User is already followed")
+    expect(res.body.message).toBe('User is already followed');
   });
   test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
     jest.mock('bcrypt');
@@ -274,22 +272,18 @@ describe('POST /follow/:username', () => {
       passwordResetToken: 'registered_fake_token',
       passwordResetExpires: null,
       google_id: '',
-    };    
+    };
     prismaMock.user.findFirst.mockResolvedValue(user);
     prismaMock.user.findUnique.mockResolvedValue(null);
 
-    
     const res = await Request(app)
       .post('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(404);
-    expect(res.body.message).toBe("User to follow not found")
+    expect(res.body.message).toBe('User to follow not found');
   });
 });
-
-
-
 
 describe('DELETE /follow/:username', () => {
   test('this should send delete follow request to the authinticatin user with header containing token and return a failure message', async () => {
@@ -326,15 +320,17 @@ describe('DELETE /follow/:username', () => {
     };
     prismaMock.user.findFirst.mockResolvedValue(user);
     prismaMock.user.findUnique.mockResolvedValue(user);
-    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+    prismaMock.follow.findUnique.mockResolvedValue({
+      folowererId: 'fake_id',
+      followedId: 'fake_id',
+    });
 
-    
     const res = await Request(app)
       .delete('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(401);
-    expect(res.body.message).toBe("Can't unfollow youself")
+    expect(res.body.message).toBe("Can't unfollow youself");
   });
 
   test('this should send delete follow request with header containing token and return a success message', async () => {
@@ -392,18 +388,17 @@ describe('DELETE /follow/:username', () => {
       passwordResetExpires: null,
       google_id: '',
     };
-    
+
     prismaMock.user.findFirst.mockResolvedValue(targeUser);
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.follow.findFirst.mockResolvedValue(null);
 
-    
     const res = await Request(app)
       .delete('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("User unfollowed successfully")
+    expect(res.body.message).toBe('User unfollowed successfully');
   });
   test('this should send delete follow request to an  unfollowed user with header containing token and return a failure message', async () => {
     jest.mock('bcrypt');
@@ -460,18 +455,17 @@ describe('DELETE /follow/:username', () => {
       passwordResetExpires: null,
       google_id: '',
     };
-    
+
     prismaMock.user.findFirst.mockResolvedValue(targeUser);
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.follow.findUnique.mockResolvedValue(null);
 
-    
     const res = await Request(app)
       .delete('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe("User is not followed")
+    expect(res.body.message).toBe('User is not followed');
   });
   test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
     jest.mock('bcrypt');
@@ -504,18 +498,20 @@ describe('DELETE /follow/:username', () => {
       passwordResetToken: 'registered_fake_token',
       passwordResetExpires: null,
       google_id: '',
-    };    
+    };
     prismaMock.user.findFirst.mockResolvedValue(user);
     prismaMock.user.findUnique.mockResolvedValue(null);
-    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+    prismaMock.follow.findUnique.mockResolvedValue({
+      folowererId: 'fake_id',
+      followedId: 'fake_id',
+    });
 
-    
     const res = await Request(app)
       .delete('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body)
+    console.log(res.body);
     expect(res.status).toBe(404);
-    expect(res.body.message).toBe("User to unfollow not found")
+    expect(res.body.message).toBe('User to unfollow not found');
   });
 });
 
@@ -686,7 +682,6 @@ describe('userNameSuggestions Function', () => {
   });
 });
 
-
 describe('POST /block/:username', () => {
   test('user not found', async () => {
     jest.mock('jsonwebtoken');
@@ -696,7 +691,7 @@ describe('POST /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -714,8 +709,7 @@ describe('POST /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -732,7 +726,6 @@ describe('POST /block/:username', () => {
     expect(response.body.message).toEqual('user not found');
 
     prismaMock.user.findFirst.mockResolvedValue(null);
-
   });
 
   test('user already blocked', async () => {
@@ -743,7 +736,7 @@ describe('POST /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -761,8 +754,7 @@ describe('POST /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -789,8 +781,7 @@ describe('POST /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed2@qwitter.com',
       userName: 'ahmedibrahim',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -802,23 +793,22 @@ describe('POST /block/:username', () => {
 
     prismaMock.block.findUnique.mockResolvedValue({
       blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef',
     });
     prismaMock.block.findFirst.mockResolvedValue({
       blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef',
     });
 
     const response = await Request(app)
       .post('/api/v1/user/block/ahmedibrahim')
       .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
 
-      expect(response.status).toBe(404);
-      expect(response.body.status).toEqual('fail');
-      expect(response.body.message).toEqual('user already blocked');
-      
-    prismaMock.user.findFirst.mockResolvedValue(null);
+    expect(response.status).toBe(404);
+    expect(response.body.status).toEqual('fail');
+    expect(response.body.message).toEqual('user already blocked');
 
+    prismaMock.user.findFirst.mockResolvedValue(null);
   });
 
   test('should block a user', async () => {
@@ -829,7 +819,7 @@ describe('POST /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -847,8 +837,7 @@ describe('POST /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -875,8 +864,7 @@ describe('POST /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed2@qwitter.com',
       userName: 'ahmedibrahim',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -886,20 +874,16 @@ describe('POST /block/:username', () => {
     prismaMock.user.findFirst.mockResolvedValue(user2);
     prismaMock.user.update.mockResolvedValue(user2);
 
-
     const response = await Request(app)
       .post('/api/v1/user/block/ahmedibrahim')
       .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'success' });
-    
+
     prismaMock.user.findFirst.mockResolvedValue(null);
-
   });
-
 });
-
 
 describe('DELETE /block/:username', () => {
   test('user not found', async () => {
@@ -910,7 +894,7 @@ describe('DELETE /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -928,8 +912,7 @@ describe('DELETE /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -946,7 +929,6 @@ describe('DELETE /block/:username', () => {
     expect(response.body.message).toEqual('user not found');
 
     prismaMock.user.findFirst.mockResolvedValue(null);
-
   });
 
   test('user already unblocked', async () => {
@@ -957,7 +939,7 @@ describe('DELETE /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -975,8 +957,7 @@ describe('DELETE /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -1003,8 +984,7 @@ describe('DELETE /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed2@qwitter.com',
       userName: 'ahmedibrahim',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -1019,14 +999,13 @@ describe('DELETE /block/:username', () => {
 
     const response = await Request(app)
       .delete('/api/v1/user/block/ahmedibrahim')
-      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); 
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef');
 
-      expect(response.status).toBe(404);
-      expect(response.body.status).toEqual('fail');
-      expect(response.body.message).toEqual('user not blocked');
-      
+    expect(response.status).toBe(404);
+    expect(response.body.status).toEqual('fail');
+    expect(response.body.message).toEqual('user not blocked');
+
     prismaMock.user.findFirst.mockResolvedValue(null);
-
   });
 
   test('should unblock a user', async () => {
@@ -1037,7 +1016,7 @@ describe('DELETE /block/:username', () => {
       iat: 1699498302,
       exp: 1707274302,
     });
-    
+
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -1055,8 +1034,7 @@ describe('DELETE /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed@qwitter.com',
       userName: 'ahmedzahran',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -1083,8 +1061,7 @@ describe('DELETE /block/:username', () => {
       profileImageUrl: null,
       email: 'ahmed2@qwitter.com',
       userName: 'ahmedibrahim',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: null,
       passwordResetExpires: null,
@@ -1096,15 +1073,15 @@ describe('DELETE /block/:username', () => {
 
     prismaMock.block.findUnique.mockResolvedValue({
       blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef',
     });
     prismaMock.block.findFirst.mockResolvedValue({
       blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef',
     });
     prismaMock.block.delete.mockResolvedValue({
       blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef',
     });
 
     const response = await Request(app)
@@ -1114,9 +1091,503 @@ describe('DELETE /block/:username', () => {
     expect(response.status).toBe(200);
     console.log(response.body);
     expect(response.body).toEqual({ status: 'success' });
-    
+
     prismaMock.user.findFirst.mockResolvedValue(null);
-
   });
+});
 
+describe('Like a Tweet Function', () => {
+  describe('auth_key in header', () => {
+    describe('auth_key is valid', () => {
+      describe('user Found', () => {
+        describe('tweet exists', () => {
+          describe('like exists', () => {
+            test('should respond with status 400', async () => {
+              const user = {
+                id: 'eac0ece1',
+                name: 'Zahran',
+                birthDate: new Date(),
+                location: null,
+                url: null,
+                description: null,
+                protected: false,
+                verified: false,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date(),
+                deletedAt: null,
+                profileBannerUrl: null,
+                profileImageUrl: null,
+                email: 'ahmed@gmail.com',
+                userName: 'ahmedzahran12364',
+                password:
+                  '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+                passwordChangedAt: null,
+                passwordResetToken: null,
+                passwordResetExpires: null,
+                google_id: null,
+              };
+              const tweet = {
+                createdAt: new Date(),
+                id: 'djfk',
+                text: 'dsgf',
+                source: 'dsdg',
+                coordinates: 'dsgds',
+                author: 'gsd',
+                userId: 'dsgdsg',
+                replyToTweetId: null,
+                replyCount: 0,
+                retweetedId: null,
+                retweetCount: 0,
+                qouteTweetedId: null,
+                qouteCount: 0,
+                likesCount: 0,
+                sensitive: false,
+                deletedAt: new Date(),
+              };
+              const like = {
+                userId: 'fjdh',
+                tweetId: 'jdjhfj',
+              };
+              jest.mock('bcrypt');
+              bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+              jest.mock('jsonwebtoken');
+              jwt.sign = jest.fn().mockResolvedValue('generated_token');
+              jwt.verify = jest.fn().mockResolvedValue({
+                id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+                iat: 1701267900,
+                exp: 1709043900,
+              });
+              prismaMock.user.findFirst.mockResolvedValueOnce(user);
+              prismaMock.like.findUnique.mockResolvedValueOnce(like);
+              prismaMock.tweet.findUnique.mockResolvedValueOnce(tweet);
+
+              const response = await Request(app)
+                .post('/api/v1/tweets/123456/like')
+                .set('authorization', 'Bearer abc123');
+              expect(response.status).toBe(400);
+              expect(response.body.message).toStrictEqual(
+                "Tweet is already liked or doesn't exist",
+              );
+            });
+          });
+          describe('like doesnot exists', () => {
+            test('should respond with status 200', async () => {
+              const user = {
+                id: 'eac0ece1',
+                name: 'Zahran',
+                birthDate: new Date(),
+                location: null,
+                url: null,
+                description: null,
+                protected: false,
+                verified: false,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date(),
+                deletedAt: null,
+                profileBannerUrl: null,
+                profileImageUrl: null,
+                email: 'ahmed@gmail.com',
+                userName: 'ahmedzahran12364',
+                password:
+                  '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+                passwordChangedAt: null,
+                passwordResetToken: null,
+                passwordResetExpires: null,
+                google_id: null,
+              };
+              const tweet = {
+                createdAt: new Date(),
+                id: 'djfk',
+                text: 'dsgf',
+                source: 'dsdg',
+                coordinates: 'dsgds',
+                author: 'gsd',
+                userId: 'dsgdsg',
+                replyToTweetId: null,
+                replyCount: 0,
+                retweetedId: null,
+                retweetCount: 0,
+                qouteTweetedId: null,
+                qouteCount: 0,
+                likesCount: 0,
+                sensitive: false,
+                deletedAt: new Date(),
+              };
+              jest.mock('bcrypt');
+              bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+              jest.mock('jsonwebtoken');
+              jwt.sign = jest.fn().mockResolvedValue('generated_token');
+              jwt.verify = jest.fn().mockResolvedValue({
+                id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+                iat: 1701267900,
+                exp: 1709043900,
+              });
+              prismaMock.user.findFirst.mockResolvedValueOnce(user);
+              prismaMock.like.findUnique.mockResolvedValueOnce(null);
+              prismaMock.tweet.findUnique.mockResolvedValueOnce(tweet);
+              prismaMock.like.update.mockImplementation();
+
+              const response = await Request(app)
+                .post('/api/v1/tweets/123456/like')
+                .set('authorization', 'Bearer abc123');
+              expect(response.status).toBe(200);
+              expect(response.body.status).toStrictEqual('success');
+            });
+          });
+        });
+        describe('tweet doesnot exists', () => {
+          test('should respond with status 400', async () => {
+            const user = {
+              id: 'eac0ece1',
+              name: 'Zahran',
+              birthDate: new Date(),
+              location: null,
+              url: null,
+              description: null,
+              protected: false,
+              verified: false,
+              followersCount: 0,
+              followingCount: 0,
+              createdAt: new Date(),
+              deletedAt: null,
+              profileBannerUrl: null,
+              profileImageUrl: null,
+              email: 'ahmed@gmail.com',
+              userName: 'ahmedzahran12364',
+              password:
+                '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+              passwordChangedAt: null,
+              passwordResetToken: null,
+              passwordResetExpires: null,
+              google_id: null,
+            };
+            jest.mock('bcrypt');
+            bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+            jest.mock('jsonwebtoken');
+            jwt.sign = jest.fn().mockResolvedValue('generated_token');
+            jwt.verify = jest.fn().mockResolvedValue({
+              id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+              iat: 1701267900,
+              exp: 1709043900,
+            });
+            prismaMock.user.findFirst.mockResolvedValueOnce(user);
+            prismaMock.like.findUnique.mockResolvedValueOnce(null);
+            prismaMock.tweet.findUnique.mockResolvedValueOnce(null);
+
+            const response = await Request(app)
+              .post('/api/v1/tweets/123456/like')
+              .set('authorization', 'Bearer abc123');
+            expect(response.status).toBe(400);
+            expect(response.body.message).toStrictEqual(
+              "Tweet is already liked or doesn't exist",
+            );
+          });
+        });
+      });
+      describe('user not Found', () => {
+        test('should respond with status 404', async () => {
+          jest.mock('bcrypt');
+          bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+          jest.mock('jsonwebtoken');
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          prismaMock.user.findFirst.mockResolvedValue(null);
+          const response = await Request(app)
+            .post('/api/v1/tweets/123456/like')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(404);
+          expect(response.body.message).toStrictEqual('User not found');
+        });
+      });
+    });
+    describe('auth_key is invalid', () => {
+      test('should respond with status 409 token expired', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({
+          id: 'eac0ece1',
+          iat: 1699498302,
+          exp: 0,
+        });
+
+        const response = await Request(app)
+          .post('/api/v1/tweets/123456/like')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual('Token Expired');
+      });
+      test('should respond with status 409 token invalid', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({});
+
+        const response = await Request(app)
+          .post('/api/v1/tweets/123456/like')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual(
+          'Invalid access credentials',
+        );
+      });
+    });
+  });
+  describe('auth_key not found in header', () => {
+    test('should respond with status 401', async () => {
+      const response = await Request(app).post('/api/v1/tweets/123456/like');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toStrictEqual('Unauthorized access');
+    });
+  });
+});
+
+describe('Dislike a Tweet Function', () => {
+  describe('auth_key in header', () => {
+    describe('auth_key is valid', () => {
+      describe('user Found', () => {
+        describe('tweet exists', () => {
+          describe('like doesnot exist', () => {
+            test('should respond with status 400', async () => {
+              const user = {
+                id: 'eac0ece1',
+                name: 'Zahran',
+                birthDate: new Date(),
+                location: null,
+                url: null,
+                description: null,
+                protected: false,
+                verified: false,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date(),
+                deletedAt: null,
+                profileBannerUrl: null,
+                profileImageUrl: null,
+                email: 'ahmed@gmail.com',
+                userName: 'ahmedzahran12364',
+                password:
+                  '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+                passwordChangedAt: null,
+                passwordResetToken: null,
+                passwordResetExpires: null,
+                google_id: null,
+              };
+              const tweet = {
+                createdAt: new Date(),
+                id: 'djfk',
+                text: 'dsgf',
+                source: 'dsdg',
+                coordinates: 'dsgds',
+                author: 'gsd',
+                userId: 'dsgdsg',
+                replyToTweetId: null,
+                replyCount: 0,
+                retweetedId: null,
+                retweetCount: 0,
+                qouteTweetedId: null,
+                qouteCount: 0,
+                likesCount: 0,
+                sensitive: false,
+                deletedAt: new Date(),
+              };
+              jest.mock('bcrypt');
+              bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+              jest.mock('jsonwebtoken');
+              jwt.sign = jest.fn().mockResolvedValue('generated_token');
+              jwt.verify = jest.fn().mockResolvedValue({
+                id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+                iat: 1701267900,
+                exp: 1709043900,
+              });
+              prismaMock.user.findFirst.mockResolvedValueOnce(user);
+              prismaMock.like.findUnique.mockResolvedValueOnce(null);
+              prismaMock.tweet.findUnique.mockResolvedValueOnce(tweet);
+
+              const response = await Request(app)
+                .delete('/api/v1/tweets/123456/like')
+                .set('authorization', 'Bearer abc123');
+              expect(response.status).toBe(400);
+              expect(response.body.message).toStrictEqual(
+                "Tweet is not liked or doesn't exist",
+              );
+            });
+          });
+          describe('like exists', () => {
+            test('should respond with status 200', async () => {
+              const user = {
+                id: 'eac0ece1',
+                name: 'Zahran',
+                birthDate: new Date(),
+                location: null,
+                url: null,
+                description: null,
+                protected: false,
+                verified: false,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date(),
+                deletedAt: null,
+                profileBannerUrl: null,
+                profileImageUrl: null,
+                email: 'ahmed@gmail.com',
+                userName: 'ahmedzahran12364',
+                password:
+                  '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+                passwordChangedAt: null,
+                passwordResetToken: null,
+                passwordResetExpires: null,
+                google_id: null,
+              };
+              const tweet = {
+                createdAt: new Date(),
+                id: 'djfk',
+                text: 'dsgf',
+                source: 'dsdg',
+                coordinates: 'dsgds',
+                author: 'gsd',
+                userId: 'dsgdsg',
+                replyToTweetId: null,
+                replyCount: 0,
+                retweetedId: null,
+                retweetCount: 0,
+                qouteTweetedId: null,
+                qouteCount: 0,
+                likesCount: 0,
+                sensitive: false,
+                deletedAt: new Date(),
+              };
+              const like = {
+                userId: 'fjdh',
+                tweetId: 'jdjhfj',
+              };
+              jest.mock('bcrypt');
+              bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+              jest.mock('jsonwebtoken');
+              jwt.sign = jest.fn().mockResolvedValue('generated_token');
+              jwt.verify = jest.fn().mockResolvedValue({
+                id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+                iat: 1701267900,
+                exp: 1709043900,
+              });
+              prismaMock.user.findFirst.mockResolvedValueOnce(user);
+              prismaMock.like.findUnique.mockResolvedValueOnce(like);
+              prismaMock.tweet.findUnique.mockResolvedValueOnce(tweet);
+              prismaMock.like.delete.mockImplementation();
+
+              const response = await Request(app)
+                .delete('/api/v1/tweets/123456/like')
+                .set('authorization', 'Bearer abc123');
+              expect(response.status).toBe(200);
+              expect(response.body.status).toStrictEqual('success');
+            });
+          });
+        });
+        describe('tweet doesnot exists', () => {
+          test('should respond with status 400', async () => {
+            const user = {
+              id: 'eac0ece1',
+              name: 'Zahran',
+              birthDate: new Date(),
+              location: null,
+              url: null,
+              description: null,
+              protected: false,
+              verified: false,
+              followersCount: 0,
+              followingCount: 0,
+              createdAt: new Date(),
+              deletedAt: null,
+              profileBannerUrl: null,
+              profileImageUrl: null,
+              email: 'ahmed@gmail.com',
+              userName: 'ahmedzahran12364',
+              password:
+                '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+              passwordChangedAt: null,
+              passwordResetToken: null,
+              passwordResetExpires: null,
+              google_id: null,
+            };
+            jest.mock('bcrypt');
+            bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+            jest.mock('jsonwebtoken');
+            jwt.sign = jest.fn().mockResolvedValue('generated_token');
+            jwt.verify = jest.fn().mockResolvedValue({
+              id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+              iat: 1701267900,
+              exp: 1709043900,
+            });
+            prismaMock.user.findFirst.mockResolvedValueOnce(user);
+            prismaMock.like.findUnique.mockResolvedValueOnce(null);
+            prismaMock.tweet.findUnique.mockResolvedValueOnce(null);
+
+            const response = await Request(app)
+              .delete('/api/v1/tweets/123456/like')
+              .set('authorization', 'Bearer abc123');
+            expect(response.status).toBe(400);
+            expect(response.body.message).toStrictEqual(
+              "Tweet is not liked or doesn't exist",
+            );
+          });
+        });
+      });
+      describe('user not Found', () => {
+        test('should respond with status 404', async () => {
+          jest.mock('bcrypt');
+          bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+          jest.mock('jsonwebtoken');
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          prismaMock.user.findFirst.mockResolvedValue(null);
+          const response = await Request(app)
+            .delete('/api/v1/tweets/123456/like')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(404);
+          expect(response.body.message).toStrictEqual('User not found');
+        });
+      });
+    });
+    describe('auth_key is invalid', () => {
+      test('should respond with status 409 token expired', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({
+          id: 'eac0ece1',
+          iat: 1699498302,
+          exp: 0,
+        });
+
+        const response = await Request(app)
+          .delete('/api/v1/tweets/123456/like')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual('Token Expired');
+      });
+      test('should respond with status 409 token invalid', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({});
+
+        const response = await Request(app)
+          .delete('/api/v1/tweets/123456/like')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual(
+          'Invalid access credentials',
+        );
+      });
+    });
+  });
+  describe('auth_key not found in header', () => {
+    test('should respond with status 401', async () => {
+      const response = await Request(app).delete('/api/v1/tweets/123456/like');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toStrictEqual('Unauthorized access');
+    });
+  });
 });
