@@ -465,6 +465,9 @@ export const getUserSuggestions = catchAsync(
         take:10,
         where:{
           folowererId:followedIDs[randomIndex].followedId,
+          follower:{
+            deletedAt:null
+          }
 
         },
       })
