@@ -84,7 +84,7 @@ export const createMedia = async (mediaName: string) => {
   const createdEntity = await createEntity('media');
   const url = process.env.url?.startsWith('http')
     ? process.env.URL
-    : 'https://' + process.env.URL;
+    : 'http://' + process.env.URL;
   const createdMedia = await prisma.media.create({
     data: {
       url: `${url}/imgs/tweet/${mediaName}`,
