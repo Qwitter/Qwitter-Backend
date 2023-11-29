@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "description": "For any pagination add page,limit as query parameters. Default is limit 10"
   },
-  "servers": [{ "url": "localhost:3000" }],
+  "servers": [{ "url": "http://localhost:3000" }],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
