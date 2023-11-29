@@ -190,6 +190,7 @@ export const changeUserName = catchAsync(
     const userCheck = await prisma.user.findFirst({
       where: {
         userName: newUserName,
+        deletedAt: null,
       },
     });
     if (userCheck) {
@@ -314,7 +315,7 @@ export const muteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToMute = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToMute) {
@@ -353,7 +354,7 @@ export const unmuteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToUnmute = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToUnmute) {
@@ -407,7 +408,7 @@ export const followUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToFollow = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToFollow) {
@@ -451,7 +452,7 @@ export const unfollowUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToUnfollow = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToUnfollow) {
