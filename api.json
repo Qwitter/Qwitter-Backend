@@ -1,2628 +1,3530 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "REST API Docs",
-    "version": "1.0.0",
-    "description": "For any pagination add page,limit as query parameters. Default is limit 10"
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "REST API Docs",
+    "version" : "1.0.0",
+    "description" : "For any pagination add page,limit as query parameters. Default is limit 10"
   },
-  "servers": [{ "url": "localhost:3000" }],
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+  "servers" : [ {
+    "url" : "localhost:3000"
+  } ],
+  "components" : {
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
       }
     },
-    "schemas": {
-      "LoginRequest": {
-        "type": "object",
-        "required": ["email_or_username", "password"],
-        "properties": {
-          "email_or_username": {
-            "type": "string",
-            "default": "ahmed.helmy@qwitter.com"
+    "schemas" : {
+      "LoginRequest" : {
+        "type" : "object",
+        "required" : [ "email_or_username", "password" ],
+        "properties" : {
+          "email_or_username" : {
+            "type" : "string",
+            "default" : "ahmed.helmy@qwitter.com"
           },
-          "password": { "type": "string", "default": "stringPassword123" }
+          "password" : {
+            "type" : "string",
+            "default" : "stringPassword123"
+          }
         }
       },
-      "SignUpRequest": {
-        "type": "object",
-        "required": ["email", "name", "password", "birthDate"],
-        "properties": {
-          "email": { "type": "string", "default": "ahmed.helmy@qwitter.com" },
-          "name": { "type": "string", "default": "Ahmed Helmy" },
-          "password": { "type": "string", "default": "stringPassword123" },
-          "birthDate": {
-            "type": "string",
-            "default": "2020-03-09T22:18:26.625Z"
+      "SignUpRequest" : {
+        "type" : "object",
+        "required" : [ "email", "name", "password", "birthDate" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "default" : "ahmed.helmy@qwitter.com"
           },
-          "passwordConfirmation": {
-            "type": "string",
-            "default": "stringPassword123"
-          }
-        }
-      },
-      "ChangePasswordRequest": {
-        "type": "object",
-        "required": ["password", "passwordConfirmation"],
-        "properties": {
-          "password": { "type": "string", "default": "hamada" },
-          "passwordConfirmation": { "type": "string", "default": "hamada" }
-        }
-      },
-      "UpdatePasswordRequest": {
-        "type": "object",
-        "required": ["password", "passwordConfirmation"],
-        "properties": {
-          "oldPassword": { "type": "string", "default": "stringPassword123" },
-          "newPassword": { "type": "string", "default": "stringPassword123" }
-        }
-      },
-      "ChangeEmailRequest": {
-        "type": "object",
-        "required": ["email"],
-        "properties": {
-          "email": { "type": "string", "default": "a@gmail.com" }
-        }
-      },
-      "ChangeEmailResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Email changed successfully"
-          }
-        }
-      },
-      "UpdatePasswordResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Password updated successfully"
-          }
-        }
-      },
-      "SignUpResponse": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": "string",
-            "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZmNTgyOGMyLTBkYzUtNDNlMS1hZmQzLWFhODI3ZmQxODRiYSIsImlhdCI6MTY5OTI3MjE0MiwiZXhwIjoxNzA3MDQ4MTQyfQ.s4Bgs8RJr9U242CdG9cJyiVK6N7_VAVw9mziMdAkFrM"
+          "name" : {
+            "type" : "string",
+            "default" : "Ahmed Helmy"
           },
-          "data": { "$ref": "#/components/schemas/User" },
-          "suggestions": {
-            "type": "array",
-            "items": "string",
-            "default": ["ahmedzahran6335d6", "ahmedzahran891380"]
-          }
-        }
-      },
-      "LoginResponse": {
-        "type": "object",
-        "properties": {
-          "token": { "type": "string" },
-          "user": { "$ref": "#/components/schemas/User" }
-        }
-      },
-      "VerifyEmailResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Your account has been successfully verified"
-          }
-        }
-      },
-      "userNameSuggestionsResponse": {
-        "type": "object",
-        "properties": {
-          "suggestions": {
-            "type": "array",
-            "items": "string",
-            "default": [
-              "ahmedzahran6439a8",
-              "ahmedzahran39ccb4",
-              "ahmedzahranc6b400",
-              "ahmedzahranf44260",
-              "ahmedzahrane3d45d"
-            ]
-          }
-        }
-      },
-      "GoogleSignUpRequest": {
-        "type": "object",
-        "required": ["birthdate"],
-        "properties": {
-          "birthdate": {
-            "type": "string",
-            "default": "2020-03-09T22:18:26.625Z"
-          }
-        }
-      },
-      "ChangePasswordSuccessResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Password Changed Successfully"
-          }
-        }
-      },
-      "ResetPasswordSuccessResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Password Reset Permissions Gauranteed"
+          "password" : {
+            "type" : "string",
+            "default" : "stringPassword123"
           },
-          "token": {
-            "type": "string",
-            "default": "q98ehwniudwe98fehwf094r12i3112321"
+          "birthDate" : {
+            "type" : "string",
+            "default" : "2020-03-09T22:18:26.625Z"
+          },
+          "passwordConfirmation" : {
+            "type" : "string",
+            "default" : "stringPassword123"
           }
         }
       },
-      "SendVerificationEmailResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Verification Email has been sent"
+      "ChangePasswordRequest" : {
+        "type" : "object",
+        "required" : [ "password", "passwordConfirmation" ],
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "default" : "hamada"
+          },
+          "passwordConfirmation" : {
+            "type" : "string",
+            "default" : "hamada"
           }
         }
       },
-      "ForgotPasswordResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Password reset email sent successfully"
+      "UpdatePasswordRequest" : {
+        "type" : "object",
+        "required" : [ "password", "passwordConfirmation" ],
+        "properties" : {
+          "oldPassword" : {
+            "type" : "string",
+            "default" : "stringPassword123"
+          },
+          "newPassword" : {
+            "type" : "string",
+            "default" : "stringPassword123"
           }
         }
       },
-      "ForgotPasswordResponse404": {
-        "type": "object",
-        "properties": {
-          "message": { "type": "string", "default": "User not found" }
-        }
-      },
-      "conversation": {
-        "type": "object",
-        "required": ["id", "name"],
-        "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" }
-        }
-      },
-      "createConversationRequest": {
-        "type": "object",
-        "required": ["user_id", "conversation_name", "users"],
-        "properties": {
-          "user_id": { "type": "string" },
-          "conversation_name": { "type": "string" },
-          "users_to_add": {
-            "type": "array",
-            "example": ["user_id_1", "user_id_2", "user_id_3"]
+      "ChangeEmailRequest" : {
+        "type" : "object",
+        "required" : [ "email" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "default" : "a@gmail.com"
           }
         }
       },
-      "createConversationResponse": {
-        "type": "object",
-        "properties": { "success": { "type": "boolean" } }
-      },
-      "addUserToConversationRequest": {
-        "type": "object",
-        "required": ["conversation_id", "user_id", "user_to_add_id"],
-        "properties": {
-          "conversation_id": { "type": "string" },
-          "user_id": { "type": "string" },
-          "user_to_add_id": { "type": "string" }
+      "ChangeEmailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Email changed successfully"
+          }
         }
       },
-      "addUserToConversationResponse": {
-        "type": "object",
-        "properties": { "success": { "type": "boolean" } }
-      },
-      "removeUserFromConversationRequest": {
-        "type": "object",
-        "required": ["conversation_id", "user_id", "user_to_remove_id"],
-        "properties": {
-          "conversation_id": { "type": "string" },
-          "user_id": { "type": "string" },
-          "user_to_remove_id": { "type": "string" }
+      "UpdatePasswordResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Password updated successfully"
+          }
         }
       },
-      "removeUserFromConversationResponse": {
-        "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+      "SignUpResponse" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "default" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZmNTgyOGMyLTBkYzUtNDNlMS1hZmQzLWFhODI3ZmQxODRiYSIsImlhdCI6MTY5OTI3MjE0MiwiZXhwIjoxNzA3MDQ4MTQyfQ.s4Bgs8RJr9U242CdG9cJyiVK6N7_VAVw9mziMdAkFrM"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/User"
+          },
+          "suggestions" : {
+            "type" : "array",
+            "items" : "string",
+            "default" : [ "ahmedzahran6335d6", "ahmedzahran891380" ]
+          }
+        }
       },
-      "GetUserConversationsResponse": {
-        "type": "object",
-        "properties": {
-          "unseen": { "type": "integer" },
-          "conversations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": { "type": "integer" },
-                "name": { "type": "string" }
+      "LoginResponse" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/User"
+          }
+        }
+      },
+      "VerifyEmailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Your account has been successfully verified"
+          }
+        }
+      },
+      "userNameSuggestionsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "suggestions" : {
+            "type" : "array",
+            "items" : "string",
+            "default" : [ "ahmedzahran6439a8", "ahmedzahran39ccb4", "ahmedzahranc6b400", "ahmedzahranf44260", "ahmedzahrane3d45d" ]
+          }
+        }
+      },
+      "GoogleSignUpRequest" : {
+        "type" : "object",
+        "required" : [ "birthdate" ],
+        "properties" : {
+          "birthdate" : {
+            "type" : "string",
+            "default" : "2020-03-09T22:18:26.625Z"
+          }
+        }
+      },
+      "ChangePasswordSuccessResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Password Changed Successfully"
+          }
+        }
+      },
+      "ResetPasswordSuccessResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Password Reset Permissions Gauranteed"
+          },
+          "token" : {
+            "type" : "string",
+            "default" : "q98ehwniudwe98fehwf094r12i3112321"
+          }
+        }
+      },
+      "SendVerificationEmailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Verification Email has been sent"
+          }
+        }
+      },
+      "ForgotPasswordResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Password reset email sent successfully"
+          }
+        }
+      },
+      "ForgotPasswordResponse404" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "User not found"
+          }
+        }
+      },
+      "conversation" : {
+        "type" : "object",
+        "required" : [ "id", "name" ],
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "createConversationRequest" : {
+        "type" : "object",
+        "required" : [ "user_id", "conversation_name", "users" ],
+        "properties" : {
+          "user_id" : {
+            "type" : "string"
+          },
+          "conversation_name" : {
+            "type" : "string"
+          },
+          "users_to_add" : {
+            "type" : "array",
+            "example" : [ "user_id_1", "user_id_2", "user_id_3" ]
+          }
+        }
+      },
+      "createConversationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "addUserToConversationRequest" : {
+        "type" : "object",
+        "required" : [ "conversation_id", "user_id", "user_to_add_id" ],
+        "properties" : {
+          "conversation_id" : {
+            "type" : "string"
+          },
+          "user_id" : {
+            "type" : "string"
+          },
+          "user_to_add_id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "addUserToConversationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "removeUserFromConversationRequest" : {
+        "type" : "object",
+        "required" : [ "conversation_id", "user_id", "user_to_remove_id" ],
+        "properties" : {
+          "conversation_id" : {
+            "type" : "string"
+          },
+          "user_id" : {
+            "type" : "string"
+          },
+          "user_to_remove_id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "removeUserFromConversationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "GetUserConversationsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "unseen" : {
+            "type" : "integer"
+          },
+          "conversations" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "integer"
+                },
+                "name" : {
+                  "type" : "string"
+                }
               },
-              "example": { "id": 1, "name": "Group" }
+              "example" : {
+                "id" : 1,
+                "name" : "Group"
+              }
             }
           }
         },
-        "example": {
-          "unseen": 2,
-          "conversations": [
-            { "id": 1, "name": "Group" },
-            { "id": 2, "name": "Another Group" }
-          ]
+        "example" : {
+          "unseen" : 2,
+          "conversations" : [ {
+            "id" : 1,
+            "name" : "Group"
+          }, {
+            "id" : 2,
+            "name" : "Another Group"
+          } ]
         }
       },
-      "sendMessageRequest": {
-        "type": "object",
-        "required": ["user_id", "conversation_id", "text", "reply_id", "media"],
-        "properties": {
-          "user_id": { "type": "string" },
-          "conversation_id": { "type": "string" },
-          "text": { "type": "string" },
-          "reply_id": { "type": "string" },
-          "media": { "type": "string" }
-        }
-      },
-      "sendMessageResponse": {
-        "type": "object",
-        "properties": { "success": { "type": "boolean" } }
-      },
-      "deleteMessageRequest": {
-        "type": "object",
-        "required": ["user_id", "conversation_id", "message_id"],
-        "properties": {
-          "user_id": { "type": "string" },
-          "conversation_id": { "type": "string" },
-          "message_id": { "type": "string" }
-        }
-      },
-      "deleteMessageResponse": {
-        "type": "object",
-        "properties": { "success": { "type": "boolean" } }
-      },
-      "Notification": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "default": "12345",
-            "description": "Unique identifier for the notification."
+      "sendMessageRequest" : {
+        "type" : "object",
+        "required" : [ "user_id", "conversation_id", "text", "reply_id", "media" ],
+        "properties" : {
+          "user_id" : {
+            "type" : "string"
           },
-          "text": {
-            "type": "string",
-            "default": "Ahmed Helmy liked your photo",
-            "description": "The text content of the notification."
+          "conversation_id" : {
+            "type" : "string"
           },
-          "seen": {
-            "type": "boolean",
-            "default": false,
-            "description": "Indicates if the notification has been seen or not."
+          "text" : {
+            "type" : "string"
           },
-          "senderId": {
-            "type": "string",
-            "default": "5641651",
-            "description": "The unique identifier of the sender."
+          "reply_id" : {
+            "type" : "string"
           },
-          "createdAt": {
-            "type": "string",
-            "default": "19-08-2023",
-            "description": "The date and time when the notification was created."
-          },
-          "url": {
-            "type": "string",
-            "description": "Its the URL for the activity. If its liking a tweet, it will be the tweet URL.",
-            "default": "http://qwitter/tweet/123"
+          "media" : {
+            "type" : "string"
           }
         }
       },
-      "GetNotificationsResponse": {
-        "type": "object",
-        "properties": {
-          "unSeenCount": {
-            "type": "number",
-            "description": "Number of unseen notifications."
+      "sendMessageResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "deleteMessageRequest" : {
+        "type" : "object",
+        "required" : [ "user_id", "conversation_id", "message_id" ],
+        "properties" : {
+          "user_id" : {
+            "type" : "string"
           },
-          "notifications": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Notification" },
-            "description": "List of notifications."
+          "conversation_id" : {
+            "type" : "string"
+          },
+          "message_id" : {
+            "type" : "string"
           }
         }
       },
-      "ReturnListOfTweets": {
-        "type": "object",
-        "properties": {
-          "tweets": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/tweet" }
+      "deleteMessageResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
           }
         }
       },
-      "GetTrends": {
-        "type": "object",
-        "properties": {
-          "tweets": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "trend": { "type": "string" },
-                "count": { "type": "integer" }
+      "Notification" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "default" : "12345",
+            "description" : "Unique identifier for the notification."
+          },
+          "text" : {
+            "type" : "string",
+            "default" : "Ahmed Helmy liked your photo",
+            "description" : "The text content of the notification."
+          },
+          "seen" : {
+            "type" : "boolean",
+            "default" : false,
+            "description" : "Indicates if the notification has been seen or not."
+          },
+          "senderId" : {
+            "type" : "string",
+            "default" : "5641651",
+            "description" : "The unique identifier of the sender."
+          },
+          "createdAt" : {
+            "type" : "string",
+            "default" : "19-08-2023",
+            "description" : "The date and time when the notification was created."
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "Its the URL for the activity. If its liking a tweet, it will be the tweet URL.",
+            "default" : "http://qwitter/tweet/123"
+          }
+        }
+      },
+      "GetNotificationsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "unSeenCount" : {
+            "type" : "number",
+            "description" : "Number of unseen notifications."
+          },
+          "notifications" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Notification"
+            },
+            "description" : "List of notifications."
+          }
+        }
+      },
+      "ReturnListOfTweets" : {
+        "type" : "object",
+        "properties" : {
+          "tweets" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/tweet"
+            }
+          }
+        }
+      },
+      "GetTrends" : {
+        "type" : "object",
+        "properties" : {
+          "tweets" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "trend" : {
+                  "type" : "string"
+                },
+                "count" : {
+                  "type" : "integer"
+                }
               }
             },
-            "example": [
-              { "trend": "#Trend1", "count": 10000 },
-              { "trend": "#Trend2", "count": 8000 },
-              { "trend": "#Trend3", "count": 6000 }
-            ]
+            "example" : [ {
+              "trend" : "#Trend1",
+              "count" : 10000
+            }, {
+              "trend" : "#Trend2",
+              "count" : 8000
+            }, {
+              "trend" : "#Trend3",
+              "count" : 6000
+            } ]
           }
         }
       },
-      "TweetToggleLikeInput": {
-        "type": "object",
-        "required": ["tweet_id"],
-        "properties": { "tweet_id": { "type": "string", "default": 150123 } }
-      },
-      "TweetToggleLikeResponse": {
-        "type": "object",
-        "properties": { "status": { "type": "string" } }
-      },
-      "entityArray": {
-        "type": "object",
-        "properties": {
-          "hasthtags": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/hashtag" }
-          },
-          "media": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/media" }
-          },
-          "mentions": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/mention" }
-          },
-          "urls": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/url" }
+      "TweetToggleLikeInput" : {
+        "type" : "object",
+        "required" : [ "tweet_id" ],
+        "properties" : {
+          "tweet_id" : {
+            "type" : "string",
+            "default" : 150123
           }
         }
       },
-      "UploadMediaInput": {
-        "type": "object",
-        "required": ["media"],
-        "properties": { "media": { "type": "string", "format": "binary" } }
-      },
-      "media": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "example": "qwitter/photos/213902323",
-            "description": "The value of the entity."
-          },
-          "type": { "type": "string", "example": "image" },
-          "id": { "type": "string", "example": "21893u2039kldfs-skdlm" }
-        }
-      },
-      "hashtag": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string",
-            "example": "#Palestine",
-            "description": "The value of the hashtag with"
-          },
-          "count": {
-            "type": "number",
-            "example": 15,
-            "description": "The count of the tweets & messages referencing this hasthag"
+      "TweetToggleLikeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
           }
         }
       },
-      "url": { "type": "string", "example": "qwitter.com" },
-      "mention": {
-        "type": "string",
-        "example": "ahmedoshelmy",
-        "description": "The usernames of the mentioned users if any"
-      },
-      "tweet": {
-        "type": "object",
-        "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
-          "retweetCount": {
-            "type": "integer",
-            "format": "int64",
-            "default": 0
+      "entityArray" : {
+        "type" : "object",
+        "properties" : {
+          "hasthtags" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/hashtag"
+            }
           },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
-          "replyToTweetId": {
-            "type": "string",
-            "default": 1718938551163691300
+          "media" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/media"
+            }
           },
-          "liked": { "type": "boolean", "default": true },
-          "bookmarked": { "type": "boolean", "default": false },
-          "retweetedId": { "type": "string", "default": 1718938551163691300 },
-          "qouteTweetedId": {
-            "type": "string",
-            "default": 1718938551163691300
+          "mentions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/mention"
+            }
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" },
-          "author": { "$ref": "#/components/schemas/User" }
+          "urls" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/url"
+            }
+          }
         }
       },
-      "reply": {
-        "type": "object",
-        "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
-          "retweetCount": {
-            "type": "integer",
-            "format": "int64",
-            "default": 0
-          },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
-          "replyToTweetId": {
-            "type": "string",
-            "default": 1718938551163691300
-          },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" }
+      "UploadMediaInput" : {
+        "type" : "object",
+        "required" : [ "media" ],
+        "properties" : {
+          "media" : {
+            "type" : "string",
+            "format" : "binary"
+          }
         }
       },
-      "qoute": {
-        "type": "object",
-        "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
-          "retweetCount": {
-            "type": "integer",
-            "format": "int64",
-            "default": 0
+      "media" : {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string",
+            "example" : "qwitter/photos/213902323",
+            "description" : "The value of the entity."
           },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
-          "qouteTweetedId": {
-            "type": "string",
-            "default": 1718938551163691300
+          "type" : {
+            "type" : "string",
+            "example" : "image"
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" }
+          "id" : {
+            "type" : "string",
+            "example" : "21893u2039kldfs-skdlm"
+          }
         }
       },
-      "CreateTweetPayload": {
-        "type": "object",
-        "properties": {
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
-          "replyToTweetId": {
-            "type": "string",
-            "default": 1718938551163691300
+      "hashtag" : {
+        "type" : "object",
+        "properties" : {
+          "text" : {
+            "type" : "string",
+            "example" : "#Palestine",
+            "description" : "The value of the hashtag with"
           },
-          "retweetedId": { "type": "string", "default": 1718938551163691300 },
-          "quoteTweetedId": {
-            "type": "string",
-            "default": 1718938551163691300
+          "count" : {
+            "type" : "number",
+            "example" : 15,
+            "description" : "The count of the tweets & messages referencing this hasthag"
+          }
+        }
+      },
+      "url" : {
+        "type" : "string",
+        "example" : "qwitter.com"
+      },
+      "mention" : {
+        "type" : "string",
+        "example" : "ahmedoshelmy",
+        "description" : "The usernames of the mentioned users if any"
+      },
+      "tweet" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "example" : "2023-10-27 10:43:00"
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "media": {
-            "type": "array",
-            "items": { "type": "string", "format": "binary" }
+          "id" : {
+            "type" : "string",
+            "example" : 1718938551163691300
+          },
+          "userName" : {
+            "type" : "string",
+            "example" : "AhmedZahran2025"
+          },
+          "replyCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "retweetCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "qouteCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "likesCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "text" : {
+            "type" : "string",
+            "default" : "this is a tweet string"
+          },
+          "source" : {
+            "type" : "string",
+            "default" : "Iphone"
+          },
+          "coordinates" : {
+            "type" : "string",
+            "default" : "30.037072,31.206344"
+          },
+          "replyToTweetId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "liked" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "bookmarked" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "retweetedId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "qouteTweetedId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "sensitive" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "entities" : {
+            "$ref" : "#/components/schemas/entityArray"
+          },
+          "author" : {
+            "$ref" : "#/components/schemas/User"
+          }
+        }
+      },
+      "reply" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "example" : "2023-10-27 10:43:00"
+          },
+          "id" : {
+            "type" : "string",
+            "example" : 1718938551163691300
+          },
+          "userName" : {
+            "type" : "string",
+            "example" : "AhmedZahran2025"
+          },
+          "replyCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "retweetCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "qouteCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "likesCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "text" : {
+            "type" : "string",
+            "default" : "this is a tweet string"
+          },
+          "source" : {
+            "type" : "string",
+            "default" : "Iphone"
+          },
+          "coordinates" : {
+            "type" : "string",
+            "default" : "30.037072,31.206344"
+          },
+          "replyToTweetId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "sensitive" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "entities" : {
+            "$ref" : "#/components/schemas/entityArray"
+          }
+        }
+      },
+      "qoute" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "example" : "2023-10-27 10:43:00"
+          },
+          "id" : {
+            "type" : "string",
+            "example" : 1718938551163691300
+          },
+          "userName" : {
+            "type" : "string",
+            "example" : "AhmedZahran2025"
+          },
+          "replyCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "retweetCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "qouteCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "likesCount" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 0
+          },
+          "text" : {
+            "type" : "string",
+            "default" : "this is a tweet string"
+          },
+          "source" : {
+            "type" : "string",
+            "default" : "Iphone"
+          },
+          "coordinates" : {
+            "type" : "string",
+            "default" : "30.037072,31.206344"
+          },
+          "qouteTweetedId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "sensitive" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "entities" : {
+            "$ref" : "#/components/schemas/entityArray"
+          }
+        }
+      },
+      "CreateTweetPayload" : {
+        "type" : "object",
+        "properties" : {
+          "text" : {
+            "type" : "string",
+            "default" : "this is a tweet string"
+          },
+          "source" : {
+            "type" : "string",
+            "default" : "Iphone"
+          },
+          "coordinates" : {
+            "type" : "string",
+            "default" : "30.037072,31.206344"
+          },
+          "replyToTweetId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "retweetedId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "quoteTweetedId" : {
+            "type" : "string",
+            "default" : 1718938551163691300
+          },
+          "sensitive" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "media" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "binary"
+            }
           }
         },
-        "required": ["text"]
+        "required" : [ "text" ]
       },
-      "addTweetresponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "body": { "$ref": "#/components/schemas/tweet" }
-        }
-      },
-      "deleteTweetResponse204": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "id": {
-            "type": "integer",
-            "format": "string",
-            "default": 1719147494591050000
+      "addTweetresponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
           },
-          "deletedAt": { "type": "string", "default": "2023-10-27 10:43:00" }
-        }
-      },
-      "getStatusResponse": {
-        "type": "object",
-        "properties": {
-          "liked": { "type": "boolean", "default": true },
-          "bookmarked": { "type": "boolean", "default": false }
-        }
-      },
-      "getTweetResponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "tweet": { "$ref": "#/components/schemas/tweet" }
-        }
-      },
-      "getRepliesOfTweetResponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "replies": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/reply" }
+          "body" : {
+            "$ref" : "#/components/schemas/tweet"
           }
         }
       },
-      "getQouteRetweetsOfTweetResponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "qoutes": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/qoute" }
+      "deleteTweetResponse204" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "string",
+            "default" : 1719147494591050000
+          },
+          "deletedAt" : {
+            "type" : "string",
+            "default" : "2023-10-27 10:43:00"
           }
         }
       },
-      "getLikersOfTweetResponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "likers": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/User" }
+      "getStatusResponse" : {
+        "type" : "object",
+        "properties" : {
+          "liked" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "bookmarked" : {
+            "type" : "boolean",
+            "default" : false
           }
         }
       },
-      "getRetweetersOfTweetResponse200": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "default": "success" },
-          "retweeters": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/User" }
+      "getTweetResponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
+          },
+          "tweet" : {
+            "$ref" : "#/components/schemas/tweet"
           }
         }
       },
-      "UserInteractionInput": {
-        "type": "object",
-        "required": ["target_user_name"],
-        "properties": {
-          "target_user_name": { "type": "string", "default": "jhondoe41123" }
+      "getRepliesOfTweetResponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
+          },
+          "replies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/reply"
+            }
+          }
         }
       },
-      "UserInteractionResponse": {
-        "type": "object",
-        "properties": { "status": { "type": "string", "default": "success" } }
-      },
-      "UploadImageResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "default": "Image uploaded successfully"
+      "getQouteRetweetsOfTweetResponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
           },
-          "user": { "$ref": "#/components/schemas/User" }
+          "qoutes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/qoute"
+            }
+          }
         }
       },
-      "User": {
-        "type": "object",
-        "properties": {
-          "userName": { "type": "string", "default": "johndoe123" },
-          "name": { "type": "string", "default": "Ahmed Zahran" },
-          "birthDate": {
-            "type": "string",
-            "default": "2020-03-09T22:18:26.625Z"
+      "getLikersOfTweetResponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
           },
-          "url": { "type": "string", "default": "www.johndoe.com" },
-          "description": { "type": "string", "default": "Hi i am john doe" },
-          "protected": { "type": "boolean", "default": false },
-          "verified": { "type": "boolean", "default": true },
-          "followersCount": { "type": "int", "default": 12312 },
-          "followingCount": { "type": "int", "default": 1932 },
-          "createdAt": {
-            "type": "string",
-            "default": "2020-03-09T22:18:26.625Z"
-          },
-          "profileBannerUrl": {
-            "type": "string",
-            "default": "https://notdeterminedyet.com/profile_banners/819797/1348102824"
-          },
-          "profileImageUrl": {
-            "type": "string",
-            "default": "https://notdeterminedyet.com/profile_banners/819797/1348102824"
-          },
-          "email": { "type": "string" },
-          "username": { "type": "string" }
+          "likers" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/User"
+            }
+          }
         }
       },
-      "UploadImageInput": {
-        "type": "object",
-        "required": ["img"],
-        "properties": { "img": { "type": "string", "format": "binary" } }
-      },
-      "UserProfile": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "default": "any string",
-            "required": true
+      "getRetweetersOfTweetResponse200" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
           },
-          "description": { "type": "string", "default": "any string" },
-          "Location": { "type": "string", "default": "egypt" },
-          "url": { "type": "string" },
-          "birth_date": { "type": "string", "required": true }
+          "retweeters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "UserInteractionInput" : {
+        "type" : "object",
+        "required" : [ "target_user_name" ],
+        "properties" : {
+          "target_user_name" : {
+            "type" : "string",
+            "default" : "jhondoe41123"
+          }
+        }
+      },
+      "UserInteractionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
+          }
+        }
+      },
+      "UploadImageResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "default" : "Image uploaded successfully"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/User"
+          }
+        }
+      },
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "userName" : {
+            "type" : "string",
+            "default" : "johndoe123"
+          },
+          "name" : {
+            "type" : "string",
+            "default" : "Ahmed Zahran"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "default" : "2020-03-09T22:18:26.625Z"
+          },
+          "url" : {
+            "type" : "string",
+            "default" : "www.johndoe.com"
+          },
+          "description" : {
+            "type" : "string",
+            "default" : "Hi i am john doe"
+          },
+          "protected" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "verified" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "followersCount" : {
+            "type" : "int",
+            "default" : 12312
+          },
+          "followingCount" : {
+            "type" : "int",
+            "default" : 1932
+          },
+          "createdAt" : {
+            "type" : "string",
+            "default" : "2020-03-09T22:18:26.625Z"
+          },
+          "profileBannerUrl" : {
+            "type" : "string",
+            "default" : "https://notdeterminedyet.com/profile_banners/819797/1348102824"
+          },
+          "profileImageUrl" : {
+            "type" : "string",
+            "default" : "https://notdeterminedyet.com/profile_banners/819797/1348102824"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UploadImageInput" : {
+        "type" : "object",
+        "required" : [ "img" ],
+        "properties" : {
+          "img" : {
+            "type" : "string",
+            "format" : "binary"
+          }
+        }
+      },
+      "UserProfile" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "default" : "any string",
+            "required" : true
+          },
+          "description" : {
+            "type" : "string",
+            "default" : "any string"
+          },
+          "Location" : {
+            "type" : "string",
+            "default" : "egypt"
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "birth_date" : {
+            "type" : "string",
+            "required" : true
+          }
         }
       }
     }
   },
-  "security": [{ "bearerAuth": [] }],
-  "responses": {
-    "400": {
-      "description": "Missing Credentials - Plese check the API documentation",
-      "contents": "application/json"
+  "security" : [ {
+    "bearerAuth" : [ ]
+  } ],
+  "responses" : {
+    "400" : {
+      "description" : "Missing Credentials - Plese check the API documentation",
+      "contents" : "application/json"
     },
-    "401": {
-      "description": "Unauthorized - incorrect API key or incorrect format",
-      "contents": "application/json"
+    "401" : {
+      "description" : "Unauthorized - incorrect API key or incorrect format",
+      "contents" : "application/json"
     },
-    "403": {
-      "description": "Permission Denied. You do not have the rights to access this request",
-      "contents": "application/json"
+    "403" : {
+      "description" : "Permission Denied. You do not have the rights to access this request",
+      "contents" : "application/json"
     },
-    "404": {
-      "description": "Not found - the request Data was not found",
-      "contents": "application/json"
+    "404" : {
+      "description" : "Not found - the request Data was not found",
+      "contents" : "application/json"
     },
-    "408": {
-      "description": "The request timed out. Please try again",
-      "contents": "application/json",
-      "schema": { "error": "The request timed out. Please try again" }
+    "408" : {
+      "description" : "The request timed out. Please try again",
+      "contents" : "application/json",
+      "schema" : {
+        "error" : "The request timed out. Please try again"
+      }
     },
-    "409": {
-      "description": "Conflict Occured. Check again ",
-      "contents": "application/json",
-      "schema": { "error": "Conflict Occured. Check again" }
+    "409" : {
+      "description" : "Conflict Occured. Check again ",
+      "contents" : "application/json",
+      "schema" : {
+        "error" : "Conflict Occured. Check again"
+      }
     },
-    "410": {
-      "description": "The requested data is not available",
-      "contents": "application/json"
+    "410" : {
+      "description" : "The requested data is not available",
+      "contents" : "application/json"
     },
-    "500": {
-      "description": "A problem has occurred. Sorry for inconvenience",
-      "contents": "application/json"
+    "500" : {
+      "description" : "A problem has occurred. Sorry for inconvenience",
+      "contents" : "application/json"
     }
   },
-  "paths": {
-    "/api/v1/auth/google": {
-      "get": {
-        "tags": ["Authentication"],
-        "summary": "Register a user using Google (OAuth)",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": null }
+  "paths" : {
+    "/api/v1/auth/google" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Register a user using Google (OAuth)",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : null
+          }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/auth/signup": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Register a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/SignUpRequest" }
+    "/api/v1/auth/signup" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Register a user",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SignUpRequest"
+              }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/SignUpResponse" }
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SignUpResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/auth/check-existence": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Check validity of a userName or Email",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userNameOrEmail": {
-                    "type": "string",
-                    "default": "ahmed@gmail.com"
+    "/api/v1/auth/check-existence" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Check validity of a userName or Email",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "userNameOrEmail" : {
+                    "type" : "string",
+                    "default" : "ahmed@gmail.com"
                   }
                 }
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "available": { "type": "boolean", "default": true }
-                  }
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "available": { "type": "boolean", "default": false }
-                  }
-                }
-              }
-            }
-          },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/check-password": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Check Password of user through token and password",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "password": { "type": "string", "default": 1896156612 }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "correct": { "type": "boolean", "default": true }
-                  }
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": {
-            "description": "Wrong Password",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "correct": { "type": "boolean", "default": false }
-                  }
-                }
-              }
-            }
-          },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Login a user",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/verify-email/{token}": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Verify your email by checking the 6-digit token and the email address",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/VerifyEmailResponse" }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/send-verification-email/": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Verify your email by sending a verification email",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendVerificationEmailResponse"
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/forgot-password": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Send a Forgot Password request",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ForgotPasswordResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Failure",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ForgotPasswordResponse404"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/reset-password/{token}": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Verify the token of the user. No need for the email in payload",
-        "requestBody": { "required": true },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResetPasswordSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/google/login": {
-      "get": {
-        "tags": ["Authentication"],
-        "summary": "Login with google through token from mobile app",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/google/signup": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Sign up with google through token and birthdate without password",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/GoogleSignUpRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/change-password": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Change the password using only the token",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChangePasswordSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/update-password": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Change the password using the token and old password",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdatePasswordRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdatePasswordResponse"
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/auth/change-email": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Change the email using the token. The email should be verified first",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ChangeEmailRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ChangeEmailResponse" }
-              }
-            }
-          },
-          "400": { "$ref": "#/responses/400" },
-          "401": {
-            "description": "Email Exists",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "default": "Email already exists"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "available" : {
+                      "type" : "boolean",
+                      "default" : true
                     }
                   }
                 }
               }
             }
           },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "available" : {
+                      "type" : "boolean",
+                      "default" : false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/auth/username-suggestions": {
-      "get": {
-        "tags": ["Authentication"],
-        "summary": "get userName suggestions using only the token",
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userName": { "type": "string", "default": "zahran1234" }
+    "/api/v1/auth/check-password" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Check Password of user through token and password",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "password" : {
+                    "type" : "string",
+                    "default" : 1896156612
+                  }
                 }
               }
             }
           }
         },
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/userNameSuggestionsResponse"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "correct" : {
+                      "type" : "boolean",
+                      "default" : true
+                    }
+                  }
                 }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
-        }
-      }
-    },
-    "/api/v1/conversation/create": {
-      "post": {
-        "tags": ["Conversations"],
-        "summary": "Create new conversation",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/createConversationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/createConversationResponse"
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "description" : "Wrong Password",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "correct" : {
+                      "type" : "boolean",
+                      "default" : false
+                    }
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/conversation/add-user": {
-      "post": {
-        "tags": ["Conversations"],
-        "summary": "Add user to conversation",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserToConversationRequest"
+    "/api/v1/auth/login" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Login a user",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/addUserToConversationResponse"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/conversation/remove-user": {
-      "delete": {
-        "tags": ["Conversations"],
-        "summary": "Remove user from conversation",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/removeUserFromConversationRequest"
+    "/api/v1/auth/verify-email/{token}" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Verify your email by checking the 6-digit token and the email address",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "default" : "ahmed@gmail.com"
+                  }
+                }
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/removeUserFromConversationResponse"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VerifyEmailResponse"
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/conversation/": {
-      "get": {
-        "tags": ["Conversations"],
-        "summary": "Get User Conversations",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetUserConversationsResponse"
+    "/api/v1/auth/send-verification-email/" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Verify your email by sending a verification email",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "default" : "ahmed@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SendVerificationEmailResponse"
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/message/send": {
-      "post": {
-        "tags": ["Messages"],
-        "summary": "Send New Message",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/sendMessageRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/sendMessageResponse" }
+    "/api/v1/auth/forgot-password" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Send a Forgot Password request",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "default" : "ahmed@gmail.com"
+                  }
+                }
               }
             }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/message/delete": {
-      "delete": {
-        "tags": ["Messages"],
-        "summary": "Delete message",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/deleteMessageRequest" }
-            }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/deleteMessageResponse"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ForgotPasswordResponse"
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "404" : {
+            "description" : "Failure",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ForgotPasswordResponse404"
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/api/v1/notifications/{userId}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true
-          }
-        ],
-        "tags": ["Notifications"],
-        "summary": "Returns a list of notifications for a user",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": null }
+    "/api/v1/auth/reset-password/{token}" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Verify the token of the user. No need for the email in payload",
+        "requestBody" : {
+          "required" : true
         },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetNotificationsResponse"
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResetPasswordSuccessResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/login" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Login with google through token from mobile app",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/signup" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Sign up with google through token and birthdate without password",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GoogleSignUpRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/change-password" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Change the password using only the token",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChangePasswordSuccessResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/update-password" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Change the password using the token and old password",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdatePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdatePasswordResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/change-email" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Change the email using the token. The email should be verified first",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangeEmailRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChangeEmailResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "description" : "Email Exists",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "message" : {
+                      "type" : "string",
+                      "default" : "Email already exists"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/username-suggestions" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "get userName suggestions using only the token",
+        "requestBody" : {
+          "required" : false,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "userName" : {
+                    "type" : "string",
+                    "default" : "zahran1234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/userNameSuggestionsResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/conversation/create" : {
+      "post" : {
+        "tags" : [ "Conversations" ],
+        "summary" : "Create new conversation",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/createConversationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/createConversationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/conversation/add-user" : {
+      "post" : {
+        "tags" : [ "Conversations" ],
+        "summary" : "Add user to conversation",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/addUserToConversationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/addUserToConversationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/conversation/remove-user" : {
+      "delete" : {
+        "tags" : [ "Conversations" ],
+        "summary" : "Remove user from conversation",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/removeUserFromConversationRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/removeUserFromConversationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/conversation/" : {
+      "get" : {
+        "tags" : [ "Conversations" ],
+        "summary" : "Get User Conversations",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetUserConversationsResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/message/send" : {
+      "post" : {
+        "tags" : [ "Messages" ],
+        "summary" : "Send New Message",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/sendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/sendMessageResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/message/delete" : {
+      "delete" : {
+        "tags" : [ "Messages" ],
+        "summary" : "Delete message",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/deleteMessageRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/deleteMessageResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{userId}" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true
+        } ],
+        "tags" : [ "Notifications" ],
+        "summary" : "Returns a list of notifications for a user",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : null
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetNotificationsResponse"
                 }
               }
             },
-            "examples": {
-              "application/json": [{ "id": 1, "name": "Ahmed Helmy" }]
+            "examples" : {
+              "application/json" : [ {
+                "id" : 1,
+                "name" : "Ahmed Helmy"
+              } ]
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     },
-    "/api/v1/tweets": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "description": "Word to search",
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "hashtag",
-            "in": "query",
-            "description": "If the hashtag is in the query, only the tweets including that hashtag will be returned",
-            "schema": { "type": "string" }
-          },
-          { "name": "page", "in": "param" },
-          { "name": "limit", "in": "param", "schema": { "type": "string" } }
-        ],
-        "summary": "Get Timeline, Search for Tweets and search for tweets that include a hashtag",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+    "/api/v1/tweets" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Word to search",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "hashtag",
+          "in" : "query",
+          "description" : "If the hashtag is in the query, only the tweets including that hashtag will be returned",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "param"
+        }, {
+          "name" : "limit",
+          "in" : "param",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get Timeline, Search for Tweets and search for tweets that include a hashtag",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
         }
       },
-      "post": {
-        "tags": ["Tweet"],
-        "consumes": ["multipart/form-data"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
+      "post" : {
+        "tags" : [ "Tweet" ],
+        "consumes" : [ "multipart/form-data" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
           }
-        ],
-        "summary": "add tweet",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/CreateTweetPayload" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tweet was added successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/addTweetresponse200" }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" }
-        }
-      }
-    },
-    "/api/v1/tweets/user/{username}/like": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Tweets that the user liked",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/user/{username}/replies": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Not Determined YETTT !!!!!!!!!!",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/user/{username}/media": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Tweets of user that include media",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/trends": {
-      "get": {
-        "tags": ["Trends"],
-        "summary": "Get Trends",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetTrends" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/{id}": {
-      "delete": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to delete",
-            "required": true,
-            "schema": { "type": "integer", "format": "int64" }
-          }
-        ],
-        "summary": "Delete tweet by Id",
-        "responses": {
-          "204": {
-            "description": "Tweet was deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/deleteTweetResponse204"
-                }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" },
-          "410": { "description": "Tweet was Gone" }
-        }
-      },
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to get",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get tweet by Id",
-        "responses": {
-          "200": {
-            "description": "Tweet was found",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/getTweetResponse200" }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" },
-          "410": { "description": "Tweet was Gone" }
-        }
-      }
-    },
-    "/api/v1/tweets/{id}/replies": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to get replies of",
-            "required": true,
-            "schema": { "type": "integer", "format": "int64" }
-          }
-        ],
-        "summary": "get replies of a tweet by Id",
-        "responses": {
-          "200": {
-            "description": "Tweet was found and got replies successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/getRepliesOfTweetResponse200"
-                }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
-        }
-      }
-    },
-    "/api/v1/tweets/{id}/like": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to get likers of",
-            "required": true,
-            "schema": { "type": "integer", "format": "int64" }
-          }
-        ],
-        "summary": "get likers users of a tweet by Id",
-        "responses": {
-          "200": {
-            "description": "Tweet was found and got likers usernames successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/getLikersOfTweetResponse200"
-                }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
-        }
-      },
-      "post": {
-        "tags": ["Tweet"],
-        "summary": "Like a Tweet",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TweetToggleLikeResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["Tweet"],
-        "summary": "Unlike a tweet",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TweetToggleLikeResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/{id}/retweets": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Tweet id to get retweeters of",
-            "required": true,
-            "schema": { "type": "integer", "format": "int64" }
-          }
-        ],
-        "summary": "get retweeters usernames of a tweet by Id",
-        "responses": {
-          "200": {
-            "description": "Tweet was found and got retweeters usernames successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/getRetweetersOfTweetResponse200"
-                }
-              }
-            }
-          },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
-        }
-      }
-    },
-    "/api/v1/tweets/user/{username}": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Get Tweets that the user created only",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/tweets/hashtags": {
-      "get": {
-        "tags": ["Tweet"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "description": "Word to get hashtags similar to or indentical to that word",
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "Returns suggestions for hashtags",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/hashtag" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/followers": {
-      "get": {
-        "tags": ["User"],
-        "summary": "get list of user objects that follow the user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/follow": {
-      "get": {
-        "tags": ["User"],
-        "summary": "get list of user objects that user follows",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/follow/{username}": {
-      "post": {
-        "tags": ["User"],
-        "summary": "follow a user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "username",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["User"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "username",
-            "in": "path",
-            "description": "username of the target user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "unfollow a user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/block": {
-      "get": {
-        "tags": ["User"],
-        "summary": "get users blocked by the source user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/block/{username}": {
-      "post": {
-        "tags": ["User"],
-        "summary": "block a user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "username",
-            "in": "path",
-            "description": "username of the target user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["User"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "username",
-            "in": "path",
-            "description": "username of the target user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "unblock a user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/mute": {
-      "get": {
-        "tags": ["User"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "get users muted by the source user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/mute/{username}": {
-      "post": {
-        "tags": ["User"],
-        "summary": "mute a user",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "description": "username of the target user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["User"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "username",
-            "in": "path",
-            "description": "usermane of the target user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "unmute a user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/lookup": {
-      "get": {
-        "tags": ["User Profile"],
-        "summary": "get list of user objects that contain the prompted name",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "description": "name or user name of the user",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/profile_picture": {
-      "post": {
-        "tags": ["User Profile"],
-        "summary": "upload profile picture for the user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/UploadImageResponse" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["User Profile"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "delete profile picture of a user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/suggestions": {
-      "get": {
-        "tags": ["User"],
-        "summary": "Get suggestions for users to follow",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/profile_banner": {
-      "post": {
-        "tags": ["User Profile"],
-        "summary": "upload profile banner for the user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/UploadImageResponse" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      },
-      "delete": {
-        "tags": ["User Profile"],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "summary": "delete profile banner of a user",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserInteractionResponse"
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/{username}": {
-      "get": {
-        "tags": ["User"],
-        "summary": "get user details",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/profile": {
-      "put": {
-        "tags": ["User Profile"],
-        "summary": "update user profile",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "object": {
-              "schema": { "$ref": "#/components/schemas/UserProfile" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserProfile" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/": {
-      "get": {
-        "tags": ["User"],
-        "summary": "get user details of the requesting user using auth key",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
-        }
-      }
-    },
-    "/api/v1/user/username": {
-      "patch": {
-        "tags": ["User Profile"],
-        "summary": "update userName",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userName": { "type": "string", "default": "zahran1234" }
-                }
+        } ],
+        "summary" : "add tweet",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTweetPayload"
               }
             }
           }
         },
-        "responses": {
-          "200": { "description": "Success" },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+        "responses" : {
+          "200" : {
+            "description" : "Tweet was added successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/addTweetresponse200"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/like" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get Tweets that the user liked",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReturnListOfTweets"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/replies" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Not Determined YETTT !!!!!!!!!!",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReturnListOfTweets"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}/media" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get Tweets of user that include media",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReturnListOfTweets"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/trends" : {
+      "get" : {
+        "tags" : [ "Trends" ],
+        "summary" : "Get Trends",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetTrends"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/{id}" : {
+      "delete" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Tweet id to delete",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "summary" : "Delete tweet by Id",
+        "responses" : {
+          "204" : {
+            "description" : "Tweet was deleted successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/deleteTweetResponse204"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          },
+          "404" : {
+            "description" : "Tweet was Not Found"
+          },
+          "410" : {
+            "description" : "Tweet was Gone"
+          }
+        }
+      },
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Tweet id to get",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get tweet by Id",
+        "responses" : {
+          "200" : {
+            "description" : "Tweet was found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/getTweetResponse200"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          },
+          "404" : {
+            "description" : "Tweet was Not Found"
+          },
+          "410" : {
+            "description" : "Tweet was Gone"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/{id}/replies" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Tweet id to get replies of",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "summary" : "get replies of a tweet by Id",
+        "responses" : {
+          "200" : {
+            "description" : "Tweet was found and got replies successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/getRepliesOfTweetResponse200"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          },
+          "404" : {
+            "description" : "Tweet was Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/{id}/like" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Tweet id to get likers of",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "summary" : "get likers users of a tweet by Id",
+        "responses" : {
+          "200" : {
+            "description" : "Tweet was found and got likers usernames successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/getLikersOfTweetResponse200"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          },
+          "404" : {
+            "description" : "Tweet was Not Found"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Tweet" ],
+        "summary" : "Like a Tweet",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TweetToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Tweet" ],
+        "summary" : "Unlike a tweet",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TweetToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/{id}/retweets" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Tweet id to get retweeters of",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "summary" : "get retweeters usernames of a tweet by Id",
+        "responses" : {
+          "200" : {
+            "description" : "Tweet was found and got retweeters usernames successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/getRetweetersOfTweetResponse200"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Unauthorized"
+          },
+          "404" : {
+            "description" : "Tweet was Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/user/{username}" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Get Tweets that the user created only",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReturnListOfTweets"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/tweets/hashtags" : {
+      "get" : {
+        "tags" : [ "Tweet" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Word to get hashtags similar to or indentical to that word",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "Returns suggestions for hashtags",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/hashtag"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/followers" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get list of user objects that follow the user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/follow" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get list of user objects that user follows",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/follow/{username}" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "follow a user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "unfollow a user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/block" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get users blocked by the source user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/block/{username}" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "block a user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "unblock a user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/mute" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "get users muted by the source user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/mute/{username}" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "mute a user",
+        "parameters" : [ {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "usermane of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "unmute a user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/lookup" : {
+      "get" : {
+        "tags" : [ "User Profile" ],
+        "summary" : "get list of user objects that contain the prompted name",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "name",
+          "in" : "query",
+          "description" : "name or user name of the user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/profile_picture" : {
+      "post" : {
+        "tags" : [ "User Profile" ],
+        "summary" : "upload profile picture for the user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UploadImageInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UploadImageResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User Profile" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "delete profile picture of a user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/suggestions" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "Get suggestions for users to follow",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/profile_banner" : {
+      "post" : {
+        "tags" : [ "User Profile" ],
+        "summary" : "upload profile banner for the user",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UploadImageInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UploadImageResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User Profile" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "summary" : "delete profile banner of a user",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInteractionResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/{username}" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get user details",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/profile" : {
+      "put" : {
+        "tags" : [ "User Profile" ],
+        "summary" : "update user profile",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "object" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserProfile"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get user details of the requesting user using auth key",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/user/username" : {
+      "patch" : {
+        "tags" : [ "User Profile" ],
+        "summary" : "update userName",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "userName" : {
+                    "type" : "string",
+                    "default" : "zahran1234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success"
+          },
+          "400" : {
+            "$ref" : "#/responses/400"
+          },
+          "401" : {
+            "$ref" : "#/responses/401"
+          },
+          "403" : {
+            "$ref" : "#/responses/403"
+          },
+          "404" : {
+            "$ref" : "#/responses/404"
+          },
+          "408" : {
+            "$ref" : "#/responses/408"
+          },
+          "409" : {
+            "$ref" : "#/responses/409"
+          },
+          "410" : {
+            "$ref" : "#/responses/410"
+          }
         }
       }
     }
   },
-  "tags": []
+  "tags" : [ ]
 }
