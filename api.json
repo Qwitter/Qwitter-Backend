@@ -1,6 +1,10 @@
 {
   "openapi": "3.0.0",
-  "info": { "title": "REST API Docs", "version": "1.0.0" },
+  "info": {
+    "title": "REST API Docs",
+    "version": "1.0.0",
+    "description": "For any pagination add page,limit as query parameters. Default is limit 10"
+  },
   "servers": [{ "url": "localhost:3000" }],
   "components": {
     "securitySchemes": {
@@ -452,6 +456,8 @@
             "type": "string",
             "default": 1718938551163691300
           },
+          "liked": { "type": "boolean", "default": true },
+          "bookmarked": { "type": "boolean", "default": false },
           "retweetedId": { "type": "string", "default": 1718938551163691300 },
           "qouteTweetedId": {
             "type": "string",
@@ -554,12 +560,18 @@
           "deletedAt": { "type": "string", "default": "2023-10-27 10:43:00" }
         }
       },
+      "getStatusResponse": {
+        "type": "object",
+        "properties": {
+          "liked": { "type": "boolean", "default": true },
+          "bookmarked": { "type": "boolean", "default": false }
+        }
+      },
       "getTweetResponse200": {
         "type": "object",
         "properties": {
           "status": { "type": "string", "default": "success" },
-          "tweet": { "$ref": "#/components/schemas/tweet" },
-          "user": { "$ref": "#/components/schemas/User" }
+          "tweet": { "$ref": "#/components/schemas/tweet" }
         }
       },
       "getRepliesOfTweetResponse200": {
@@ -1060,6 +1072,38 @@
         }
       }
     },
+    "/api/v1/auth/google/login": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Login with google through token from mobile app",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/responses/400" },
+          "401": { "$ref": "#/responses/401" },
+          "403": { "$ref": "#/responses/403" },
+          "404": { "$ref": "#/responses/404" },
+          "408": { "$ref": "#/responses/408" },
+          "409": { "$ref": "#/responses/409" },
+          "410": { "$ref": "#/responses/410" }
+        }
+      }
+    },
     "/api/v1/auth/google/signup": {
       "post": {
         "tags": ["Authentication"],
@@ -1512,7 +1556,9 @@
             "in": "query",
             "description": "If the hashtag is in the query, only the tweets including that hashtag will be returned",
             "schema": { "type": "string" }
-          }
+          },
+          { "name": "page", "in": "param" },
+          { "name": "limit", "in": "param", "schema": { "type": "string" } }
         ],
         "summary": "Get Timeline, Search for Tweets and search for tweets that include a hashtag",
         "responses": {
@@ -1877,7 +1923,7 @@
     },
     "/api/v1/tweets/user/{username}": {
       "get": {
-        "tags": ["Tweets"],
+        "tags": ["Tweet"],
         "parameters": [
           {
             "name": "authorization",
@@ -2504,6 +2550,33 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/UserProfile" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/v1/user/": {
+      "get": {
+        "tags": ["User"],
+        "summary": "get user details of the requesting user using auth key",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
               }
             }
           },
