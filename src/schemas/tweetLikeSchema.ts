@@ -49,3 +49,74 @@ export const getTweetLikesSchema = object({
     }),
   }),
 });
+
+export const getTweetTimeline = object({
+  query: object({
+    q: string().optional(),
+    hashtag: string().optional(),
+    page: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid page number',
+        },
+      )
+      .optional(),
+    limit: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid limit number',
+        },
+      )
+      .optional(),
+  }),
+});
+
+export const getProfileTab = object({
+  params: object({
+    username: string({
+      required_error: 'username is required',
+    }),
+  }),
+  query: object({
+    page: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid page number',
+        },
+      )
+      .optional(),
+    limit: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid limit number',
+        },
+      )
+      .optional(),
+  }),
+});
+
+
+export const likeUnlikeTweetSchema = object({
+  params: object({
+    id: string({
+      required_error: 'Tweet ID is required',
+    }),
+  }),
+});
+

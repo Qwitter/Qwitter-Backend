@@ -126,6 +126,7 @@ export const searchHastagsByWord = async (text: string) => {
     where: {
       text: {
         contains: text,
+        mode: 'insensitive',
       },
     },
   });

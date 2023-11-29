@@ -1,4 +1,4 @@
-import { object, string, TypeOf,optional} from 'zod';
+import { object, string, TypeOf, optional } from 'zod';
 
 /**
  * @openapi
@@ -111,7 +111,7 @@ import { object, string, TypeOf,optional} from 'zod';
  *          default: "egypt"
  *        url:
  *          type: string
- *          
+ *
  *        birth_date:
  *          type: string
  *          required: true
@@ -163,15 +163,39 @@ export type CreateUserInput = Omit<
   'body.passwordConfirmation'
 >;
 
-
-
-
-export const putUserProfileReqSchema=object({
+export const putUserProfileReqSchema = object({
   body: object({
-    name:string().min(1).max(50),
+    name: string().min(1).max(50),
     description: optional(string()),
     location: optional(string()),
-    url:optional(string().url()),
-    birth_date:string().datetime(),
+    url: optional(string().url()),
+    birth_date: string().datetime(),
+  }),
+});
+
+export const getUserSchema = object({
+  query: object({
+    page: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid page number',
+        },
+      )
+      .optional(),
+    limit: string()
+      .refine(
+        (value) => {
+          const numericValue = parseInt(value);
+          return !isNaN(numericValue) && numericValue > 0;
+        },
+        {
+          message: 'Invalid limit number',
+        },
+      )
+      .optional(),
   }),
 });

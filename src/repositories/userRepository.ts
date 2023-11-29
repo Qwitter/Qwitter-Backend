@@ -89,3 +89,77 @@ export const getTweetsCreatedByUser = async (userId: string) => {
   });
   return tweets;
 };
+
+export const isUserFollowing = async (
+  userid1: string,
+  userid2: string,
+): Promise<boolean> => {
+  const followRelationship = await prisma.follow.findUnique({
+    where: {
+      folowererId_followedId: {
+        folowererId: userid1,
+        followedId: userid2,
+      },
+    },
+  });
+
+  return !!followRelationship;
+};
+
+export const getUsersByName = async (
+  query: string,
+  skip: number,
+  parsedLimit: number,
+) => {
+  let words: string[];
+  words = query.split(' ');
+  const users = await prisma.user.findMany({
+    where: {
+      OR: words.map((word) => ({
+        OR: [
+          { name: { contains: word, mode: 'insensitive' } },
+          { userName: { contains: word, mode: 'insensitive' } },
+        ],
+      })),
+      deletedAt: null,
+    },
+    select: {
+      name: true,
+      birthDate: true,
+      location: true,
+      url: true,
+      description: true,
+      verified: true,
+      followersCount: true,
+      followingCount: true,
+      createdAt: true,
+      profileBannerUrl: true,
+      profileImageUrl: true,
+      email: true,
+      userName: true,
+    },
+    skip,
+    take: parsedLimit,
+  });
+
+  const matchCount = users.map((user) => ({
+    ...user,
+    matchCount: words.reduce(
+      (count, word) =>
+        count +
+        ((user.userName as string).toLowerCase().includes(word.toLowerCase())
+          ? 2
+          : 0) +
+        ((user.name as string).toLowerCase().includes(word.toLowerCase())
+          ? 1
+          : 0),
+      0,
+    ),
+  }));
+
+  const sortedUsers = matchCount.sort((a, b) => b.matchCount - a.matchCount);
+  return sortedUsers.map((el) => {
+    const { matchCount, ...rest } = el;
+    return rest;
+  });
+};

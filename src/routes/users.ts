@@ -5,6 +5,7 @@ import { validate } from '../utils/validator';
 import {
   putUserProfileReqSchema,
   updateUserNameSchemaPayload,
+  getUserSchema,
 } from '../schemas/userSchema';
 import * as userController from '../controllers/userController';
 
@@ -329,7 +330,34 @@ router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
 
 /**
  * @openapi
- * '/api/v1/user/lookup':
+ * '/api/v1/user/':
+ *  get:
+ *     tags:
+ *     - User
+ *     summary: get user details of the requesting user using auth key
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+
+/**
+ * @openapi
+ * '/api/v1/user/':
  *  get:
  *     tags:
  *     - User Profile
@@ -341,14 +369,9 @@ router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
  *         required: true
  *         schema:
  *           type: string
- *       - name: name
- *         in: query
+ *       - name: q
+ *         in: param
  *         description: name or user name of the user
- *         required: true
- *         schema:
- *           type: string
- *
- *
  *     responses:
  *      200:
  *        description: Success
@@ -363,6 +386,8 @@ router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
  *      400:
  *        description: Bad request
  */
+
+router.get('/', isLoggedIn, validate(getUserSchema), userController.getUsers);
 
 /**
  * @openapi
@@ -597,33 +622,6 @@ router.put(
   validate(putUserProfileReqSchema),
   userController.putUserProfile,
 );
-/**
- * @openapi
- * '/api/v1/user/':
- *  get:
- *     tags:
- *     - User
- *     summary: get user details of the requesting user using auth key
- *     parameters:
- *       - name: authorization
- *         in: header
- *         description: ''
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/User'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
- */
-router.get('/', isLoggedIn, userController.getRequestingUser);
 
 /**
  * @openapi
