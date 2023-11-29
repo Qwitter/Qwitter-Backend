@@ -387,7 +387,6 @@ router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
  *        description: Bad request
  */
 
-router.get('/', isLoggedIn, validate(getUserSchema), userController.getUsers);
 
 /**
  * @openapi
@@ -672,5 +671,8 @@ router
     isLoggedIn,
     userController.changeUserName,
   );
+
+
+router.get('/', isLoggedIn, validate(getUserSchema), userController.getUsers);
 
 export default router;
