@@ -458,7 +458,7 @@ router
  *
  *
  */
-router.route('/google/login').post(mobileLoggedIn, authController.signUpGoogle);
+router.route('/google/login').post(mobileLoggedIn, authController.logInGoogle);
 /**
  * @openapi
  * '/api/v1/auth/google/signup':
