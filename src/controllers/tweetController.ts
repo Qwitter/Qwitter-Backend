@@ -83,7 +83,6 @@ const getTimeline = async (req: Request) => {
       reTweet: true,
       qouteTweet: true,
       likes: true,
-      TweetEntity: true,
     },
     skip,
     take: parsedLimit,
@@ -96,8 +95,17 @@ const getTimeline = async (req: Request) => {
         tweetId: tweet.id,
       },
     });
-    const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
-    let response = { ...tweet, liked: liked != null, isFollowing };
+    const entities = await getTweetEntities(tweet.id);
+    const isFollowing = await isUserFollowing(
+      (req.user as User).id,
+      tweet.userId,
+    );
+    let response = {
+      ...tweet,
+      entities,
+      liked: liked != null,
+      isFollowing,
+    };
     responses.push(response);
   }
 
@@ -271,7 +279,10 @@ export const getTweetReplies = catchAsync(
           tweetId: reply.id,
         },
       });
-      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        tweet.userId,
+      );
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
@@ -498,9 +509,13 @@ export const searchTweets = catchAsync(
           tweetId: tweet.id,
         },
       });
-      const tweeterUserID = (await getUserByUsername(tweet.author.userName))?.id;
-      if(!tweeterUserID) continue;
-      const isFollowing = await isUserFollowing((req.user as User).id, tweeterUserID);
+      const tweeterUserID = (await getUserByUsername(tweet.author.userName))
+        ?.id;
+      if (!tweeterUserID) continue;
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        tweeterUserID,
+      );
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
@@ -522,14 +537,17 @@ export const getUserTweets = catchAsync(
     }
     const tweets = await getTweetsCreatedByUser(user.id);
     for (var tweet of tweets) {
-      if(tweet.replyToTweetId != null) continue;
+      if (tweet.replyToTweetId != null) continue;
       const liked = await prisma.like.findFirst({
         where: {
           userId: (req.user as User)?.id,
           tweetId: tweet.id,
         },
       });
-      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        tweet.userId,
+      );
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
@@ -559,7 +577,10 @@ export const getUserReplies = catchAsync(
           tweetId: tweet.id,
         },
       });
-      const isFollowing = await isUserFollowing((req.user as User).id, tweet.userId);
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        tweet.userId,
+      );
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
@@ -670,8 +691,8 @@ export const likeTweet = catchAsync(
 export const unlikeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const likerId = (req.user as User).id; 
-    
+    const likerId = (req.user as User).id;
+
     const existingLike = await prisma.like.findUnique({
       where: { userId_tweetId: { userId: likerId, tweetId: id } },
     });
