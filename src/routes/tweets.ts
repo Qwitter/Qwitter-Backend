@@ -12,6 +12,8 @@ import {
   getUserMediaTweets,
   getTweetReplies,
   getTweetRetweets,
+  likeTweet,
+  unlikeTweet,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
@@ -19,6 +21,7 @@ import {
   getTweetRepliesSchema,
   getTweetTimeline,
   getProfileTab,
+  likeUnlikeTweetSchema,
 } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
@@ -305,7 +308,8 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *      400:
  *        description: Bad request
  */
-router.route('/:id/like').post().delete();
+router.route('/:id/like').post(isLoggedIn, validate(likeUnlikeTweetSchema), likeTweet);
+router.route('/:id/like').delete(isLoggedIn, validate(likeUnlikeTweetSchema), unlikeTweet);
 
 /**
  * @openapi

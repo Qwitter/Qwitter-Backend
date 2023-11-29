@@ -598,3 +598,58 @@ export const getUserMediaTweets = catchAsync(
     next();
   },
 );
+
+export const likeTweet = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const likerId = (req.user as User).id;
+
+    const existingLike = await prisma.like.findUnique({
+      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+    });
+
+    const existingTweet = await prisma.tweet.findUnique({
+      where: { id },
+    });
+
+    if (existingLike || !existingTweet) {
+      return next(new AppError("Tweet is already liked or doesn't exist", 400));
+    }
+
+    await prisma.like.create({
+      data: {
+        userId: likerId,
+        tweetId: id,
+      },
+    });
+
+    res.status(200).json({ status: 'success' });
+    next();
+  },
+);
+
+export const unlikeTweet = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const likerId = (req.user as User).id; 
+    
+    const existingLike = await prisma.like.findUnique({
+      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+    });
+
+    const existingTweet = await prisma.tweet.findUnique({
+      where: { id },
+    });
+
+    if (!existingLike || !existingTweet) {
+      return next(new AppError("Tweet is not liked or doesn't exist", 400));
+    }
+
+    await prisma.like.delete({
+      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+    });
+
+    res.status(200).json({ status: 'success' });
+    next();
+  },
+);
