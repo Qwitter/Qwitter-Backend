@@ -491,3 +491,130 @@ export const unfollowUser = catchAsync(
     next();
   },
 );
+
+export const getUserSuggestions = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const currentUser = req.user as User;
+    let suggestionsIDs = new Set();
+    let tempUser = await prisma.user.findUnique({
+      where: {
+        id: currentUser.id,
+        deletedAt: null,
+      },
+      include: {
+        follower: true,
+      },
+    });
+
+    let followedIDs = tempUser?.follower;
+    let followedSetIDs = new Set();
+    let suggestions = [];
+    for (let i = 0; followedIDs && i < followedIDs?.length; i++)
+      followedSetIDs.add(followedIDs[i]?.followedId);
+    let i = 0;
+    while (
+      followedIDs &&
+      followedIDs.length > 0 &&
+      i < 20 &&
+      suggestions.length < 50
+    ) {
+      i++;
+      let randomIndex = Math.floor(Math.random() * followedIDs.length);
+      console.log(randomIndex);
+      let followersArray = await prisma.follow.findMany({
+        take: 10,
+        where: {
+          folowererId: followedIDs[randomIndex].followedId,
+          follower: {
+            deletedAt: null,
+          },
+        },
+      });
+      for (
+        let j = 0;
+        j < followersArray.length && suggestions.length < 50;
+        j++
+      ) {
+        if (
+          !followedSetIDs.has(followersArray[j].followedId) &&
+          !suggestionsIDs.has(followersArray[j].followedId) &&
+          followersArray[j].followedId != currentUser.id
+        ) {
+          suggestionsIDs.add(followersArray[j].followedId);
+          suggestions.push(
+            await prisma.user.findUnique({
+              where: {
+                id: followersArray[j].followedId,
+                deletedAt: null,
+              },
+              select: {
+                name: true,
+                birthDate: true,
+                location: true,
+                url: true,
+                description: true,
+                verified: true,
+                followersCount: true,
+                followingCount: true,
+                createdAt: true,
+                profileBannerUrl: true,
+                profileImageUrl: true,
+                email: true,
+                userName: true,
+              },
+            }),
+          );
+        }
+      }
+      followedIDs.splice(randomIndex, 1);
+    }
+    if (suggestions.length < 50) {
+      let popUsers = await prisma.user.findMany({
+        take: 5100,
+        where: {
+          deletedAt: null,
+        },
+        orderBy: {
+          followersCount: 'desc',
+        },
+        select: {
+          id: true,
+        },
+      });
+      for (let i = 0; i < popUsers.length && suggestions.length < 50; i++) {
+        if (
+          !followedSetIDs.has(popUsers[i].id) &&
+          !suggestionsIDs.has(popUsers[i].id) &&
+          popUsers[i].id != currentUser.id
+        ) {
+          suggestionsIDs.add(popUsers[i]);
+          suggestions.push(
+            await prisma.user.findFirst({
+              where: {
+                id: popUsers[i].id,
+                deletedAt: null,
+              },
+              select: {
+                name: true,
+                birthDate: true,
+                location: true,
+                url: true,
+                description: true,
+                verified: true,
+                followersCount: true,
+                followingCount: true,
+                createdAt: true,
+                profileBannerUrl: true,
+                profileImageUrl: true,
+                email: true,
+                userName: true,
+              },
+            }),
+          );
+        }
+      }
+    }
+    res.json(suggestions.slice(0, 50)).status(200);
+    next();
+  },
+);
