@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "description": "For any pagination add page,limit as query parameters. Default is limit 10"
   },
-  "servers": [{ "url": "http://localhost:3000" }],
+  "servers": [
+    {
+      "url": "localhost:3000"
+    }
+  ],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -23,16 +27,28 @@
             "type": "string",
             "default": "ahmed.helmy@qwitter.com"
           },
-          "password": { "type": "string", "default": "stringPassword123" }
+          "password": {
+            "type": "string",
+            "default": "stringPassword123"
+          }
         }
       },
       "SignUpRequest": {
         "type": "object",
         "required": ["email", "name", "password", "birthDate"],
         "properties": {
-          "email": { "type": "string", "default": "ahmed.helmy@qwitter.com" },
-          "name": { "type": "string", "default": "Ahmed Helmy" },
-          "password": { "type": "string", "default": "stringPassword123" },
+          "email": {
+            "type": "string",
+            "default": "ahmed.helmy@qwitter.com"
+          },
+          "name": {
+            "type": "string",
+            "default": "Ahmed Helmy"
+          },
+          "password": {
+            "type": "string",
+            "default": "stringPassword123"
+          },
           "birthDate": {
             "type": "string",
             "default": "2020-03-09T22:18:26.625Z"
@@ -47,23 +63,38 @@
         "type": "object",
         "required": ["password", "passwordConfirmation"],
         "properties": {
-          "password": { "type": "string", "default": "hamada" },
-          "passwordConfirmation": { "type": "string", "default": "hamada" }
+          "password": {
+            "type": "string",
+            "default": "hamada"
+          },
+          "passwordConfirmation": {
+            "type": "string",
+            "default": "hamada"
+          }
         }
       },
       "UpdatePasswordRequest": {
         "type": "object",
         "required": ["password", "passwordConfirmation"],
         "properties": {
-          "oldPassword": { "type": "string", "default": "stringPassword123" },
-          "newPassword": { "type": "string", "default": "stringPassword123" }
+          "oldPassword": {
+            "type": "string",
+            "default": "stringPassword123"
+          },
+          "newPassword": {
+            "type": "string",
+            "default": "stringPassword123"
+          }
         }
       },
       "ChangeEmailRequest": {
         "type": "object",
         "required": ["email"],
         "properties": {
-          "email": { "type": "string", "default": "a@gmail.com" }
+          "email": {
+            "type": "string",
+            "default": "a@gmail.com"
+          }
         }
       },
       "ChangeEmailResponse": {
@@ -91,7 +122,9 @@
             "type": "string",
             "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZmNTgyOGMyLTBkYzUtNDNlMS1hZmQzLWFhODI3ZmQxODRiYSIsImlhdCI6MTY5OTI3MjE0MiwiZXhwIjoxNzA3MDQ4MTQyfQ.s4Bgs8RJr9U242CdG9cJyiVK6N7_VAVw9mziMdAkFrM"
           },
-          "data": { "$ref": "#/components/schemas/User" },
+          "data": {
+            "$ref": "#/components/schemas/User"
+          },
           "suggestions": {
             "type": "array",
             "items": "string",
@@ -102,8 +135,12 @@
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "token": { "type": "string" },
-          "user": { "$ref": "#/components/schemas/User" }
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
         }
       },
       "VerifyEmailResponse": {
@@ -184,23 +221,34 @@
       "ForgotPasswordResponse404": {
         "type": "object",
         "properties": {
-          "message": { "type": "string", "default": "User not found" }
+          "message": {
+            "type": "string",
+            "default": "User not found"
+          }
         }
       },
       "conversation": {
         "type": "object",
         "required": ["id", "name"],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
         }
       },
       "createConversationRequest": {
         "type": "object",
         "required": ["user_id", "conversation_name", "users"],
         "properties": {
-          "user_id": { "type": "string" },
-          "conversation_name": { "type": "string" },
+          "user_id": {
+            "type": "string"
+          },
+          "conversation_name": {
+            "type": "string"
+          },
           "users_to_add": {
             "type": "array",
             "example": ["user_id_1", "user_id_2", "user_id_3"]
@@ -209,55 +257,94 @@
       },
       "createConversationResponse": {
         "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
       },
       "addUserToConversationRequest": {
         "type": "object",
         "required": ["conversation_id", "user_id", "user_to_add_id"],
         "properties": {
-          "conversation_id": { "type": "string" },
-          "user_id": { "type": "string" },
-          "user_to_add_id": { "type": "string" }
+          "conversation_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "user_to_add_id": {
+            "type": "string"
+          }
         }
       },
       "addUserToConversationResponse": {
         "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
       },
       "removeUserFromConversationRequest": {
         "type": "object",
         "required": ["conversation_id", "user_id", "user_to_remove_id"],
         "properties": {
-          "conversation_id": { "type": "string" },
-          "user_id": { "type": "string" },
-          "user_to_remove_id": { "type": "string" }
+          "conversation_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "user_to_remove_id": {
+            "type": "string"
+          }
         }
       },
       "removeUserFromConversationResponse": {
         "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
       },
       "GetUserConversationsResponse": {
         "type": "object",
         "properties": {
-          "unseen": { "type": "integer" },
+          "unseen": {
+            "type": "integer"
+          },
           "conversations": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "integer" },
-                "name": { "type": "string" }
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                }
               },
-              "example": { "id": 1, "name": "Group" }
+              "example": {
+                "id": 1,
+                "name": "Group"
+              }
             }
           }
         },
         "example": {
           "unseen": 2,
           "conversations": [
-            { "id": 1, "name": "Group" },
-            { "id": 2, "name": "Another Group" }
+            {
+              "id": 1,
+              "name": "Group"
+            },
+            {
+              "id": 2,
+              "name": "Another Group"
+            }
           ]
         }
       },
@@ -265,29 +352,53 @@
         "type": "object",
         "required": ["user_id", "conversation_id", "text", "reply_id", "media"],
         "properties": {
-          "user_id": { "type": "string" },
-          "conversation_id": { "type": "string" },
-          "text": { "type": "string" },
-          "reply_id": { "type": "string" },
-          "media": { "type": "string" }
+          "user_id": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "reply_id": {
+            "type": "string"
+          },
+          "media": {
+            "type": "string"
+          }
         }
       },
       "sendMessageResponse": {
         "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
       },
       "deleteMessageRequest": {
         "type": "object",
         "required": ["user_id", "conversation_id", "message_id"],
         "properties": {
-          "user_id": { "type": "string" },
-          "conversation_id": { "type": "string" },
-          "message_id": { "type": "string" }
+          "user_id": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          },
+          "message_id": {
+            "type": "string"
+          }
         }
       },
       "deleteMessageResponse": {
         "type": "object",
-        "properties": { "success": { "type": "boolean" } }
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
       },
       "Notification": {
         "type": "object",
@@ -333,7 +444,9 @@
           },
           "notifications": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Notification" },
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            },
             "description": "List of notifications."
           }
         }
@@ -343,7 +456,9 @@
         "properties": {
           "tweets": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/tweet" }
+            "items": {
+              "$ref": "#/components/schemas/tweet"
+            }
           }
         }
       },
@@ -355,14 +470,27 @@
             "items": {
               "type": "object",
               "properties": {
-                "trend": { "type": "string" },
-                "count": { "type": "integer" }
+                "trend": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
               }
             },
             "example": [
-              { "trend": "#Trend1", "count": 10000 },
-              { "trend": "#Trend2", "count": 8000 },
-              { "trend": "#Trend3", "count": 6000 }
+              {
+                "trend": "#Trend1",
+                "count": 10000
+              },
+              {
+                "trend": "#Trend2",
+                "count": 8000
+              },
+              {
+                "trend": "#Trend3",
+                "count": 6000
+              }
             ]
           }
         }
@@ -370,37 +498,59 @@
       "TweetToggleLikeInput": {
         "type": "object",
         "required": ["tweet_id"],
-        "properties": { "tweet_id": { "type": "string", "default": 150123 } }
+        "properties": {
+          "tweet_id": {
+            "type": "string",
+            "default": 150123
+          }
+        }
       },
       "TweetToggleLikeResponse": {
         "type": "object",
-        "properties": { "status": { "type": "string" } }
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
       },
       "entityArray": {
         "type": "object",
         "properties": {
           "hasthtags": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/hashtag" }
+            "items": {
+              "$ref": "#/components/schemas/hashtag"
+            }
           },
           "media": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/media" }
+            "items": {
+              "$ref": "#/components/schemas/media"
+            }
           },
           "mentions": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/mention" }
+            "items": {
+              "$ref": "#/components/schemas/mention"
+            }
           },
           "urls": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/url" }
+            "items": {
+              "$ref": "#/components/schemas/url"
+            }
           }
         }
       },
       "UploadMediaInput": {
         "type": "object",
         "required": ["media"],
-        "properties": { "media": { "type": "string", "format": "binary" } }
+        "properties": {
+          "media": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
       },
       "media": {
         "type": "object",
@@ -410,8 +560,14 @@
             "example": "qwitter/photos/213902323",
             "description": "The value of the entity."
           },
-          "type": { "type": "string", "example": "image" },
-          "id": { "type": "string", "example": "21893u2039kldfs-skdlm" }
+          "type": {
+            "type": "string",
+            "example": "image"
+          },
+          "id": {
+            "type": "string",
+            "example": "21893u2039kldfs-skdlm"
+          }
         }
       },
       "hashtag": {
@@ -429,7 +585,10 @@
           }
         }
       },
-      "url": { "type": "string", "example": "qwitter.com" },
+      "url": {
+        "type": "string",
+        "example": "qwitter.com"
+      },
       "mention": {
         "type": "string",
         "example": "ahmedoshelmy",
@@ -438,105 +597,239 @@
       "tweet": {
         "type": "object",
         "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "createdAt": {
+            "type": "string",
+            "example": "2023-10-27 10:43:00"
+          },
+          "id": {
+            "type": "string",
+            "example": 1718938551163691300
+          },
+          "userName": {
+            "type": "string",
+            "example": "AhmedZahran2025"
+          },
+          "replyCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
           "retweetCount": {
             "type": "integer",
             "format": "int64",
             "default": 0
           },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "qouteCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "likesCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "text": {
+            "type": "string",
+            "default": "this is a tweet string"
+          },
+          "source": {
+            "type": "string",
+            "default": "Iphone"
+          },
+          "coordinates": {
+            "type": "string",
+            "default": "30.037072,31.206344"
+          },
           "replyToTweetId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "liked": { "type": "boolean", "default": true },
-          "bookmarked": { "type": "boolean", "default": false },
-          "retweetedId": { "type": "string", "default": 1718938551163691300 },
+          "liked": {
+            "type": "boolean",
+            "default": true
+          },
+          "bookmarked": {
+            "type": "boolean",
+            "default": false
+          },
+          "retweetedId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
           "qouteTweetedId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" },
-          "author": { "$ref": "#/components/schemas/User" }
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          },
+          "entities": {
+            "$ref": "#/components/schemas/entityArray"
+          },
+          "author": {
+            "$ref": "#/components/schemas/User"
+          }
         }
       },
       "reply": {
         "type": "object",
         "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "createdAt": {
+            "type": "string",
+            "example": "2023-10-27 10:43:00"
+          },
+          "id": {
+            "type": "string",
+            "example": 1718938551163691300
+          },
+          "userName": {
+            "type": "string",
+            "example": "AhmedZahran2025"
+          },
+          "replyCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
           "retweetCount": {
             "type": "integer",
             "format": "int64",
             "default": 0
           },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "qouteCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "likesCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "text": {
+            "type": "string",
+            "default": "this is a tweet string"
+          },
+          "source": {
+            "type": "string",
+            "default": "Iphone"
+          },
+          "coordinates": {
+            "type": "string",
+            "default": "30.037072,31.206344"
+          },
           "replyToTweetId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" }
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          },
+          "entities": {
+            "$ref": "#/components/schemas/entityArray"
+          }
         }
       },
       "qoute": {
         "type": "object",
         "properties": {
-          "createdAt": { "type": "string", "example": "2023-10-27 10:43:00" },
-          "id": { "type": "string", "example": 1718938551163691300 },
-          "userName": { "type": "string", "example": "AhmedZahran2025" },
-          "replyCount": { "type": "integer", "format": "int64", "default": 0 },
+          "createdAt": {
+            "type": "string",
+            "example": "2023-10-27 10:43:00"
+          },
+          "id": {
+            "type": "string",
+            "example": 1718938551163691300
+          },
+          "userName": {
+            "type": "string",
+            "example": "AhmedZahran2025"
+          },
+          "replyCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
           "retweetCount": {
             "type": "integer",
             "format": "int64",
             "default": 0
           },
-          "qouteCount": { "type": "integer", "format": "int64", "default": 0 },
-          "likesCount": { "type": "integer", "format": "int64", "default": 0 },
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "qouteCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "likesCount": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "text": {
+            "type": "string",
+            "default": "this is a tweet string"
+          },
+          "source": {
+            "type": "string",
+            "default": "Iphone"
+          },
+          "coordinates": {
+            "type": "string",
+            "default": "30.037072,31.206344"
+          },
           "qouteTweetedId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "sensitive": { "type": "boolean", "default": false },
-          "entities": { "$ref": "#/components/schemas/entityArray" }
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          },
+          "entities": {
+            "$ref": "#/components/schemas/entityArray"
+          }
         }
       },
       "CreateTweetPayload": {
         "type": "object",
         "properties": {
-          "text": { "type": "string", "default": "this is a tweet string" },
-          "source": { "type": "string", "default": "Iphone" },
-          "coordinates": { "type": "string", "default": "30.037072,31.206344" },
+          "text": {
+            "type": "string",
+            "default": "this is a tweet string"
+          },
+          "source": {
+            "type": "string",
+            "default": "Iphone"
+          },
+          "coordinates": {
+            "type": "string",
+            "default": "30.037072,31.206344"
+          },
           "replyToTweetId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "retweetedId": { "type": "string", "default": 1718938551163691300 },
+          "retweetedId": {
+            "type": "string",
+            "default": 1718938551163691300
+          },
           "quoteTweetedId": {
             "type": "string",
             "default": 1718938551163691300
           },
-          "sensitive": { "type": "boolean", "default": false },
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          },
           "media": {
             "type": "array",
-            "items": { "type": "string", "format": "binary" }
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
           }
         },
         "required": ["text"]
@@ -544,73 +837,115 @@
       "addTweetresponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
-          "body": { "$ref": "#/components/schemas/tweet" }
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
+          "body": {
+            "$ref": "#/components/schemas/tweet"
+          }
         }
       },
       "deleteTweetResponse204": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
           "id": {
             "type": "integer",
             "format": "string",
             "default": 1719147494591050000
           },
-          "deletedAt": { "type": "string", "default": "2023-10-27 10:43:00" }
+          "deletedAt": {
+            "type": "string",
+            "default": "2023-10-27 10:43:00"
+          }
         }
       },
       "getStatusResponse": {
         "type": "object",
         "properties": {
-          "liked": { "type": "boolean", "default": true },
-          "bookmarked": { "type": "boolean", "default": false }
+          "liked": {
+            "type": "boolean",
+            "default": true
+          },
+          "bookmarked": {
+            "type": "boolean",
+            "default": false
+          }
         }
       },
       "getTweetResponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
-          "tweet": { "$ref": "#/components/schemas/tweet" }
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
+          "tweet": {
+            "$ref": "#/components/schemas/tweet"
+          }
         }
       },
       "getRepliesOfTweetResponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
           "replies": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/reply" }
+            "items": {
+              "$ref": "#/components/schemas/reply"
+            }
           }
         }
       },
       "getQouteRetweetsOfTweetResponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
           "qoutes": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/qoute" }
+            "items": {
+              "$ref": "#/components/schemas/qoute"
+            }
           }
         }
       },
       "getLikersOfTweetResponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
           "likers": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/User" }
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
           }
         }
       },
       "getRetweetersOfTweetResponse200": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "default": "success" },
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
           "retweeters": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/User" }
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
           }
         }
       },
@@ -618,12 +953,20 @@
         "type": "object",
         "required": ["target_user_name"],
         "properties": {
-          "target_user_name": { "type": "string", "default": "jhondoe41123" }
+          "target_user_name": {
+            "type": "string",
+            "default": "jhondoe41123"
+          }
         }
       },
       "UserInteractionResponse": {
         "type": "object",
-        "properties": { "status": { "type": "string", "default": "success" } }
+        "properties": {
+          "status": {
+            "type": "string",
+            "default": "success"
+          }
+        }
       },
       "UploadImageResponse": {
         "type": "object",
@@ -632,24 +975,50 @@
             "type": "string",
             "default": "Image uploaded successfully"
           },
-          "user": { "$ref": "#/components/schemas/User" }
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
         }
       },
       "User": {
         "type": "object",
         "properties": {
-          "userName": { "type": "string", "default": "johndoe123" },
-          "name": { "type": "string", "default": "Ahmed Zahran" },
+          "userName": {
+            "type": "string",
+            "default": "johndoe123"
+          },
+          "name": {
+            "type": "string",
+            "default": "Ahmed Zahran"
+          },
           "birthDate": {
             "type": "string",
             "default": "2020-03-09T22:18:26.625Z"
           },
-          "url": { "type": "string", "default": "www.johndoe.com" },
-          "description": { "type": "string", "default": "Hi i am john doe" },
-          "protected": { "type": "boolean", "default": false },
-          "verified": { "type": "boolean", "default": true },
-          "followersCount": { "type": "int", "default": 12312 },
-          "followingCount": { "type": "int", "default": 1932 },
+          "url": {
+            "type": "string",
+            "default": "www.johndoe.com"
+          },
+          "description": {
+            "type": "string",
+            "default": "Hi i am john doe"
+          },
+          "protected": {
+            "type": "boolean",
+            "default": false
+          },
+          "verified": {
+            "type": "boolean",
+            "default": true
+          },
+          "followersCount": {
+            "type": "int",
+            "default": 12312
+          },
+          "followingCount": {
+            "type": "int",
+            "default": 1932
+          },
           "createdAt": {
             "type": "string",
             "default": "2020-03-09T22:18:26.625Z"
@@ -662,14 +1031,23 @@
             "type": "string",
             "default": "https://notdeterminedyet.com/profile_banners/819797/1348102824"
           },
-          "email": { "type": "string" },
-          "username": { "type": "string" }
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
         }
       },
       "UploadImageInput": {
         "type": "object",
         "required": ["img"],
-        "properties": { "img": { "type": "string", "format": "binary" } }
+        "properties": {
+          "img": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
       },
       "UserProfile": {
         "type": "object",
@@ -679,15 +1057,30 @@
             "default": "any string",
             "required": true
           },
-          "description": { "type": "string", "default": "any string" },
-          "Location": { "type": "string", "default": "egypt" },
-          "url": { "type": "string" },
-          "birth_date": { "type": "string", "required": true }
+          "description": {
+            "type": "string",
+            "default": "any string"
+          },
+          "Location": {
+            "type": "string",
+            "default": "egypt"
+          },
+          "url": {
+            "type": "string"
+          },
+          "birth_date": {
+            "type": "string",
+            "required": true
+          }
         }
       }
     }
   },
-  "security": [{ "bearerAuth": [] }],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "responses": {
     "400": {
       "description": "Missing Credentials - Plese check the API documentation",
@@ -708,12 +1101,16 @@
     "408": {
       "description": "The request timed out. Please try again",
       "contents": "application/json",
-      "schema": { "error": "The request timed out. Please try again" }
+      "schema": {
+        "error": "The request timed out. Please try again"
+      }
     },
     "409": {
       "description": "Conflict Occured. Check again ",
       "contents": "application/json",
-      "schema": { "error": "Conflict Occured. Check again" }
+      "schema": {
+        "error": "Conflict Occured. Check again"
+      }
     },
     "410": {
       "description": "The requested data is not available",
@@ -731,24 +1128,42 @@
         "summary": "Register a user using Google (OAuth)",
         "requestBody": {
           "required": true,
-          "content": { "application/json": null }
+          "content": {
+            "application/json": null
+          }
         },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -760,7 +1175,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SignUpRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
             }
           }
         },
@@ -769,17 +1186,33 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SignUpResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/SignUpResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -811,15 +1244,24 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "available": { "type": "boolean", "default": true }
+                    "available": {
+                      "type": "boolean",
+                      "default": true
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -827,15 +1269,24 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "available": { "type": "boolean", "default": false }
+                    "available": {
+                      "type": "boolean",
+                      "default": false
+                    }
                   }
                 }
               }
             }
           },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -849,7 +1300,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -859,7 +1312,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "password": { "type": "string", "default": 1896156612 }
+                  "password": {
+                    "type": "string",
+                    "default": 1896156612
+                  }
                 }
               }
             }
@@ -873,13 +1329,18 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "correct": { "type": "boolean", "default": true }
+                    "correct": {
+                      "type": "boolean",
+                      "default": true
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
+          "400": {
+            "$ref": "#/responses/400"
+          },
           "401": {
             "description": "Wrong Password",
             "content": {
@@ -887,16 +1348,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "correct": { "type": "boolean", "default": false }
+                    "correct": {
+                      "type": "boolean",
+                      "default": false
+                    }
                   }
                 }
               }
             }
           },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "410": { "$ref": "#/responses/410" }
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -908,7 +1380,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
             }
           }
         },
@@ -917,17 +1391,33 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -942,7 +1432,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                  "email": {
+                    "type": "string",
+                    "default": "ahmed@gmail.com"
+                  }
                 }
               }
             }
@@ -953,17 +1446,33 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/VerifyEmailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -978,7 +1487,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                  "email": {
+                    "type": "string",
+                    "default": "ahmed@gmail.com"
+                  }
                 }
               }
             }
@@ -995,13 +1507,27 @@
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1016,7 +1542,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "default": "ahmed@gmail.com" }
+                  "email": {
+                    "type": "string",
+                    "default": "ahmed@gmail.com"
+                  }
                 }
               }
             }
@@ -1050,7 +1579,9 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Verify the token of the user. No need for the email in payload",
-        "requestBody": { "required": true },
+        "requestBody": {
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -1062,13 +1593,27 @@
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1082,7 +1627,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1090,17 +1637,33 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1114,14 +1677,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/GoogleSignUpRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/GoogleSignUpRequest"
+              }
             }
           }
         },
@@ -1130,17 +1697,33 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1154,14 +1737,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
             }
           }
         },
@@ -1176,13 +1763,27 @@
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1196,14 +1797,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdatePasswordRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePasswordRequest"
+              }
             }
           }
         },
@@ -1218,13 +1823,27 @@
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1238,14 +1857,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ChangeEmailRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ChangeEmailRequest"
+              }
             }
           }
         },
@@ -1254,11 +1877,15 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ChangeEmailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ChangeEmailResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
+          "400": {
+            "$ref": "#/responses/400"
+          },
           "401": {
             "description": "Email Exists",
             "content": {
@@ -1275,11 +1902,21 @@
               }
             }
           },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1294,7 +1931,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "userName": { "type": "string", "default": "zahran1234" }
+                  "userName": {
+                    "type": "string",
+                    "default": "zahran1234"
+                  }
                 }
               }
             }
@@ -1319,13 +1959,27 @@
               }
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1354,8 +2008,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1384,8 +2042,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1414,8 +2076,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1434,8 +2100,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1447,7 +2117,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/sendMessageRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/sendMessageRequest"
+              }
             }
           }
         },
@@ -1456,12 +2128,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/sendMessageResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/sendMessageResponse"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1473,7 +2151,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/deleteMessageRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/deleteMessageRequest"
+              }
             }
           }
         },
@@ -1488,8 +2168,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1505,10 +2189,16 @@
         ],
         "tags": ["Notifications"],
         "summary": "Returns a list of notifications for a user",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": null }
+          "content": {
+            "application/json": null
+          }
         },
         "responses": {
           "200": {
@@ -1521,16 +2211,35 @@
               }
             },
             "examples": {
-              "application/json": [{ "id": 1, "name": "Ahmed Helmy" }]
+              "application/json": [
+                {
+                  "id": 1,
+                  "name": "Ahmed Helmy"
+                }
+              ]
             }
           },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     },
@@ -1543,22 +2252,37 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "q",
             "in": "query",
             "description": "Word to search",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "hashtag",
             "in": "query",
             "description": "If the hashtag is in the query, only the tweets including that hashtag will be returned",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
-          { "name": "page", "in": "param" },
-          { "name": "limit", "in": "param", "schema": { "type": "string" } }
+          {
+            "name": "page",
+            "in": "param"
+          },
+          {
+            "name": "limit",
+            "in": "param",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "summary": "Get Timeline, Search for Tweets and search for tweets that include a hashtag",
         "responses": {
@@ -1566,12 +2290,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "post": {
@@ -1583,7 +2313,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "add tweet",
@@ -1591,7 +2323,9 @@
           "required": true,
           "content": {
             "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/CreateTweetPayload" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateTweetPayload"
+              }
             }
           }
         },
@@ -1600,11 +2334,15 @@
             "description": "Tweet was added successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/addTweetresponse200" }
+                "schema": {
+                  "$ref": "#/components/schemas/addTweetresponse200"
+                }
               }
             }
           },
-          "403": { "description": "Unauthorized" }
+          "403": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
@@ -1617,7 +2355,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Get Tweets that the user liked",
@@ -1626,12 +2366,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1644,7 +2390,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Not Determined YETTT !!!!!!!!!!",
@@ -1653,12 +2401,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1671,7 +2425,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Get Tweets of user that include media",
@@ -1680,12 +2436,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1698,12 +2460,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetTrends" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetTrends"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1716,14 +2484,19 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "id",
             "in": "path",
             "description": "Tweet id to delete",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "summary": "Delete tweet by Id",
@@ -1738,9 +2511,15 @@
               }
             }
           },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" },
-          "410": { "description": "Tweet was Gone" }
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tweet was Not Found"
+          },
+          "410": {
+            "description": "Tweet was Gone"
+          }
         }
       },
       "get": {
@@ -1751,14 +2530,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "id",
             "in": "path",
             "description": "Tweet id to get",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Get tweet by Id",
@@ -1767,13 +2550,21 @@
             "description": "Tweet was found",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/getTweetResponse200" }
+                "schema": {
+                  "$ref": "#/components/schemas/getTweetResponse200"
+                }
               }
             }
           },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" },
-          "410": { "description": "Tweet was Gone" }
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tweet was Not Found"
+          },
+          "410": {
+            "description": "Tweet was Gone"
+          }
         }
       }
     },
@@ -1786,14 +2577,19 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "id",
             "in": "path",
             "description": "Tweet id to get replies of",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "summary": "get replies of a tweet by Id",
@@ -1808,8 +2604,12 @@
               }
             }
           },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tweet was Not Found"
+          }
         }
       }
     },
@@ -1822,14 +2622,19 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "id",
             "in": "path",
             "description": "Tweet id to get likers of",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "summary": "get likers users of a tweet by Id",
@@ -1844,8 +2649,12 @@
               }
             }
           },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tweet was Not Found"
+          }
         }
       },
       "post": {
@@ -1862,8 +2671,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -1880,8 +2693,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1894,14 +2711,19 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "id",
             "in": "path",
             "description": "Tweet id to get retweeters of",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "summary": "get retweeters usernames of a tweet by Id",
@@ -1916,8 +2738,12 @@
               }
             }
           },
-          "403": { "description": "Unauthorized" },
-          "404": { "description": "Tweet was Not Found" }
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tweet was Not Found"
+          }
         }
       }
     },
@@ -1930,7 +2756,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Get Tweets that the user created only",
@@ -1939,12 +2767,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReturnListOfTweets" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnListOfTweets"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1957,13 +2791,17 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "q",
             "in": "query",
             "description": "Word to get hashtags similar to or indentical to that word",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "Returns suggestions for hashtags",
@@ -1974,13 +2812,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/hashtag" }
+                  "items": {
+                    "$ref": "#/components/schemas/hashtag"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -1994,7 +2838,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2004,13 +2850,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2024,7 +2876,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2034,13 +2888,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2054,13 +2914,17 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "username",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2074,8 +2938,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -2086,14 +2954,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "unfollow a user",
@@ -2108,8 +2980,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2123,7 +2999,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2133,13 +3011,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2153,14 +3037,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2174,8 +3062,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -2186,14 +3078,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "username",
             "in": "path",
             "description": "username of the target user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "unblock a user",
@@ -2208,8 +3104,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2222,7 +3122,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "get users muted by the source user",
@@ -2233,13 +3135,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2253,7 +3161,9 @@
             "in": "path",
             "description": "username of the target user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2267,8 +3177,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -2279,14 +3193,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "username",
             "in": "path",
             "description": "usermane of the target user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "unmute a user",
@@ -2301,8 +3219,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2316,14 +3238,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "name",
             "in": "query",
             "description": "name or user name of the user",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2333,13 +3259,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2353,14 +3285,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
+              "schema": {
+                "$ref": "#/components/schemas/UploadImageInput"
+              }
             }
           }
         },
@@ -2369,12 +3305,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UploadImageResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/UploadImageResponse"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -2385,7 +3327,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "delete profile picture of a user",
@@ -2400,8 +3344,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2415,7 +3363,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2425,13 +3375,19 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/User" }
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2445,14 +3401,18 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/UploadImageInput" }
+              "schema": {
+                "$ref": "#/components/schemas/UploadImageInput"
+              }
             }
           }
         },
@@ -2461,12 +3421,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UploadImageResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/UploadImageResponse"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       },
       "delete": {
@@ -2477,7 +3443,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "summary": "delete profile banner of a user",
@@ -2492,8 +3460,12 @@
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2507,7 +3479,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2515,12 +3489,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2534,13 +3514,17 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "object": {
-              "schema": { "$ref": "#/components/schemas/UserProfile" }
+              "schema": {
+                "$ref": "#/components/schemas/UserProfile"
+              }
             }
           }
         },
@@ -2549,12 +3533,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserProfile" }
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2568,7 +3558,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2576,12 +3568,18 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "409": { "description": "Conflict" }
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
         }
       }
     },
@@ -2595,7 +3593,9 @@
             "in": "header",
             "description": "",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -2605,21 +3605,40 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "userName": { "type": "string", "default": "zahran1234" }
+                  "userName": {
+                    "type": "string",
+                    "default": "zahran1234"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Success" },
-          "400": { "$ref": "#/responses/400" },
-          "401": { "$ref": "#/responses/401" },
-          "403": { "$ref": "#/responses/403" },
-          "404": { "$ref": "#/responses/404" },
-          "408": { "$ref": "#/responses/408" },
-          "409": { "$ref": "#/responses/409" },
-          "410": { "$ref": "#/responses/410" }
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "408": {
+            "$ref": "#/responses/408"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "410": {
+            "$ref": "#/responses/410"
+          }
         }
       }
     }
