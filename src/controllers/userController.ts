@@ -441,7 +441,8 @@ export const getUserSuggestions = catchAsync(
     let suggestionsIDs=new Set()
     let tempUser=await prisma.user.findUnique({
       where:{
-        id:currentUser.id
+        id:currentUser.id,
+        deletedAt:null
       },
       include:{
         follower:true
@@ -464,6 +465,7 @@ export const getUserSuggestions = catchAsync(
         take:10,
         where:{
           folowererId:followedIDs[randomIndex].followedId,
+
         },
       })
       for(let j=0;j<followersArray.length && suggestions.length<50;j++)
@@ -501,8 +503,11 @@ export const getUserSuggestions = catchAsync(
     {
       let popUsers=await prisma.user.findMany({
         take:5100,
+        where:{
+          deletedAt:null
+        },
         orderBy:{
-          followersCount:'desc'
+          followersCount:'desc',
         },
         select: {
           id:true
