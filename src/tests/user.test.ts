@@ -224,3 +224,438 @@ describe('userNameSuggestions Function', () => {
     });
   });
 });
+
+
+describe('POST /block/:username', () => {
+  test('user not found', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    const response = await Request(app)
+      .post('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
+
+    expect(response.status).toBe(404);
+    expect(response.body.status).toEqual('fail');
+    expect(response.body.message).toEqual('user not found');
+
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+  test('user already blocked', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const user2 = {
+      id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Ibrahim',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed2@qwitter.com',
+      userName: 'ahmedibrahim',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user2);
+    prismaMock.user.findFirst.mockResolvedValue(user2);
+    prismaMock.user.update.mockResolvedValue(user2);
+
+    prismaMock.block.findUnique.mockResolvedValue({
+      blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+    });
+    prismaMock.block.findFirst.mockResolvedValue({
+      blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+    });
+
+    const response = await Request(app)
+      .post('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
+
+      expect(response.status).toBe(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('user already blocked');
+      
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+  test('should block a user', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const user2 = {
+      id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Ibrahim',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed2@qwitter.com',
+      userName: 'ahmedibrahim',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user2);
+    prismaMock.user.findFirst.mockResolvedValue(user2);
+    prismaMock.user.update.mockResolvedValue(user2);
+
+
+    const response = await Request(app)
+      .post('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ status: 'success' });
+    
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+});
+
+
+describe('DELETE /block/:username', () => {
+  test('user not found', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    const response = await Request(app)
+      .delete('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); // Assuming you use JWT for authentication
+
+    expect(response.status).toBe(404);
+    expect(response.body.status).toEqual('fail');
+    expect(response.body.message).toEqual('user not found');
+
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+  test('user already unblocked', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const user2 = {
+      id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Ibrahim',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed2@qwitter.com',
+      userName: 'ahmedibrahim',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user2);
+    prismaMock.user.findFirst.mockResolvedValue(user2);
+    prismaMock.user.update.mockResolvedValue(user2);
+
+    prismaMock.block.findUnique.mockResolvedValue(null);
+    prismaMock.block.findFirst.mockResolvedValue(null);
+
+    const response = await Request(app)
+      .delete('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef'); 
+
+      expect(response.status).toBe(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('user not blocked');
+      
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+  test('should unblock a user', async () => {
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const user2 = {
+      id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Ibrahim',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed2@qwitter.com',
+      userName: 'ahmedibrahim',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      google_id: null,
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user2);
+    prismaMock.user.findFirst.mockResolvedValue(user2);
+    prismaMock.user.update.mockResolvedValue(user2);
+
+    prismaMock.block.findUnique.mockResolvedValue({
+      blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+    });
+    prismaMock.block.findFirst.mockResolvedValue({
+      blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+    });
+    prismaMock.block.delete.mockResolvedValue({
+      blockerId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      blockedId: '251f773e-f284-4522-8e55-a17b6ddb63ef'
+    });
+
+    const response = await Request(app)
+      .delete('/api/v1/user/block/ahmedibrahim')
+      .set('Authorization', 'Bearer 251f773f-f284-4522-8e55-a17b6ddb63ef');
+
+    expect(response.status).toBe(200);
+    console.log(response.body);
+    expect(response.body).toEqual({ status: 'success' });
+    
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+  });
+
+});
