@@ -269,7 +269,7 @@ export const getTweetReplies = catchAsync(
         createdAt: 'desc',
       },
       include: {
-        TweetEntity: true,
+        author: {},
       },
     });
     for (var reply of replies) {
@@ -376,7 +376,7 @@ export const getTweet = catchAsync(
             where: { entityId: entity.entityId },
           });
           let user = await prisma.user.findFirst({
-            where: { id: mention?.userId },
+            where: { id: mention?.userId, deletedAt: null },
           });
           mentions.push({ mentionedUsername: user?.userName });
         }
@@ -447,6 +447,7 @@ export const getTweetLikers = catchAsync(
     const tweetLikers = await prisma.like.findMany({
       where: {
         tweetId: id,
+        liker: { deletedAt: null },
       },
       include: {
         liker: {
@@ -665,7 +666,10 @@ export const likeTweet = catchAsync(
     const likerId = (req.user as User).id;
 
     const existingLike = await prisma.like.findUnique({
-      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+      where: {
+        userId_tweetId: { userId: likerId, tweetId: id },
+        liker: { deletedAt: null },
+      },
     });
 
     const existingTweet = await prisma.tweet.findUnique({
@@ -694,7 +698,10 @@ export const unlikeTweet = catchAsync(
     const likerId = (req.user as User).id;
 
     const existingLike = await prisma.like.findUnique({
-      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+      where: {
+        userId_tweetId: { userId: likerId, tweetId: id },
+        liker: { deletedAt: null },
+      },
     });
 
     const existingTweet = await prisma.tweet.findUnique({
@@ -706,7 +713,10 @@ export const unlikeTweet = catchAsync(
     }
 
     await prisma.like.delete({
-      where: { userId_tweetId: { userId: likerId, tweetId: id } },
+      where: {
+        userId_tweetId: { userId: likerId, tweetId: id },
+        liker: { deletedAt: null },
+      },
     });
 
     res.status(200).json({ status: 'success' });

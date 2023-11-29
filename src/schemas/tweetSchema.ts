@@ -51,7 +51,7 @@ import { object, string } from 'zod';
  *     media:
  *       type: object
  *       properties:
- *         url:
+ *         value:
  *           type: string
  *           example: 'qwitter/photos/213902323'
  *           description: The value of the entity.
