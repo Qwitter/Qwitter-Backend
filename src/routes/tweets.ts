@@ -12,6 +12,9 @@ import {
   getUserMediaTweets,
   getTweetReplies,
   getTweetRetweets,
+  likeTweet,
+  unlikeTweet,
+  getUserReplies,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
@@ -19,6 +22,7 @@ import {
   getTweetRepliesSchema,
   getTweetTimeline,
   getProfileTab,
+  likeUnlikeTweetSchema,
 } from '../schemas/tweetLikeSchema';
 import { getTweet } from '../controllers/tweetController';
 import { uploadTweetMediaMiddleware } from '../middlewares/uploadMiddleware';
@@ -272,6 +276,33 @@ router
  *        description: Bad request
  */
 router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
+/**
+ * @openapi
+ * '/api/v1/tweets/user/{username}/replies':
+ *  get:
+ *     tags:
+ *     - Tweet
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     summary: Get Replies Section in Profile
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ReturnListOfTweets'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.route('/user/:userName/replies').get(isLoggedIn, getUserReplies);
 
 /**
  * @openapi
@@ -305,7 +336,8 @@ router.route('/user/:userName/').get(isLoggedIn, getUserTweets);
  *      400:
  *        description: Bad request
  */
-router.route('/:id/like').post().delete();
+router.route('/:id/like').post(isLoggedIn, validate(likeUnlikeTweetSchema), likeTweet);
+router.route('/:id/like').delete(isLoggedIn, validate(likeUnlikeTweetSchema), unlikeTweet);
 
 /**
  * @openapi

@@ -89,3 +89,17 @@ export const getTweetsCreatedByUser = async (userId: string) => {
   });
   return tweets;
 };
+
+
+export const isUserFollowing = async (userid1: string, userid2: string): Promise<boolean> => {
+  const followRelationship = await prisma.follow.findUnique({
+    where: {
+      folowererId_followedId: {
+        folowererId: userid1,
+        followedId: userid2,
+      },
+    },
+  });
+
+  return !!followRelationship;
+};
