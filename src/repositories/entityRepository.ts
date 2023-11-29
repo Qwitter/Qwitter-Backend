@@ -33,7 +33,8 @@ export const getTweetEntities = async (tweetId: string) => {
     } else if (entity?.Url) {
       entities.urls.push(entity.Url);
     } else if (entity?.Media) {
-      entities.media.push(entity.Media);
+      const newMedia = { value: entity.Media.url, type: entity.Media.type };
+      entities.media.push(newMedia);
     }
   }
   return entities;
@@ -81,9 +82,12 @@ export const createMention = async (userId: string) => {
 };
 export const createMedia = async (mediaName: string) => {
   const createdEntity = await createEntity('media');
+  const url = process.env.url?.startsWith('http')
+    ? process.env.URL
+    : 'http://' + process.env.URL;
   const createdMedia = await prisma.media.create({
     data: {
-      url: `${process.env.URL}/imgs/tweet/${mediaName}`,
+      url: `${url}/imgs/tweet/${mediaName}`,
       entityId: createdEntity.id,
       type: getFileTypeByExtension(mediaName),
     },

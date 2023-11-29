@@ -17,7 +17,7 @@ describe('GET /user', () => {
     });
     const user = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
-      name: 'Ahmed Zahran',
+      name: 'jhon doe',
       birthDate: new Date(),
       location: null,
       url: null,
@@ -30,8 +30,8 @@ describe('GET /user', () => {
       deletedAt: null,
       profileBannerUrl: null,
       profileImageUrl: null,
-      email: 'ahmed@qwitter.com',
-      userName: 'ahmedzahran12364',
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
       password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: 'registered_fake_token',
@@ -39,6 +39,7 @@ describe('GET /user', () => {
       google_id: '',
     };
     prismaMock.user.findFirst.mockResolvedValue(user);
+
     const res = await Request(app)
       .get('/api/v1/user')
       .set('authorization', 'Bearer abc123');
@@ -55,6 +56,466 @@ describe('GET /user', () => {
       .get('/api/v1/user')
       .set('authorization', 'abc123');
     expect(res.status).toBe(401);
+  });
+});
+
+
+
+describe('POST /follow/:username', () => {
+  test('this should send follow request to the authinticatin user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findFirst.mockResolvedValue(null);
+
+    
+    const res = await Request(app)
+      .post('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe("Can't follow youself")
+  });
+
+  test('this should send follow request with header containing token and return a success message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    const targeUser = {
+      id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ghaith@qwitter.com',
+      userName: 'ghaith',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    
+    prismaMock.user.findFirst.mockResolvedValue(targeUser);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findFirst.mockResolvedValue(null);
+
+    
+    const res = await Request(app)
+      .post('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("User followed successfully")
+  });
+  test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    const targeUser = {
+      id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ghaith@qwitter.com',
+      userName: 'ghaith',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    
+    prismaMock.user.findFirst.mockResolvedValue(targeUser);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+
+    
+    const res = await Request(app)
+      .post('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("User is already followed")
+  });
+  test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };    
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(null);
+
+    
+    const res = await Request(app)
+      .post('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("User to follow not found")
+  });
+});
+
+
+
+
+describe('DELETE /follow/:username', () => {
+  test('this should send delete follow request to the authinticatin user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+
+    
+    const res = await Request(app)
+      .delete('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe("Can't unfollow youself")
+  });
+
+  test('this should send delete follow request with header containing token and return a success message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    const targeUser = {
+      id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ghaith@qwitter.com',
+      userName: 'ghaith',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    
+    prismaMock.user.findFirst.mockResolvedValue(targeUser);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findFirst.mockResolvedValue(null);
+
+    
+    const res = await Request(app)
+      .delete('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("User unfollowed successfully")
+  });
+  test('this should send delete follow request to an  unfollowed user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    const targeUser = {
+      id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ghaith@qwitter.com',
+      userName: 'ghaith',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    
+    prismaMock.user.findFirst.mockResolvedValue(targeUser);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.follow.findUnique.mockResolvedValue(null);
+
+    
+    const res = await Request(app)
+      .delete('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("User is not followed")
+  });
+  test('this should send follow request to an already followed user with header containing token and return a failure message', async () => {
+    jest.mock('bcrypt');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };    
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.follow.findUnique.mockResolvedValue({folowererId:"fake_id",followedId:"fake_id"});
+
+    
+    const res = await Request(app)
+      .delete('/api/v1/user/follow/json')
+      .set('Authorization', 'Bearer abc123');
+    console.log(res.body)
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("User to unfollow not found")
   });
 });
 
@@ -93,9 +554,9 @@ describe('userNameSuggestions Function', () => {
             jest.mock('jsonwebtoken');
             jwt.sign = jest.fn().mockResolvedValue('generated_token');
             jwt.verify = jest.fn().mockResolvedValue({
-              id: 'eac0ece1',
-              iat: 1699498302,
-              exp: 1707274302,
+              id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+              iat: 1701267900,
+              exp: 1709043900,
             });
             prismaMock.user.findFirst.mockResolvedValueOnce(user);
             prismaMock.user.findFirst.mockResolvedValueOnce(null);

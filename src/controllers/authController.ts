@@ -9,6 +9,7 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
+import { getNumOfTweets } from '../repositories/userRepository';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -22,6 +23,7 @@ export const login = catchAsync(
           where: {
             email: email_or_username.toLowerCase(),
             password: hashedPassword,
+            deletedAt: null,
           },
         })
         .catch();
@@ -32,6 +34,7 @@ export const login = catchAsync(
           where: {
             userName: email_or_username.toLowerCase(),
             password: hashedPassword,
+            deletedAt: null,
           },
         })
         .catch();
@@ -46,7 +49,10 @@ export const login = catchAsync(
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
-    res.status(200).json({ token: token, user });
+    res.status(200).json({
+      token: token,
+      user: { ...user, tweetCount: getNumOfTweets(user.userName) },
+    });
   },
 );
 
@@ -54,7 +60,7 @@ export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
     const user = await prisma.user.findUnique({
-      where: { email: req.body.email.toLowerCase() },
+      where: { email: req.body.email.toLowerCase(), deletedAt: null },
     });
     if (!user) {
       return _next(new AppError('User not found', 404));
@@ -102,7 +108,7 @@ export const resetPassword = catchAsync(
       .update(req.params.token)
       .digest('hex');
     const user = await prisma.user.findUnique({
-      where: { passwordResetToken: resetTokenHashed },
+      where: { passwordResetToken: resetTokenHashed, deletedAt: null },
     });
     if (!user) {
       return _next(new AppError('Invalid Token', 400));
@@ -195,6 +201,7 @@ export const signUp = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email.toLowerCase(),
+        deletedAt: null,
       },
     });
     if (user) {
@@ -252,7 +259,10 @@ export const signUp = catchAsync(
         });
         _res.status(200).json({
           token,
-          data: newObject,
+          data: {
+            ...newObject,
+            tweetCount: getNumOfTweets(newObject.userName),
+          },
           suggestions: uniqueUserName.slice(1, 6),
         });
       }
@@ -281,6 +291,7 @@ export const signUpGoogle = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         email: email.toLowerCase(),
+        deletedAt: null,
       },
     });
     if (user) {
@@ -320,7 +331,7 @@ export const signUpGoogle = catchAsync(
       });
       _res.status(200).json({
         token,
-        user: newObject,
+        user: { ...newObject, tweetCount: getNumOfTweets(newObject.userName) },
       });
     }
   },
@@ -331,7 +342,7 @@ export const logInGoogle = catchAsync(
     const token = signJWT(user.id);
     _res.status(200).json({
       token,
-      user,
+      user: { ...user, tweetCount: getNumOfTweets(user.userName) },
     });
   },
 );
@@ -343,6 +354,7 @@ export const checkExistence = catchAsync(
       const user = await prisma.user.findFirst({
         where: {
           email: qualifier,
+          deletedAt: null,
         },
       });
       if (user) {
@@ -358,6 +370,7 @@ export const checkExistence = catchAsync(
       const user = await prisma.user.findFirst({
         where: {
           userName: qualifier,
+          deletedAt: null,
         },
       });
       if (user) {
@@ -460,6 +473,7 @@ export const verifyEmail = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         email: req.body.email.toLowerCase(),
+        deletedAt: null,
       },
     });
     if (user) {
@@ -526,6 +540,7 @@ export async function createUniqueUserName(
     const user = await prisma.user.findFirst({
       where: {
         userName: userName,
+        deletedAt: null,
       },
     });
     if (!user) {
@@ -578,6 +593,7 @@ export const changeEmail = catchAsync(
     const tempUser = await prisma.user.findFirst({
       where: {
         email: req.body.email.toLowerCase(),
+        deletedAt: null,
       },
     });
     if (tempUser) {
@@ -618,6 +634,7 @@ export const changeEmail = catchAsync(
           profileBannerUrl: updatedUser.profileBannerUrl,
           profileImageUrl: updatedUser.profileImageUrl,
           email: updatedUser.email,
+          tweetCount: getNumOfTweets(updatedUser.userName),
         })
         .status(200);
     }

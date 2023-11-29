@@ -14,7 +14,7 @@ export const isLoggedIn = catchAsync(
       return next(new AppError('Unauthorized access', 401));
     }
     const token: string = auth_header.split(' ')[1];
-    const payloadData = verify(token, process.env.JWT_SECRET as string);
+    const payloadData = await verify(token, process.env.JWT_SECRET as string);
     if (!(payloadData as JwtPayload).id) {
       return next(new AppError('Invalid access credentials', 409));
     }
@@ -27,6 +27,7 @@ export const isLoggedIn = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         id: (payloadData as JwtPayload).id,
+        deletedAt: null,
       },
     });
 
@@ -60,6 +61,7 @@ export const mobileLoggedIn = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         email: (payloadData as JwtPayload).email,
+        deletedAt: null,
       },
     });
 

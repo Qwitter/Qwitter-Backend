@@ -9,6 +9,7 @@ import {
   unblockUserByIDs,
   getBlockedUsersByID,
   getUsersByName,
+  getNumOfTweets,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -22,12 +23,15 @@ export const uploadProfilePicture = catchAsync(
       );
     }
     const user = _req.user as User;
+    const url = process.env.url?.startsWith('http')
+      ? process.env.URL
+      : 'http://' + process.env.URL;
     const updatedUser = await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        profileImageUrl: `${process.env.URL}/imgs/user${_req.url}/${photoName}`,
+        profileImageUrl: `${url}/imgs/user${_req.url}/${photoName}`,
       },
     });
     return res.status(200).json({
@@ -132,6 +136,7 @@ export const getUser = catchAsync(
         profileBannerUrl: user.profileBannerUrl,
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
+        tweetCount: getNumOfTweets(user.userName),
       };
       res.json(resposeObject).status(200);
     } else {
@@ -156,6 +161,7 @@ export const getRequestingUser = async (req: Request) => {
     profileBannerUrl: user.profileBannerUrl,
     profileImageUrl: user.profileImageUrl,
     email: user.email.toLowerCase(),
+    tweetCount: getNumOfTweets(user.userName),
   };
   return resposeObject;
 };
@@ -176,7 +182,11 @@ export const getUsers = catchAsync(
 
     const users = await getUsersByName(query as string, skip, parsedLimit);
 
-    res.status(200).json({ users: users });
+    res.status(200).json({
+      users: users.map((el) => {
+        return { ...el, tweetCount: getNumOfTweets(el.userName) };
+      }),
+    });
     next();
   },
 );
@@ -187,6 +197,7 @@ export const changeUserName = catchAsync(
     const userCheck = await prisma.user.findFirst({
       where: {
         userName: newUserName,
+        deletedAt: null,
       },
     });
     if (userCheck) {
@@ -220,7 +231,14 @@ export const getUserFollowers = catchAsync(
       },
     });
 
-    res.status(200).json(followers);
+    res.status(200).json(
+      followers.map((el) => {
+        return {
+          ...el.follower,
+          tweetCount: getNumOfTweets(el.follower.userName),
+        };
+      }),
+    );
     next();
   },
 );
@@ -250,14 +268,23 @@ export const putUserProfile = catchAsync(
       deletedAt,
       ...resposeObject
     } = updatedUser;
-    res.status(200).json(resposeObject);
+    res.status(200).json({
+      ...resposeObject,
+      tweetCount: getNumOfTweets(resposeObject.userName),
+    });
   },
 );
 
 export const getBlockedUsers = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
-    res.json(blockedUsers).status(200);
+    res
+      .json(
+        blockedUsers.map((el) => {
+          return { ...el, tweetCount: getNumOfTweets(el.userName) };
+        }),
+      )
+      .status(200);
   },
 );
 
@@ -311,7 +338,7 @@ export const muteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToMute = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToMute) {
@@ -350,7 +377,7 @@ export const unmuteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToUnmute = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToUnmute) {
@@ -393,7 +420,13 @@ export const getUsersMutedByCurrentUser = catchAsync(
       },
     });
 
-    res.status(200).json(mutedUsers.map((user) => user.muted));
+    res.status(200).json(
+      mutedUsers
+        .map((user) => user.muted)
+        .map((el) => {
+          return { ...el, tweetCount: getNumOfTweets(el.userName) };
+        }),
+    );
     next();
   },
 );
@@ -404,7 +437,7 @@ export const followUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToFollow = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToFollow) {
@@ -448,7 +481,7 @@ export const unfollowUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToUnfollow = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToUnfollow) {
@@ -484,6 +517,133 @@ export const unfollowUser = catchAsync(
     res
       .status(200)
       .json({ status: 'success', message: 'User unfollowed successfully' });
+    next();
+  },
+);
+
+export const getUserSuggestions = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const currentUser = req.user as User;
+    let suggestionsIDs = new Set();
+    let tempUser = await prisma.user.findUnique({
+      where: {
+        id: currentUser.id,
+        deletedAt: null,
+      },
+      include: {
+        follower: true,
+      },
+    });
+
+    let followedIDs = tempUser?.follower;
+    let followedSetIDs = new Set();
+    let suggestions = [];
+    for (let i = 0; followedIDs && i < followedIDs?.length; i++)
+      followedSetIDs.add(followedIDs[i]?.followedId);
+    let i = 0;
+    while (
+      followedIDs &&
+      followedIDs.length > 0 &&
+      i < 20 &&
+      suggestions.length < 50
+    ) {
+      i++;
+      let randomIndex = Math.floor(Math.random() * followedIDs.length);
+      console.log(randomIndex);
+      let followersArray = await prisma.follow.findMany({
+        take: 10,
+        where: {
+          folowererId: followedIDs[randomIndex].followedId,
+          follower: {
+            deletedAt: null,
+          },
+        },
+      });
+      for (
+        let j = 0;
+        j < followersArray.length && suggestions.length < 50;
+        j++
+      ) {
+        if (
+          !followedSetIDs.has(followersArray[j].followedId) &&
+          !suggestionsIDs.has(followersArray[j].followedId) &&
+          followersArray[j].followedId != currentUser.id
+        ) {
+          suggestionsIDs.add(followersArray[j].followedId);
+          suggestions.push(
+            await prisma.user.findUnique({
+              where: {
+                id: followersArray[j].followedId,
+                deletedAt: null,
+              },
+              select: {
+                name: true,
+                birthDate: true,
+                location: true,
+                url: true,
+                description: true,
+                verified: true,
+                followersCount: true,
+                followingCount: true,
+                createdAt: true,
+                profileBannerUrl: true,
+                profileImageUrl: true,
+                email: true,
+                userName: true,
+              },
+            }),
+          );
+        }
+      }
+      followedIDs.splice(randomIndex, 1);
+    }
+    if (suggestions.length < 50) {
+      let popUsers = await prisma.user.findMany({
+        take: 5100,
+        where: {
+          deletedAt: null,
+        },
+        orderBy: {
+          followersCount: 'desc',
+        },
+        select: {
+          id: true,
+        },
+      });
+      for (let i = 0; i < popUsers.length && suggestions.length < 50; i++) {
+        if (
+          !followedSetIDs.has(popUsers[i].id) &&
+          !suggestionsIDs.has(popUsers[i].id) &&
+          popUsers[i].id != currentUser.id
+        ) {
+          suggestionsIDs.add(popUsers[i]);
+          suggestions.push(
+            await prisma.user.findFirst({
+              where: {
+                id: popUsers[i].id,
+                deletedAt: null,
+              },
+              select: {
+                name: true,
+                birthDate: true,
+                location: true,
+                url: true,
+                description: true,
+                verified: true,
+                followersCount: true,
+                followingCount: true,
+                createdAt: true,
+                profileBannerUrl: true,
+                profileImageUrl: true,
+                email: true,
+                userName: true,
+              },
+            }),
+          );
+        }
+      }
+    }
+    res.json(suggestions.slice(0, 50)).status(200);
     next();
   },
 );
