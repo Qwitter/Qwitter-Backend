@@ -9,6 +9,7 @@ import { hash } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
+import { getNumOfTweets } from '../repositories/userRepository';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -46,7 +47,10 @@ export const login = catchAsync(
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
-    res.status(200).json({ token: token, user });
+    res.status(200).json({
+      token: token,
+      user: { ...user, tweetCount: getNumOfTweets(user.userName) },
+    });
   },
 );
 
@@ -252,7 +256,10 @@ export const signUp = catchAsync(
         });
         _res.status(200).json({
           token,
-          data: newObject,
+          data: {
+            ...newObject,
+            tweetCount: getNumOfTweets(newObject.userName),
+          },
           suggestions: uniqueUserName.slice(1, 6),
         });
       }
@@ -320,7 +327,7 @@ export const signUpGoogle = catchAsync(
       });
       _res.status(200).json({
         token,
-        user: newObject,
+        user: { ...newObject, tweetCount: getNumOfTweets(newObject.userName) },
       });
     }
   },
@@ -331,7 +338,7 @@ export const logInGoogle = catchAsync(
     const token = signJWT(user.id);
     _res.status(200).json({
       token,
-      user,
+      user: { ...user, tweetCount: getNumOfTweets(user.userName) },
     });
   },
 );
@@ -618,6 +625,7 @@ export const changeEmail = catchAsync(
           profileBannerUrl: updatedUser.profileBannerUrl,
           profileImageUrl: updatedUser.profileImageUrl,
           email: updatedUser.email,
+          tweetCount: getNumOfTweets(updatedUser.userName),
         })
         .status(200);
     }

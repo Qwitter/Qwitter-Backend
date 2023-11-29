@@ -9,6 +9,7 @@ import {
   unblockUserByIDs,
   getBlockedUsersByID,
   getUsersByName,
+  getNumOfTweets,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -132,6 +133,7 @@ export const getUser = catchAsync(
         profileBannerUrl: user.profileBannerUrl,
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
+        tweetCount: getNumOfTweets(user.userName),
       };
       res.json(resposeObject).status(200);
     } else {
@@ -156,6 +158,7 @@ export const getRequestingUser = async (req: Request) => {
     profileBannerUrl: user.profileBannerUrl,
     profileImageUrl: user.profileImageUrl,
     email: user.email.toLowerCase(),
+    tweetCount: getNumOfTweets(user.userName),
   };
   return resposeObject;
 };
@@ -176,7 +179,11 @@ export const getUsers = catchAsync(
 
     const users = await getUsersByName(query as string, skip, parsedLimit);
 
-    res.status(200).json({ users: users });
+    res.status(200).json({
+      users: users.map((el) => {
+        return { ...el, tweetCount: getNumOfTweets(el.userName) };
+      }),
+    });
     next();
   },
 );
@@ -220,7 +227,14 @@ export const getUserFollowers = catchAsync(
       },
     });
 
-    res.status(200).json(followers);
+    res.status(200).json(
+      followers.map((el) => {
+        return {
+          ...el.follower,
+          tweetCount: getNumOfTweets(el.follower.userName),
+        };
+      }),
+    );
     next();
   },
 );
@@ -250,14 +264,23 @@ export const putUserProfile = catchAsync(
       deletedAt,
       ...resposeObject
     } = updatedUser;
-    res.status(200).json(resposeObject);
+    res.status(200).json({
+      ...resposeObject,
+      tweetCount: getNumOfTweets(resposeObject.userName),
+    });
   },
 );
 
 export const getBlockedUsers = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
-    res.json(blockedUsers).status(200);
+    res
+      .json(
+        blockedUsers.map((el) => {
+          return { ...el, tweetCount: getNumOfTweets(el.userName) };
+        }),
+      )
+      .status(200);
   },
 );
 
@@ -393,7 +416,13 @@ export const getUsersMutedByCurrentUser = catchAsync(
       },
     });
 
-    res.status(200).json(mutedUsers.map((user) => user.muted));
+    res.status(200).json(
+      mutedUsers
+        .map((user) => user.muted)
+        .map((el) => {
+          return { ...el, tweetCount: getNumOfTweets(el.userName) };
+        }),
+    );
     next();
   },
 );
@@ -404,7 +433,7 @@ export const followUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToFollow = await prisma.user.findUnique({
-      where: { userName: username },
+      where: { userName: username, deletedAt: null },
     });
 
     if (!userToFollow) {
