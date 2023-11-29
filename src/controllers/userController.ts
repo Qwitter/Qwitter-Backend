@@ -8,6 +8,7 @@ import {
   getUserBlocked,
   unblockUserByIDs,
   getBlockedUsersByID,
+  getUsersByName,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -139,25 +140,44 @@ export const getUser = catchAsync(
   },
 );
 
-export const getRequestingUser = catchAsync(
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const user = req.user as User;
-    const resposeObject = {
-      userName: user.userName,
-      name: user.name,
-      birthDate: user.birthDate,
-      url: user.url,
-      description: user.description,
-      protected: user.protected,
-      verified: user.verified,
-      followersCount: user.followersCount,
-      followingCount: user.followingCount,
-      createdAt: user.createdAt,
-      profileBannerUrl: user.profileBannerUrl,
-      profileImageUrl: user.profileImageUrl,
-      email: user.email.toLowerCase(),
-    };
-    res.status(200).json({ user: resposeObject });
+export const getRequestingUser = async (req: Request) => {
+  const user = req.user as User;
+  const resposeObject = {
+    userName: user.userName,
+    name: user.name,
+    birthDate: user.birthDate,
+    url: user.url,
+    description: user.description,
+    protected: user.protected,
+    verified: user.verified,
+    followersCount: user.followersCount,
+    followingCount: user.followingCount,
+    createdAt: user.createdAt,
+    profileBannerUrl: user.profileBannerUrl,
+    profileImageUrl: user.profileImageUrl,
+    email: user.email.toLowerCase(),
+  };
+  return resposeObject;
+};
+
+export const getUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query.q;
+    if (!query) {
+      const user = await getRequestingUser(req);
+      res.status(200).json({ user: user });
+      return next();
+    }
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const users = await getUsersByName(query as string, skip, parsedLimit);
+
+    res.status(200).json({ users: users });
+    next();
   },
 );
 
