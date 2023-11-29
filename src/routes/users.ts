@@ -616,7 +616,7 @@ router.put(
   userController.putUserProfile,
 );
 
-router.get('/:username', userController.getUser);
+router.get('/username', userController.getUser);
 
 /**
  * @openapi
@@ -666,6 +666,16 @@ router
     validate(updateUserNameSchemaPayload),
     isLoggedIn,
     userController.changeUserName,
+  );
+
+
+
+
+router
+  .route('/suggestions')
+  .get(
+    isLoggedIn,
+    userController.getUserSuggestions
   );
 
 export default router;
