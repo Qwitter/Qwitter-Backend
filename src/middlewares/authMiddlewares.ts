@@ -27,6 +27,7 @@ export const isLoggedIn = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         id: (payloadData as JwtPayload).id,
+        deletedAt: null,
       },
     });
 
@@ -60,6 +61,7 @@ export const mobileLoggedIn = catchAsync(
     const user = await prisma.user.findFirst({
       where: {
         google_id: (payloadData as JwtPayload).google_id,
+        deletedAt: null,
       },
     });
 

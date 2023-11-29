@@ -4,6 +4,7 @@ export const getUserByUsername = async (user_name: string) => {
   return await prisma.user.findUnique({
     where: {
       userName: user_name,
+      deletedAt: null,
     },
   });
 };
@@ -46,6 +47,7 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   const user = await prisma.user.findUnique({
     where: {
       id: blockingUser,
+      deletedAt: null,
     },
     include: {
       blocker: true,
@@ -58,6 +60,7 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
       let blockedUser = await prisma.user.findFirst({
         where: {
           id: blockedUserRelations.blockedId,
+          deletedAt: null,
         },
       });
       if (blockedUser)
@@ -90,8 +93,10 @@ export const getTweetsCreatedByUser = async (userId: string) => {
   return tweets;
 };
 
-
-export const isUserFollowing = async (userid1: string, userid2: string): Promise<boolean> => {
+export const isUserFollowing = async (
+  userid1: string,
+  userid2: string,
+): Promise<boolean> => {
   const followRelationship = await prisma.follow.findUnique({
     where: {
       folowererId_followedId: {

@@ -16,6 +16,7 @@ export const getTweetAndUserById = async (tweetId: string) => {
     user = await prisma.user.findUnique({
       where: {
         id: tweet?.userId,
+        deletedAt: null,
       },
     });
   }
