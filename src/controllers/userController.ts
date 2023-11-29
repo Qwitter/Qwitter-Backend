@@ -24,7 +24,7 @@ export const uploadProfilePicture = catchAsync(
     const user = _req.user as User;
     const url = process.env.url?.startsWith('http')
       ? process.env.URL
-      : 'https://' + process.env.URL;
+      : 'http://' + process.env.URL;
     const updatedUser = await prisma.user.update({
       where: {
         id: user.id,
