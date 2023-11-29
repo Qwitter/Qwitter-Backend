@@ -79,9 +79,9 @@ export const searchTweet = async (
       where: {
         OR: words.map((word) => ({
           OR: [
-            { text: { contains: word } },
-            { author: { userName: { contains: word } } },
-            { author: { name: { contains: word } } },
+            { text: { contains: word, mode: 'insensitive' } },
+            { author: { userName: { contains: word, mode: 'insensitive' } } },
+            { author: { name: { contains: word, mode: 'insensitive' } } },
             {
               TweetEntity: {
                 some: { entity: { Hashtag: { text: word } } },
