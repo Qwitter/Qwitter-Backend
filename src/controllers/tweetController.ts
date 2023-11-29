@@ -516,6 +516,7 @@ export const getUserTweets = catchAsync(
     }
     const tweets = await getTweetsCreatedByUser(user.id);
     for (var tweet of tweets) {
+      if(tweet.replyToTweetId != null) continue;
       const liked = await prisma.like.findFirst({
         where: {
           userId: (req.user as User)?.id,
@@ -530,6 +531,36 @@ export const getUserTweets = catchAsync(
     });
   },
 );
+
+export const getUserReplies = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { userName } = req.params;
+    let responses = [];
+    const user = await getUserByUsername(userName);
+    // Checking that the user exists
+    if (!user) {
+      return res.status(404).json({
+        tweets: [],
+        message: 'User Not found',
+      });
+    }
+    const tweets = await getTweetsCreatedByUser(user.id);
+    for (var tweet of tweets) {
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: tweet.id,
+        },
+      });
+      let response = { ...tweet, liked: liked != null };
+      responses.push(response);
+    }
+    return res.status(200).json({
+      tweets: responses,
+    });
+  },
+);
+
 export const searchHastags = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { q } = req.params;
