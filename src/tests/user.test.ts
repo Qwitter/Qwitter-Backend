@@ -391,8 +391,10 @@ describe('DELETE /follow/:username', () => {
 
     prismaMock.user.findFirst.mockResolvedValue(targeUser);
     prismaMock.user.findUnique.mockResolvedValue(user);
-    prismaMock.follow.findFirst.mockResolvedValue(null);
-
+    prismaMock.follow.findUnique.mockResolvedValue({
+      folowererId: 'fake_id',
+      followedId: 'fake_id',
+    });
     const res = await Request(app)
       .delete('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
