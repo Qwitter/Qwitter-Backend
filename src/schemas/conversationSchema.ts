@@ -18,22 +18,19 @@ import { object, string } from 'zod';
 *    createConversationRequest:
  *      type: object
  *      required:
- *        - user_id
  *        - conversation_name
  *        - users
  *      properties:
- *        user_id:
- *          type: string
  *        conversation_name:
  *          type: string
  *        users_to_add:
  *          type: array
- *          example: ["user_id_1", "user_id_2", "user_id_3"]
+ *          example: ["username_1", "username_2", "username_3"]
  *    createConversationResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean 
+ *        status:
+ *          type: string 
 
 
 *    addUserToConversationRequest:
@@ -52,8 +49,8 @@ import { object, string } from 'zod';
  *    addUserToConversationResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean
+ *        status:
+ *          type: string
  
  *    removeUserFromConversationRequest:
  *      type: object
@@ -71,8 +68,8 @@ import { object, string } from 'zod';
  *    removeUserFromConversationResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean
+ *        status:
+ *          type: string
  
  *    GetUserConversationsResponse:
  *      type: object
@@ -88,15 +85,52 @@ import { object, string } from 'zod';
  *                type: integer
  *              name:
  *                type: string
- *            example: {"id": 1, "name": "Group"}
- *      example:
- *        unseen: 2
- *        conversations: 
- *          - id: 1
- *            name: "Group"
- *          - id: 2
- *            name: "Another Group"
-   
+ *              status:
+ *                type: string 
+ *              lastMessage:
+ *                $ref: '#/components/schemas/Message'
+ * 
+ * 
+ *    Message:
+ *      type: object
+ *      properties:
+ *        status:
+ *          type: string
+ *        date:
+ *          type: string
+ *        userName: 
+ *          type: string
+ *        userPhoto: 
+ *          type: string
+ *        media:
+ *          type: object
+ *          properties:
+ *            url:
+ *              type: string 
+ *            type:
+ *              type: string 
+ *         
+ *    Conversation:
+ *      type: object
+ *      properties:
+ *        messages:
+ *          type: array
+ *          items:
+ *            $ref: '#components/schemas/Message' 
+ *        name:
+ *          type: string 
+ *        photo: 
+ *          type: string 
+ *        users:
+ *         type: array 
+ *         items:
+ *           type: object 
+ *           properties:
+ *             userName: 
+ *               type: string 
+ *             userPhoto:
+ *               type: string
+ *            
  */
 
 const createConversationPayload = {
