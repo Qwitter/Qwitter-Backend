@@ -25,7 +25,7 @@
  *  delete:
  *     tags:
  *     - Conversations
- *     summary: Delete message
+ *     summary: Delete message. Currently, it deletes the message iff the user is the message creator. It deletes it for all.
  *     requestBody:
  *      required: true
  *      content:
