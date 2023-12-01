@@ -1,3 +1,11 @@
+import express from 'express';
+import * as conversationController from '../controllers/conversationController';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { validate } from '../utils/validator';
+import { createConversationPayloadSchema } from '../schemas/conversationSchema';
+const router = express.Router();
+
+conversationController
 /**
   @openapi
 * '/api/v1/conversation/':
@@ -18,10 +26,13 @@
 *          application/json:
 *            schema:
 *              $ref: '#/components/schemas/createConversationResponse'
-*      409:
-*        description: Conflict
-*      400:
-*        description: Bad request
+*      401:
+*        description: not all users are found
+*      402:
+*        description: can't create conversation with yourself
+*      404:
+*        description: Conversation already exists
+
  *  get:
  *     tags:
  *     - Conversations
@@ -87,6 +98,13 @@
 
 
 */
+
+
+router.route('/').post(isLoggedIn,validate(createConversationPayloadSchema),conversationController.createConversation)
+
+
+
+
 /**
   @openapi
 * '/api/v1/conversation/{conversationId}':
@@ -206,3 +224,4 @@
 *        description: Bad request
 
 */
+export default router;

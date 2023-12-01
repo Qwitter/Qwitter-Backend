@@ -201,6 +201,7 @@ model Entity {
 model Conversation {
   id                String              @default(uuid())
   name              String
+  type              String
   Message           Message[]
   UserConversations UserConversations[]
 
