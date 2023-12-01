@@ -10,6 +10,7 @@ import {
   getBlockedUsersByID,
   getUsersByName,
   getNumOfTweets,
+  isUserFollowing,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -120,6 +121,11 @@ export const getUser = catchAsync(
         userName: _req.params.username,
       },
     });
+  
+    const isFollowing = await isUserFollowing(
+      (_req.user as User).id,
+      (await getUserByUsername(_req.params.username))?.id || "",
+    );
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
       const resposeObject = {
@@ -137,6 +143,7 @@ export const getUser = catchAsync(
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
         tweetCount: getNumOfTweets(user.userName),
+        isFollowing
       };
       res.json(resposeObject).status(200);
     } else {
@@ -183,8 +190,12 @@ export const getUsers = catchAsync(
     const users = await getUsersByName(query as string, skip, parsedLimit);
 
     res.status(200).json({
-      users: users.map((el) => {
-        return { ...el, tweetCount: getNumOfTweets(el.userName) };
+      users: users.map(async (el) => {
+        const isFollowing = await isUserFollowing(
+          (req.user as User).id,
+          (await getUserByUsername(el.userName))?.id || "",
+        );
+        return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
       }),
     });
     next();
@@ -232,10 +243,15 @@ export const getUserFollowers = catchAsync(
     });
 
     res.status(200).json(
-      followers.map((el) => {
+      followers.map(async (el) => {
+        const isFollowing = await isUserFollowing(
+          (req.user as User).id,
+          (await getUserByUsername(el.folowererId))?.id || "",
+        );
         return {
           ...el.follower,
           tweetCount: getNumOfTweets(el.follower.userName),
+          isFollowing
         };
       }),
     );
@@ -423,8 +439,12 @@ export const getUsersMutedByCurrentUser = catchAsync(
     res.status(200).json(
       mutedUsers
         .map((user) => user.muted)
-        .map((el) => {
-          return { ...el, tweetCount: getNumOfTweets(el.userName) };
+        .map(async (el) => {
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            el.id,
+          );
+          return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
         }),
     );
     next();
@@ -617,28 +637,36 @@ export const getUserSuggestions = catchAsync(
           popUsers[i].id != currentUser.id
         ) {
           suggestionsIDs.add(popUsers[i]);
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            popUsers[i].id,
+          );
+
           suggestions.push(
-            await prisma.user.findFirst({
-              where: {
-                id: popUsers[i].id,
-                deletedAt: null,
-              },
-              select: {
-                name: true,
-                birthDate: true,
-                location: true,
-                url: true,
-                description: true,
-                verified: true,
-                followersCount: true,
-                followingCount: true,
-                createdAt: true,
-                profileBannerUrl: true,
-                profileImageUrl: true,
-                email: true,
-                userName: true,
-              },
-            }),
+            {
+              ...await prisma.user.findFirst({
+                where: {
+                  id: popUsers[i].id,
+                  deletedAt: null,
+                },
+                select: {
+                  name: true,
+                  birthDate: true,
+                  location: true,
+                  url: true,
+                  description: true,
+                  verified: true,
+                  followersCount: true,
+                  followingCount: true,
+                  createdAt: true,
+                  profileBannerUrl: true,
+                  profileImageUrl: true,
+                  email: true,
+                  userName: true,
+                },
+              }),
+              isFollowing
+            },
           );
         }
       }
