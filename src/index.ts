@@ -16,7 +16,8 @@ const io = new Server(httpServer, {
   cors: { origin: '*', credentials: true },
 });
 const host = process.env.HOST;
-httpServer.listen(port, host, () => {
-  console.log(`Socket Running on port ${port}...`);
+const socketPort = Number(process.env.SOCKET_PORT) || 8080;
+httpServer.listen(socketPort, host, () => {
+  console.log(`Socket Running on port ${socketPort}...`);
   socket({ io });
 });
