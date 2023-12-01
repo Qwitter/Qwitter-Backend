@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+
 }
 
 // generator erd {
@@ -217,9 +218,9 @@ model Message {
   Conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
 
-  reply            Message         @relation("reply", fields: [replyToMessageId], references: [id])
+  reply            Message?         @relation("reply", fields: [replyToMessageId], references: [id])
   Message          Message[]       @relation("reply")
-  replyToMessageId String
+  replyToMessageId String?
   messageEntity    messageEntity[] @relation("hasEntity")
 
   @@id([id])

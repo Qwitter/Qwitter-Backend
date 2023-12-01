@@ -101,6 +101,8 @@ conversationController
 
 
 router.route('/').post(isLoggedIn,validate(createConversationPayloadSchema),conversationController.createConversation)
+router.route('/').get(isLoggedIn,conversationController.getConversation)
+router.route('/:id').delete(isLoggedIn,conversationController.deleteConversation)
 
 
 
@@ -133,11 +135,16 @@ router.route('/').post(isLoggedIn,validate(createConversationPayloadSchema),conv
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/GetUserConversationsResponse'
+ *              type: object
+ *              properties:
+ *                operation_success: boolean
  *      409:
  *        description: Conflict
  *      400:
  *        description: Bad request
+ *      404:
+ *        description: Conversation not found
+ *      
 
 */
 /**
