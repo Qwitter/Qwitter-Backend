@@ -108,9 +108,9 @@ export const deleteConversation=catchAsync(
             }
         })
         if(deletedConv)
-         res.json({operation_success:true}).status(200)
+         res.json({operationSuccess:true}).status(200)
         else
-        res.json({operation_success:false}).status(404)
+        res.json({operationSuccess:false}).status(404)
         next()
     }
 )

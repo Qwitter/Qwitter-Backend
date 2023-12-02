@@ -125,28 +125,27 @@ router.route('/:id').delete(isLoggedIn,conversationController.deleteConversation
 *        description: Conflict
 *      400:
 *        description: Bad request
- *  delete:
- *     tags:
- *     - Conversations
- *     summary: It should remove the conversation from the user conversations
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                operation_success: boolean
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
- *      404:
- *        description: Conversation not found
- *      
+*  delete:
+*     tags:
+*     - Conversations
+*     summary: It should remove the conversation from the user conversations
+*     responses:
+*      200:
+*        description: Success
+*        content:
+*          application/json:
+*            schema:
+*              $ref: '#/components/schemas/deleteConversationResponse'
 
+*      409:
+*        description: Conflict
+*      400:
+*        description: Bad request
+*      404:
+*        description: Conversation not found
+*      
 */
+
 /**
   @openapi
 * '/api/v1/conversation/search':

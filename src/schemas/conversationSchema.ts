@@ -32,6 +32,11 @@ import { object, string } from 'zod';
  *         users:
  *           type: array
  *           example: ["username_1", "username_2", "username_3"]
+ *     deleteConversationResponse:
+ *       type: object
+ *       properties:
+ *         operationSuccess:
+ *           type: boolean
  *
  *     # Response payload for creating a conversation
  *     createConversationResponse:
