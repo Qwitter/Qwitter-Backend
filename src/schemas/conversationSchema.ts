@@ -32,14 +32,22 @@ import { object, string } from 'zod';
  *         users:
  *           type: array
  *           example: ["username_1", "username_2", "username_3"]
+ *     deleteConversationResponse:
+ *       type: object
+ *       properties:
+ *         operationSuccess:
+ *           type: boolean
  *
  *     # Response payload for creating a conversation
  *     createConversationResponse:
  *       type: object
  *       properties:
- *         status:
+ *         type:
  *           type: string
+ *           default: direct
  *         id:
+ *           type: string
+ *         name:
  *           type: string
  *
  *     # Response payload for searching users to add to a conversation
@@ -154,19 +162,16 @@ import { object, string } from 'zod';
  *                 type: string
  */
 
-const createConversationPayload = {
+export const createConversationPayloadSchema = object({
   body: object({
-    user_id: string({
-      required_error: 'User ID is required',
-    }),
-    conversation_id: string({
-      required_error: 'Conversation ID is required',
+    conversation_name: string({
+      required_error: 'Conversation name is required',
     }),
     users: string({
       required_error: 'Users to be added are required',
-    }),
+    }).array(),
   }),
-};
+});
 
 const addUserToConversationPayload = {
   body: object({
@@ -204,7 +209,6 @@ const messagePayload = {
 };
 export const addUserToConversationSchema = object({
   ...addUserToConversationPayload,
-  ...createConversationPayload,
   ...removeUserFromConversationPayload,
 });
 

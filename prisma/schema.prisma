@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+
 }
 
 // generator erd {
@@ -201,6 +202,8 @@ model Entity {
 model Conversation {
   id                String              @default(uuid())
   name              String
+  isGroup           Boolean             @default(false)
+  lastActivity      DateTime            @default(now())
   Message           Message[]
   UserConversations UserConversations[]
   isGroup           Boolean
