@@ -34,7 +34,7 @@ app.get('/', (_, res) => {
   res.send(`<!DOCTYPE html>
   <html lang="en">  
   <body>
-    <pre>Test</pre>
+    <pre>Test 2</pre>
   </body>
   </html>`)
 });
