@@ -56,6 +56,11 @@ export const getConversationDetails = async (req: Request, res: Response, next: 
     return;
   }
 
+  const { page = '1', limit = '10' } = req.query;
+  const parsedPage = parseInt(page as string, 10);
+  const parsedLimit = parseInt(limit as string, 10);
+  const skip = (parsedPage - 1) * parsedLimit;
+
   await prisma.userConversations.updateMany({
     where: {
       conversationId,
@@ -72,6 +77,8 @@ export const getConversationDetails = async (req: Request, res: Response, next: 
     },
     include: {
       Message: {
+        skip,
+        take: parsedLimit,    
         orderBy: {
           date: 'asc',
         },
