@@ -21,3 +21,4 @@ It contains REST APIs for several things
 - /schemas: Contains the zod schemas for validation [payload,params]. Params is for request parameters and payload is for the request body. In addition to the schemas for Swagger[RequestBody,ResponseBody]
 - /routes: The endpoints for each module including its main Swagger documentation
 - /controllers: The logic of each route
+-
