@@ -25,14 +25,14 @@ export const createConversation=catchAsync(
             let tempConv=await prisma.conversation.findFirst({
                 where:{AND:
                     [{
-                    type:"direct",
+                    isGroup:false,
                     UserConversations:{ 
                         some:{
                             userId:usersIDs[0].id
                         }
                     }},
                     {
-                        type:"direct",
+                        isGroup:false,
                         UserConversations:{ 
                             some:{
                                 userId:(authUser).id
@@ -46,7 +46,8 @@ export const createConversation=catchAsync(
              newConv=await prisma.conversation.create({
                 data:{
                     name:authUser.name+", "+usersIDs[0].name,
-                    type:"direct",
+                    isGroup:true,
+                    lastActivity:new Date(),
                     UserConversations:{
                         create:[
                             {userId:authUser.id,seen:true},
@@ -61,7 +62,8 @@ export const createConversation=catchAsync(
             newConv=await prisma.conversation.create({
                 data:{
                     name:req.body.conversation_name,
-                    type:"group",
+                    lastActivity:new Date(),
+                    isGroup:true,
                     UserConversations:{
                         create:[{userId:authUser.id,seen:true}]
                     }
@@ -112,9 +114,17 @@ export const deleteConversation=catchAsync(
         next()
     }
 )
+
+
+
+
 export const getConversation=catchAsync(
     async(req:Request,res:Response,next:NextFunction)=>{
         const authUser=req.user as User
+        const { page = '1', limit = '10' } = req.query;
+        const parsedPage = parseInt(page as string, 10);
+        const parsedLimit = parseInt(limit as string, 10);    
+        const skip = (parsedPage - 1) * parsedLimit;
         let convs=await prisma.conversation.findMany({
             where:{
                 UserConversations:{
@@ -141,31 +151,17 @@ export const getConversation=catchAsync(
                                 profileImageUrl:true,
                             }
                         },
-                        messageEntity:{
-                            select:{
-                                entity:{
-                                    select:{
-                                        Media:{
-                                            select:{
-                                                url:true,
-                                                type:true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 },
-
                 name:true,
+                lastActivity:true,
                 
             },
             orderBy:{
-                Message:{
-                    
-                }
-            }
+                lastActivity:'desc'
+            },
+            skip:skip,
+            take: parsedLimit,
         })
         res.json(convs).status(200)
         next()

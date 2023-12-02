@@ -202,7 +202,8 @@ model Entity {
 model Conversation {
   id                String              @default(uuid())
   name              String
-  type              String
+  isGroup           Boolean             @default(false)
+  lastActivity      DateTime            @default(now())
   Message           Message[]
   UserConversations UserConversations[]
 
