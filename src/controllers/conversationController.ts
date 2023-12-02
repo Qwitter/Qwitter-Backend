@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../utils/catchAsync';
 import prisma from '../client';
 import { User } from '@prisma/client';
+import { searchMember } from '../repositories/conversationRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversationName = catchAsync(
@@ -36,68 +37,6 @@ export const editConversationName = catchAsync(
     return _next();
   },
 );
-
-export const searchUsersForConversation = async (req: Request, res: Response, next: NextFunction) => {
-  const { conversationId } = req.params;
-  const { q } = req.query;
-
-  const isUserInGroup = await prisma.userConversations.findFirst({
-    where: {
-      userId: ((req.user) as User).id,
-      conversationId,
-    },
-  });
-
-  if (!isUserInGroup) {
-    res.status(403).json({
-      status: 'error',
-      message: 'User is not a member of the group.',
-    });
-    return;
-  }
-
-  const users = await prisma.user.findMany({
-    where: {
-      OR: [
-        {
-          userName: {
-            contains: q as string,
-            mode: 'insensitive',
-          },
-        },
-        {
-          name: {
-            contains: q as string,
-            mode: 'insensitive',
-          },
-        },
-      ],
-    },
-    take: 10
-  });
-
-  const usersWithEligibility = await Promise.all(
-    users.map(async (user) => {
-      const isInGroup = await prisma.userConversations.findFirst({
-        where: {
-          userId: user.id,
-          conversationId,
-        },
-      });
-
-      return {
-        userName: user.userName,
-        eligibility: !isInGroup,
-      };
-    })
-  );
-
-  res.status(200).json({
-    status: 'success',
-    users: usersWithEligibility,
-  });
-  next();
-};
 
 export const getConversationDetails = async (req: Request, res: Response, next: NextFunction) => {
   const { conversationId } = req.params;
@@ -191,3 +130,35 @@ export const getConversationDetails = async (req: Request, res: Response, next: 
   res.status(200).json(formattedConversationDetails);
   next();
 };
+export const searchForMembers = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const conversationId = req.params.id;
+    if (!conversationId)
+      return res.json({ message: 'Bad Request' }).status(400);
+    //check if user is in the conversation
+    const found = await prisma.userConversations.findFirst({
+      where: {
+        userId: (req.user as User).id,
+        conversationId: conversationId,
+        Conversation: { isGroup: true },
+      },
+    });
+    if (!found) return res.status(400).json({ message: 'Bad Request' });
+
+    //search
+    const { q, page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+    const users = await searchMember(
+      (q as string).trim(),
+      skip,
+      parsedLimit,
+      conversationId,
+      req.user as User,
+    );
+
+    res.status(200).json({ users: users });
+    return _next();
+  },
+);

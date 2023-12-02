@@ -1,8 +1,15 @@
 import express from 'express';
 import { validate } from '../utils/validator';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { editConversationName, getConversationDetails, searchUsersForConversation } from '../controllers/conversationController';
-import { updateConversationNamePayload } from '../schemas/conversationSchema';
+import {
+  editConversationName,
+  getConversationDetails,
+  searchForMembers,
+} from '../controllers/conversationController';
+import {
+  updateConversationNamePayload,
+  findMemberConversationPayload,
+} from '../schemas/conversationSchema';
 const router = express.Router();
 /**
   @openapi
@@ -90,12 +97,10 @@ const router = express.Router();
  *      400:
  *        description: Bad request
 */
+
 router
-  .route('/:id/user/')
-  .get(
-    isLoggedIn,
-    searchUsersForConversation,
-  );
+  .route('/:id/user')
+  .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
 
 /**
   @openapi
