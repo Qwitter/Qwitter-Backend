@@ -206,3 +206,11 @@ export const addUserToConversationSchema = object({
   ...createConversationPayload,
   ...removeUserFromConversationPayload,
 });
+
+export const updateConversationNamePayload = object({
+  body: object({
+    name: string({
+      required_error: 'Conversation name is required',
+    }).min(1),
+  }),
+});

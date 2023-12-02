@@ -121,10 +121,10 @@ export const getUser = catchAsync(
         userName: _req.params.username,
       },
     });
-  
+
     const isFollowing = await isUserFollowing(
       (_req.user as User).id,
-      (await getUserByUsername(_req.params.username))?.id || "",
+      (await getUserByUsername(_req.params.username))?.id || '',
     );
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
@@ -143,7 +143,7 @@ export const getUser = catchAsync(
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
         tweetCount: getNumOfTweets(user.userName),
-        isFollowing
+        isFollowing,
       };
       res.json(resposeObject).status(200);
     } else {
@@ -193,7 +193,7 @@ export const getUsers = catchAsync(
       users: users.map(async (el) => {
         const isFollowing = await isUserFollowing(
           (req.user as User).id,
-          (await getUserByUsername(el.userName))?.id || "",
+          (await getUserByUsername(el.userName))?.id || '',
         );
         return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
       }),
@@ -246,12 +246,12 @@ export const getUserFollowers = catchAsync(
       followers.map(async (el) => {
         const isFollowing = await isUserFollowing(
           (req.user as User).id,
-          (await getUserByUsername(el.folowererId))?.id || "",
+          (await getUserByUsername(el.folowererId))?.id || '',
         );
         return {
           ...el.follower,
           tweetCount: getNumOfTweets(el.follower.userName),
-          isFollowing
+          isFollowing,
         };
       }),
     );
@@ -444,7 +444,11 @@ export const getUsersMutedByCurrentUser = catchAsync(
             (req.user as User).id,
             el.id,
           );
-          return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
+          return {
+            ...el,
+            tweetCount: getNumOfTweets(el.userName),
+            isFollowing,
+          };
         }),
     );
     next();
@@ -642,32 +646,30 @@ export const getUserSuggestions = catchAsync(
             popUsers[i].id,
           );
 
-          suggestions.push(
-            {
-              ...await prisma.user.findFirst({
-                where: {
-                  id: popUsers[i].id,
-                  deletedAt: null,
-                },
-                select: {
-                  name: true,
-                  birthDate: true,
-                  location: true,
-                  url: true,
-                  description: true,
-                  verified: true,
-                  followersCount: true,
-                  followingCount: true,
-                  createdAt: true,
-                  profileBannerUrl: true,
-                  profileImageUrl: true,
-                  email: true,
-                  userName: true,
-                },
-              }),
-              isFollowing
-            },
-          );
+          suggestions.push({
+            ...(await prisma.user.findFirst({
+              where: {
+                id: popUsers[i].id,
+                deletedAt: null,
+              },
+              select: {
+                name: true,
+                birthDate: true,
+                location: true,
+                url: true,
+                description: true,
+                verified: true,
+                followersCount: true,
+                followingCount: true,
+                createdAt: true,
+                profileBannerUrl: true,
+                profileImageUrl: true,
+                email: true,
+                userName: true,
+              },
+            })),
+            isFollowing,
+          });
         }
       }
     }

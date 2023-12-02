@@ -1,3 +1,9 @@
+import express from 'express';
+import { validate } from '../utils/validator';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { editConversationName } from '../controllers/conversationController';
+import { updateConversationNamePayload } from '../schemas/conversationSchema';
+const router = express.Router();
 /**
   @openapi
 * '/api/v1/conversation/':
@@ -193,6 +199,15 @@
 *         schema:
 *           type: string
 *     summary: Edit Conversation Name
+*     requestBody:
+*      required: true
+*      content:
+*        application/json:
+*           schema:
+*             type: object
+*             properties:
+*               name:
+*                 type: string
 *     responses:
 *      200:
 *        description: Success
@@ -206,3 +221,12 @@
 *        description: Bad request
 
 */
+router
+  .route('/:id/name')
+  .post(
+    isLoggedIn,
+    validate(updateConversationNamePayload),
+    editConversationName,
+  );
+
+export default router;
