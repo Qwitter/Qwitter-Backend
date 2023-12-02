@@ -50,7 +50,7 @@ import { object, string } from 'zod';
  *       properties:
  *         users:
  *           type: array
- *           example: [{userName: "username_1", eligible: true}]
+ *           example: [{"name": "Ahmed Zahran","userName": "ahmedzahran715b86","profileImageUrl": null,"isFollowing": false,"isFollowed": false,"inConversation": true},{"name": "Ahmed Helmy","userName": "elkapeer","profileImageUrl": null,"isFollowing": false,"isFollowed": false,"inConversation": false}]
  *
  *     # Request payload for adding users to a conversation
  *     addUserToConversationRequest:
@@ -212,5 +212,13 @@ export const updateConversationNamePayload = object({
     name: string({
       required_error: 'Conversation name is required',
     }).min(1),
+  }),
+});
+
+export const findMemberConversationPayload = object({
+  query: object({
+    q: string({
+      required_error: 'Conversation name is required',
+    }),
   }),
 });
