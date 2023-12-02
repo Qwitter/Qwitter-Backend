@@ -1,7 +1,7 @@
 import express from 'express';
 import { validate } from '../utils/validator';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
-import { editConversationName } from '../controllers/conversationController';
+import { editConversationName, getConversationDetails, searchUsersForConversation } from '../controllers/conversationController';
 import { updateConversationNamePayload } from '../schemas/conversationSchema';
 const router = express.Router();
 /**
@@ -89,10 +89,14 @@ const router = express.Router();
  *        description: Conflict
  *      400:
  *        description: Bad request
-
-
-
 */
+router
+  .route('/:id/user/')
+  .get(
+    isLoggedIn,
+    searchUsersForConversation,
+  );
+
 /**
   @openapi
 * '/api/v1/conversation/{conversationId}':
@@ -128,6 +132,14 @@ const router = express.Router();
  *        description: Bad request
 
 */
+router
+  .route('/:id')
+  .get(
+    isLoggedIn,
+    getConversationDetails,
+  );
+
+
 /**
   @openapi
 * '/api/v1/conversation/search':
