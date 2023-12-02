@@ -154,9 +154,7 @@ router.route('/user/:userName/replies').get(isLoggedIn, getUserReplies);
  */
 router
   .route('/:id/like')
-  .post(isLoggedIn, validate(likeUnlikeTweetSchema), likeTweet);
-router
-  .route('/:id/like')
+  .post(isLoggedIn, validate(likeUnlikeTweetSchema), likeTweet)
   .delete(isLoggedIn, validate(likeUnlikeTweetSchema), unlikeTweet);
 
 /**

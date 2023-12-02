@@ -7,49 +7,37 @@ import { object, string } from 'zod';
  *    sendMessageRequest:
  *      type: object
  *      required:
- *        - user_id
- *        - conversation_id
  *        - text
- *        - reply_id
+ *        - replyId
  *        - media
  *      properties:
- *        user_id:
- *          type: string
- *        conversation_id:
- *          type: string
  *        text:
  *          type: string
- *        reply_id:
+ *        replyId:
  *          type: string
  *        media:
  *          type: string
  *    sendMessageResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean 
+ *        status:
+ *          type: string 
 
  *    deleteMessageRequest:
  *      type: object
  *      required:
- *        - user_id
- *        - conversation_id
  *        - message_id
  *      properties:
- *        user_id:
- *          type: string
- *        conversation_id:
- *          type: string
  *        message_id:
  *          type: string
  *    deleteMessageResponse:
  *      type: object
  *      properties:
- *        success:
- *          type: boolean
+ *        status:
+ *          type: string
  
  */
-  
+
 const createMessagePayload = {
   body: object({
     user_id: string({
@@ -74,12 +62,11 @@ const deleteMessagePayload = {
     }),
     message_id: string({
       required_error: 'Message To Remove ID is required',
-    }),  
+    }),
   }),
 };
-  
 
 export const addUserToConversationSchema = object({
   ...createMessagePayload,
-  ...deleteMessagePayload
+  ...deleteMessagePayload,
 });

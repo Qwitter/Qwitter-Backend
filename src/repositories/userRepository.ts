@@ -4,6 +4,7 @@ export const getUserByUsername = async (user_name: string) => {
   return await prisma.user.findUnique({
     where: {
       userName: user_name,
+      deletedAt: null,
     },
   });
 };
@@ -46,6 +47,7 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   const user = await prisma.user.findUnique({
     where: {
       id: blockingUser,
+      deletedAt: null,
     },
     include: {
       blocker: true,
@@ -58,6 +60,7 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
       let blockedUser = await prisma.user.findFirst({
         where: {
           id: blockedUserRelations.blockedId,
+          deletedAt: null,
         },
       });
       if (blockedUser)
@@ -162,4 +165,20 @@ export const getUsersByName = async (
     const { matchCount, ...rest } = el;
     return rest;
   });
+};
+
+export const getNumOfTweets = async (userName: string) => {
+  if (!userName) return 0;
+  const user = await prisma.user.findFirst({
+    where: {
+      userName: userName,
+      Tweet: { some: { deletedAt: null } },
+    },
+    include: {
+      Tweet: {},
+    },
+  });
+  if (!user) return 0;
+  if (!user.Tweet) return 0;
+  return user.Tweet.length;
 };

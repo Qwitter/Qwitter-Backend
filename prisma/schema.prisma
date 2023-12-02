@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id                   String                @default(uuid())
-  google_id           String?
+  google_id            String?
   name                 String
   birthDate            DateTime?             @db.Timestamp()
   location             String?
@@ -113,7 +113,7 @@ model Tweet {
   likesCount Int @default(0)
 
   sensitive   Boolean       @default(false)
-  deletedAt   DateTime?      @db.Timestamp()
+  deletedAt   DateTime?     @db.Timestamp()
   likes       Like[]
   TweetEntity TweetEntity[] @relation("HasEntity")
 
@@ -186,8 +186,8 @@ model messageEntity {
 }
 
 model Entity {
-  id            String @default(uuid())
-  type          String @default("none")
+  id            String          @default(uuid())
+  type          String          @default("none")
   Mention       Mention?
   Hashtag       Hashtag?
   Media         Media?
@@ -203,6 +203,7 @@ model Conversation {
   name              String
   Message           Message[]
   UserConversations UserConversations[]
+  isGroup           Boolean
 
   @@id([id])
 }
@@ -216,9 +217,9 @@ model Message {
   Conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
 
-  reply            Message         @relation("reply", fields: [replyToMessageId], references: [id])
+  reply            Message?        @relation("reply", fields: [replyToMessageId], references: [id])
   Message          Message[]       @relation("reply")
-  replyToMessageId String
+  replyToMessageId String?
   messageEntity    messageEntity[] @relation("hasEntity")
 
   @@id([id])
