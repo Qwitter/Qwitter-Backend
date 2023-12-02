@@ -30,7 +30,15 @@ app.use(passport.session());
 
 configurePassport();
 
-app.get('/', (_, res) => res.json({test: true}));
+app.get('/', (_, res) => {
+  res.send(`<!DOCTYPE html>
+  <html lang="en">  
+  <body>
+    <pre>Test</pre>
+  </body>
+  </html>`)
+});
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/timeline', timelineRouter);
