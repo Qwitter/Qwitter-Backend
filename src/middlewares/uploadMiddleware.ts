@@ -37,6 +37,23 @@ export const tweetMediaStorage = multer.diskStorage({
     cb(null, `tweet-${req.user.id}${Date.now()}.${ext}`);
   },
 });
+export const messageMediaStorage = multer.diskStorage({
+  destination: function (
+    _req: Request,
+    _file: Express.Multer.File,
+    callback: (error: Error | null, destination: string) => void,
+  ) {
+    callback(null, `public/imgs/message`);
+  },
+  filename: function (
+    req: UserRequest,
+    file: Express.Multer.File,
+    cb: (error: Error | null, filename: string) => void,
+  ) {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `message-${req.user.id}${Date.now()}.${ext}`);
+  },
+});
 
 export const imageFilter = (
   _req: Request,
@@ -83,5 +100,11 @@ export const uploadMedia = multer({
   fileFilter: mediaFilter,
 });
 
+export const messageMedia = multer({
+  storage: messageMediaStorage,
+  fileFilter: mediaFilter,
+});
+
 export const uploadImageMiddleware = upload.single('photo');
 export const uploadTweetMediaMiddleware = uploadMedia.array('media[]', 5);
+export const uploadMediaMessageMiddleware = messageMedia.single('media');

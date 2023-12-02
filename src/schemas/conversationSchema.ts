@@ -125,13 +125,8 @@ import { object, string } from 'zod';
  *           type: string
  *         userPhoto:
  *           type: string
- *         media:
- *           type: object
- *           properties:
- *             url:
- *               type: string
- *             type:
- *               type: string
+ *         entities:
+ *          $ref: '#/components/schemas/entityArray'
  *
  *     # Definition for a conversation object with messages and users
  *     Conversation:
@@ -201,6 +196,12 @@ const removeUserFromConversationPayload = {
   }),
 };
 
+const messagePayload = {
+  body: object({
+    replyId: string().optional(),
+    text: string(),
+  }),
+};
 export const addUserToConversationSchema = object({
   ...addUserToConversationPayload,
   ...createConversationPayload,
@@ -221,4 +222,8 @@ export const findMemberConversationPayload = object({
       required_error: 'Conversation name is required',
     }),
   }),
+});
+
+export const messsageSchema = object({
+  ...messagePayload,
 });

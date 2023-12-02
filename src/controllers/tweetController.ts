@@ -5,15 +5,11 @@ import { User } from '@prisma/client';
 import { AppError } from '../utils/appError';
 import {
   createEntityTweet,
-  createHashtag,
   createMedia,
-  createMention,
-  getMention,
+  extractEntities,
   getTweetEntities,
   searchHastagsByWord,
 } from '../repositories/entityRepository';
-import { incrementHashtagCount } from '../repositories/entityRepository';
-import { createEntity } from '../repositories/entityRepository';
 import {
   getTweetsCreatedByUser,
   getUserByUsername,
@@ -147,50 +143,7 @@ export const postTweet = catchAsync(
       },
     });
 
-    // Extracting entities
-    const hashtags = extractHashtags(req.body.text);
-    const mentions = extractMentions(req.body.text);
-    // const urls = extractUrls(req.body.text);
-    // const media = req.body.media;
-
-    // Creating entities and linking it with tweet
-
-    let entitiesId: string[] = [];
-
-    // Processing Hashtags
-    for (const hashtag of hashtags) {
-      let entityId: string = '';
-      const existingHashtag = await prisma.hashtag.findFirst({
-        where: {
-          text: hashtag,
-        },
-      });
-      if (existingHashtag) {
-        await incrementHashtagCount(hashtag);
-        entityId = existingHashtag.entityId;
-      } else {
-        const newEntity = await createEntity('hashtag');
-        entityId = newEntity.id;
-        await createHashtag(entityId, hashtag);
-      }
-      entitiesId.push(entityId);
-    }
-
-    // Processing Mentions
-
-    for (const mention of mentions) {
-      let entityId: string = '';
-      const existingUser = await getUserByUsername(mention);
-      if (!existingUser) continue;
-      const existingMention = await getMention(existingUser.id);
-      if (existingMention) {
-        entityId = existingMention.entityId;
-      } else {
-        const newMention = await createMention(existingUser.id);
-        entityId = newMention.entityId;
-      }
-      entitiesId.push(entityId);
-    }
+    const entitiesId = await extractEntities(req.body.text);
     // Processing Media Upload if any
     const files = (req.files as Express.Multer.File[]) || [];
     const fileNames = files?.map((file: { filename: string }) => file.filename);
@@ -217,21 +170,6 @@ export const postTweet = catchAsync(
   },
 );
 
-function extractHashtags(inputString: string): string[] {
-  // Regular expression to find hashtags
-  const hashtagRegex = /#(\w+)/g;
-  // Use match() to find all occurrences of the hashtag pattern in the input string
-  const hashtags = inputString.match(hashtagRegex);
-  // If there are hashtags, return them; otherwise, return an empty array
-  return hashtags ? hashtags : [];
-}
-function extractMentions(inputString: string): string[] {
-  const mentionRegex = /@(\w+)/g;
-  // Use match() to find all occurrences of the mention pattern in the input string
-  const mentions = inputString.match(mentionRegex);
-  // If there are mentions, return them; otherwise, return an empty array
-  return mentions ? mentions : [];
-}
 // function extractUrls(inputString: string): string[] {
 //   // Regular expression to find URLs
 //   const urlRegex = /(https?:\/\/[^\s]+)/g;

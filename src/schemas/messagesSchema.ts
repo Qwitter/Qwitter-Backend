@@ -8,12 +8,12 @@ import { object, string } from 'zod';
  *      type: object
  *      required:
  *        - text
- *        - reply_id
+ *        - replyId
  *        - media
  *      properties:
  *        text:
  *          type: string
- *        reply_id:
+ *        replyId:
  *          type: string
  *        media:
  *          type: string
