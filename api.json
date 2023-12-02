@@ -262,8 +262,19 @@
           "users" : {
             "type" : "array",
             "example" : [ {
-              "userName" : "username_1",
-              "eligible" : true
+              "name" : "Ahmed Zahran",
+              "userName" : "ahmedzahran715b86",
+              "profileImageUrl" : null,
+              "isFollowing" : false,
+              "isFollowed" : false,
+              "inConversation" : true
+            }, {
+              "name" : "Ahmed Helmy",
+              "userName" : "elkapeer",
+              "profileImageUrl" : null,
+              "isFollowing" : false,
+              "isFollowed" : false,
+              "inConversation" : false
             } ]
           }
         }
@@ -355,16 +366,8 @@
           "userPhoto" : {
             "type" : "string"
           },
-          "media" : {
-            "type" : "object",
-            "properties" : {
-              "url" : {
-                "type" : "string"
-              },
-              "type" : {
-                "type" : "string"
-              }
-            }
+          "entities" : {
+            "$ref" : "#/components/schemas/entityArray"
           }
         }
       },
@@ -405,12 +408,12 @@
       },
       "sendMessageRequest" : {
         "type" : "object",
-        "required" : [ "text", "reply_id", "media" ],
+        "required" : [ "text", "replyId", "media" ],
         "properties" : {
           "text" : {
             "type" : "string"
           },
-          "reply_id" : {
+          "replyId" : {
             "type" : "string"
           },
           "media" : {
@@ -2258,6 +2261,21 @@
           }
         } ],
         "summary" : "Edit Conversation Name",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses" : {
           "200" : {
             "description" : "Success",

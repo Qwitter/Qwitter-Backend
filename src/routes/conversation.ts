@@ -12,7 +12,11 @@ import {
 } from '../schemas/conversationSchema';
 import { userInConversation } from '../middlewares/conversationMiddleware';
 import { uploadMediaMessageMiddleware } from '../middlewares/uploadMiddleware';
+import * as conversationController from '../controllers/conversationController';
+import { createConversationPayloadSchema } from '../schemas/conversationSchema';
 const router = express.Router();
+
+conversationController;
 /**
   @openapi
 * '/api/v1/conversation/':
@@ -33,10 +37,13 @@ const router = express.Router();
 *          application/json:
 *            schema:
 *              $ref: '#/components/schemas/createConversationResponse'
-*      409:
-*        description: Conflict
-*      400:
-*        description: Bad request
+*      401:
+*        description: not all users are found
+*      402:
+*        description: can't create conversation with yourself
+*      404:
+*        description: Conversation already exists
+
  *  get:
  *     tags:
  *     - Conversations
@@ -104,6 +111,18 @@ router
   .route('/:id/user')
   .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
 
+router
+  .route('/')
+  .post(
+    isLoggedIn,
+    validate(createConversationPayloadSchema),
+    conversationController.createConversation,
+  );
+router.route('/').get(isLoggedIn, conversationController.getConversation);
+router
+  .route('/:id')
+  .delete(isLoggedIn, conversationController.deleteConversation);
+
 /**
   @openapi
 * '/api/v1/conversation/{conversationId}':
@@ -122,23 +141,27 @@ router
 *        description: Conflict
 *      400:
 *        description: Bad request
- *  delete:
- *     tags:
- *     - Conversations
- *     summary: It should remove the conversation from the user conversations
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GetUserConversationsResponse'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
+*  delete:
+*     tags:
+*     - Conversations
+*     summary: It should remove the conversation from the user conversations
+*     responses:
+*      200:
+*        description: Success
+*        content:
+*          application/json:
+*            schema:
+*              $ref: '#/components/schemas/deleteConversationResponse'
 
+*      409:
+*        description: Conflict
+*      400:
+*        description: Bad request
+*      404:
+*        description: Conversation not found
+*      
 */
+
 /**
   @openapi
 * '/api/v1/conversation/search':
