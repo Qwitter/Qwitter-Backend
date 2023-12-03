@@ -3,6 +3,7 @@ import { validate } from '../utils/validator';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
   editConversationName,
+  getConversationDetails,
   searchForMembers,
 } from '../controllers/conversationController';
 import {
@@ -214,6 +215,7 @@ router
 *        description: Conversation not found
 *      
 */
+router.route('/:id').get(isLoggedIn, getConversationDetails);
 
 /**
   @openapi
