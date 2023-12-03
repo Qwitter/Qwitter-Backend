@@ -15,7 +15,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: '*', credentials: true },
 });
-const host = process.env.HOST;
+const host = process.env.HOST || 'http://qwitterback.cloudns.org';
 const socketPort = Number(process.env.SOCKET_PORT) || 8080;
 httpServer.listen(socketPort, host, () => {
   console.log(`Socket Running on port ${socketPort}...`);
