@@ -8,7 +8,6 @@ import {
   searchMember,
   searchMemberForNewConversation,
   validMessageReply,
-  
 } from '../repositories/conversationRepository';
 import { getMessageEntities } from '../repositories/entityRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
@@ -102,7 +101,6 @@ export const postMessage = catchAsync(
     const user = req.user as User;
     // Check if there is media
     const photoName = req.file?.filename;
-
     // Check that if there is a reply that the reply is valid
 
     if (req.body.replyId) {
@@ -144,8 +142,7 @@ export const createConversation = catchAsync(
         );
       usersIDs.push(tempUser);
     }
-    if(users.length==0)
-      new AppError("no users provided", 403)
+    if (users.length == 0) return next(new AppError('no users provided', 403));
 
     if (users.length == 1) {
       let tempConv = await prisma.conversation.findFirst({
@@ -253,11 +250,11 @@ export const getConversation = catchAsync(
       },
       select: {
         id: true,
-        photo:true,
-        UserConversations:{
-          select:{
-            seen:true,
-          }
+        photo: true,
+        UserConversations: {
+          select: {
+            seen: true,
+          },
         },
         Message: {
           orderBy: {
@@ -278,7 +275,7 @@ export const getConversation = catchAsync(
         },
         name: true,
         lastActivity: true,
-        isGroup:true
+        isGroup: true,
       },
       orderBy: {
         lastActivity: 'desc',
@@ -286,35 +283,33 @@ export const getConversation = catchAsync(
       skip: skip,
       take: parsedLimit,
     });
-    let responseConvs=[]
-    for(var tempConv of convs)
-    {
+    let responseConvs = [];
+    for (var tempConv of convs) {
       let entities;
-      let lastMessage={}
-      if(tempConv.Message.length!=0)
-      {
-        entities=await getMessageEntities(tempConv.Message[0].id)
-        lastMessage={
-          status:tempConv.UserConversations[0].seen,
-          id:tempConv.Message[0].id,
-          date:tempConv.Message[0].date,
-          text:tempConv.Message[0].text,
-          reply:{},
-          userName:tempConv.Message[0].sender.userName,
-          profileImageUrl:tempConv.Message[0].sender.profileImageUrl,
-          entities:entities
-        }
+      let lastMessage = {};
+      if (tempConv.Message.length != 0) {
+        entities = await getMessageEntities(tempConv.Message[0].id);
+        lastMessage = {
+          status: tempConv.UserConversations[0].seen,
+          id: tempConv.Message[0].id,
+          date: tempConv.Message[0].date,
+          text: tempConv.Message[0].text,
+          reply: {},
+          userName: tempConv.Message[0].sender.userName,
+          profileImageUrl: tempConv.Message[0].sender.profileImageUrl,
+          entities: entities,
+        };
       }
-      
-      let tempResponse={
-        id:tempConv.id,
-        name:tempConv.name,
-        lastActivity:tempConv.lastActivity,
-        lastMessage:lastMessage,
-        photo:tempConv.photo,
-        isGroup:tempConv.isGroup
+
+      let tempResponse = {
+        id: tempConv.id,
+        name: tempConv.name,
+        lastActivity: tempConv.lastActivity,
+        lastMessage: lastMessage,
+        photo: tempConv.photo,
+        isGroup: tempConv.isGroup,
       };
-      responseConvs.push(tempResponse)
+      responseConvs.push(tempResponse);
     }
     res.json(responseConvs).status(200);
     next();

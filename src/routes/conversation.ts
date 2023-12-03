@@ -343,6 +343,6 @@ router
     userInConversation,
     uploadMediaMessageMiddleware,
     validate(messsageSchema),
-    editConversationName,
+    conversationController.postMessage,
   );
 export default router;

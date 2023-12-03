@@ -52,24 +52,24 @@ export const getMessageEntities = async (messageId: string) => {
       },
       include: {
         Mention: {
-          select:{
-            mentionedUser:{
-              select:{
-                userName:true
-              }
-            }
-          }
+          select: {
+            mentionedUser: {
+              select: {
+                userName: true,
+              },
+            },
+          },
         },
         Hashtag: {
-          select:{
-            text:true,
-            count:true
-          }
+          select: {
+            text: true,
+            count: true,
+          },
         },
         Url: {
-          select:{
-            text:true
-          }
+          select: {
+            text: true,
+          },
         },
         Media: true,
       },
@@ -103,6 +103,18 @@ export const createEntityTweet = async (tweet: string, entity: string) => {
   const newRelation = await prisma.tweetEntity.create({
     data: {
       tweetId: tweet,
+      entityId: entity,
+    },
+  });
+  return newRelation;
+};
+export const createEntityMessage = async (
+  messageId: string,
+  entity: string,
+) => {
+  const newRelation = await prisma.messageEntity.create({
+    data: {
+      messageId,
       entityId: entity,
     },
   });
