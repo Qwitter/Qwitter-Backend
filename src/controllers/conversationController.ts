@@ -6,6 +6,7 @@ import { User } from '@prisma/client';
 import {
   createMessage,
   searchMember,
+  searchMemberForNewConversation,
   validMessageReply,
 } from '../repositories/conversationRepository';
 
@@ -72,6 +73,23 @@ export const searchForMembers = catchAsync(
       req.user as User,
     );
 
+    res.status(200).json({ users: users });
+    return _next();
+  },
+);
+export const searchForMembersForNewConversation = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    //search
+    const { q, page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
+    const users = await searchMemberForNewConversation(
+      (q as string).trim(),
+      skip,
+      parsedLimit,
+      req.user as User,
+    );
     res.status(200).json({ users: users });
     return _next();
   },

@@ -204,6 +204,7 @@ model Conversation {
   name              String
   isGroup           Boolean             @default(false)
   lastActivity      DateTime            @default(now())
+  photo             String?
   Message           Message[]
   UserConversations UserConversations[]
 

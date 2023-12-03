@@ -15,8 +15,12 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: '*', credentials: true },
 });
-const socketPort = Number(process.env.SOCKET_PORT) || 8080;
-httpServer.listen(socketPort, () => {
-  console.log(`Socket Running on port ${socketPort}...`);
-  socket({ io });
-});
+try {
+  const socketPort = 5555;
+  httpServer.listen(socketPort, 'http://16.171.242.223', () => {
+    console.log(`Socket Running on port ${socketPort}...`);
+    socket({ io });
+  });
+} catch (err) {
+  console.log(err);
+}
