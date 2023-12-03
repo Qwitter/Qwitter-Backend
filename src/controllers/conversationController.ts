@@ -175,7 +175,7 @@ export const createConversation = catchAsync(
       newConv = await prisma.conversation.create({
         data: {
           name: authUser.name + ', ' + usersIDs[0].name,
-          isGroup: true,
+          isGroup: false,
           lastActivity: new Date(),
           UserConversations: {
             create: [
