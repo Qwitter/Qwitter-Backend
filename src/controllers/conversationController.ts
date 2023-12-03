@@ -280,7 +280,7 @@ export const getConversation = catchAsync(
           status:tempConv.UserConversations[0].seen,
           id:tempConv.Message[0].id,
           date:tempConv.Message[0].date,
-          text:"sdsdfsdfsdf",
+          text:tempConv.Message[0].text,
           reply:{},
           userName:tempConv.Message[0].sender.userName,
           profileImageUrl:tempConv.Message[0].sender.profileImageUrl,
