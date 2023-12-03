@@ -7,8 +7,9 @@ import {
   createMessage,
   searchMember,
   validMessageReply,
+  
 } from '../repositories/conversationRepository';
-
+import { getMessageEntities } from '../repositories/entityRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversationName = catchAsync(
@@ -125,6 +126,9 @@ export const createConversation = catchAsync(
         );
       usersIDs.push(tempUser);
     }
+    if(users.length==0)
+      new AppError("no users provided", 403)
+
     if (users.length == 1) {
       let tempConv = await prisma.conversation.findFirst({
         where: {
@@ -231,6 +235,12 @@ export const getConversation = catchAsync(
       },
       select: {
         id: true,
+        photo:true,
+        UserConversations:{
+          select:{
+            seen:true,
+          }
+        },
         Message: {
           orderBy: {
             date: 'desc',
@@ -250,6 +260,7 @@ export const getConversation = catchAsync(
         },
         name: true,
         lastActivity: true,
+        isGroup:true
       },
       orderBy: {
         lastActivity: 'desc',
@@ -257,7 +268,37 @@ export const getConversation = catchAsync(
       skip: skip,
       take: parsedLimit,
     });
-    res.json(convs).status(200);
+    let responseConvs=[]
+    for(var tempConv of convs)
+    {
+      let entities;
+      let lastMessage={}
+      if(tempConv.Message.length!=0)
+      {
+        entities=await getMessageEntities(tempConv.Message[0].id)
+        lastMessage={
+          status:tempConv.UserConversations[0].seen,
+          id:tempConv.Message[0].id,
+          date:tempConv.Message[0].date,
+          text:"sdsdfsdfsdf",
+          reply:{},
+          userName:tempConv.Message[0].sender.userName,
+          profileImageUrl:tempConv.Message[0].sender.profileImageUrl,
+          entities:entities
+        }
+      }
+      
+      let tempResponse={
+        id:tempConv.id,
+        name:tempConv.name,
+        lastActivity:tempConv.lastActivity,
+        lastMessage:lastMessage,
+        photo:tempConv.photo,
+        isGroup:tempConv.isGroup
+      };
+      responseConvs.push(tempResponse)
+    }
+    res.json(responseConvs).status(200);
     next();
   },
 );

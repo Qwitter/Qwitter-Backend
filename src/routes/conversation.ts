@@ -43,6 +43,8 @@ conversationController;
 *        description: can't create conversation with yourself
 *      404:
 *        description: Conversation already exists
+*      403:
+*        description: no users provided
 
  *  get:
  *     tags:

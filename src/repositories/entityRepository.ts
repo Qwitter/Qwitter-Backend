@@ -41,7 +41,7 @@ export const getTweetEntities = async (tweetId: string) => {
   return entities;
 };
 export const getMessageEntities = async (messageId: string) => {
-  let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
+  let entities: any = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations = await prisma.messageEntity.findMany({
     where: { messageId },
   });
@@ -51,18 +51,35 @@ export const getMessageEntities = async (messageId: string) => {
         id: relation.entityId,
       },
       include: {
-        Mention: true,
-        Hashtag: true,
-        Url: true,
+        Mention: {
+          select:{
+            mentionedUser:{
+              select:{
+                userName:true
+              }
+            }
+          }
+        },
+        Hashtag: {
+          select:{
+            text:true,
+            count:true
+          }
+        },
+        Url: {
+          select:{
+            text:true
+          }
+        },
         Media: true,
       },
     });
     if (entity?.Mention) {
-      entities.mentions.push(entity.Mention);
+      entities.mentions.push(entity.Mention.mentionedUser.userName);
     } else if (entity?.Hashtag) {
       entities.hashtags.push(entity.Hashtag);
     } else if (entity?.Url) {
-      entities.urls.push(entity.Url);
+      entities.urls.push(entity.Url.text);
     } else if (entity?.Media) {
       const newMedia = { value: entity.Media.url, type: entity.Media.type };
       entities.media.push(newMedia);
