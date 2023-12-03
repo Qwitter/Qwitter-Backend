@@ -107,10 +107,61 @@ conversationController;
  *        description: Conflict
  *      400:
  *        description: Bad request
+ * 
+ * '/api/v1/conversation/user/':
+ *  post:
+ *     tags:
+ *     - Conversations
+ *     summary: Add user to conversation 
+*     requestBody:
+*      required: true
+*      content:
+*        application/json:
+*           schema:
+*              $ref: '#/components/schemas/addUsers'
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/addUserToConversationResponse'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ *  get:
+ *     tags:
+ *     - Conversations
+*     parameters:
+*       - name: authorization
+*         in: header
+*         description: ''
+*         required: true
+*         schema:
+*           type: string
+*       - name: q
+*         in: query
+ *     summary: Search for new users to create conversations with. 
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/conversationSearchUserToAddResponse'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
 */
 
 router
   .route('/:id/user')
+  .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
+
+router
+  .route('/user')
   .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
 
 router
@@ -194,37 +245,11 @@ router
 
 
 */
-/**
-  @openapi
-* '/api/v1/conversation/{id}/photo':
-*  post:
-*     tags:
-*     - Conversations
-*     parameters:
-*       - name: authorization
-*         in: header
-*         description: ''
-*         required: true
-*         schema:
-*           type: string
-*     summary: Add image for conversation
-*     responses:
-*      200:
-*        description: Success
-*        content:
-*          application/json:
-*            schema:
-*              $ref: '#/components/schemas/createConversationResponse'
-*      409:
-*        description: Conflict
-*      400:
-*        description: Bad request
 
-*/
 /**
   @openapi
-* '/api/v1/conversation/{id}/name':
-*  post:
+* '/api/v1/conversation/{id}':
+*  put:
 *     tags:
 *     - Conversations
 *     parameters:
@@ -234,7 +259,7 @@ router
 *         required: true
 *         schema:
 *           type: string
-*     summary: Edit Conversation Name
+*     summary: Edit Conversation Name and photo 
 *     requestBody:
 *      required: true
 *      content:
@@ -258,8 +283,8 @@ router
 
 */
 router
-  .route('/:id/name')
-  .post(
+  .route('/:id')
+  .put(
     isLoggedIn,
     validate(updateConversationNamePayload),
     editConversationName,

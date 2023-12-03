@@ -34,13 +34,13 @@ export function sendRoomMessage(
 }
 
 function socket({ io }: { io: Server }) {
-  io.use((socket, next) => {
+  io.use((_socket, next) => {
     // Extract token from query parameters
-    const token = socket.handshake.query.token;
+    // const token = socket.handshake.query.token;
 
-    if (!token) {
-      return next(new Error('Authentication error: Token not provided'));
-    }
+    // if (!token) {
+    //   return next(new Error('Authentication error: Token not provided'));
+    // }
 
     next();
 

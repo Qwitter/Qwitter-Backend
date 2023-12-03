@@ -1,23 +1,32 @@
 import app from './app';
 import swaggerDocs from './utils/swagger';
+import http from 'http';
+import { Request, Response } from 'express';
 import { Server } from 'socket.io';
-import { createServer } from 'http';
 import socket from './utils/socket';
 
-const port: number = 3000;
-app.listen(port, () => {
-  swaggerDocs(app, port);
-  console.log(`App running on port ${port}...`);
-});
-
-// Socket.io for chatting
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const server = http.createServer(app);
+const io = new Server(server, {
   cors: { origin: '*', credentials: true },
 });
-const host = process.env.HOST;
-const socketPort = Number(process.env.SOCKET_PORT) || 8080;
-httpServer.listen(socketPort, host, () => {
-  console.log(`Socket Running on port ${socketPort}...`);
+
+app.get('/messages', (_req: Request, res: Response) => {
+  res.send('ffsd');
+});
+
+app.post('/messages', (req: Request, res: Response) => {
+  console.log(req.body);
+  io.emit('message', req.body);
+  res.sendStatus(200);
+});
+
+io.on('connection', () => {
+  console.log('a user is connected');
+});
+
+const PORT = 3000;
+server.listen(PORT, () => {
+  swaggerDocs(app, PORT);
+  console.log('server is running on port', PORT);
   socket({ io });
 });
