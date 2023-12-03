@@ -68,7 +68,7 @@ export const getConversationDetails = async (
   });
 
   if (!isUserInGroup) {
-    res.status(403).json({
+    res.status(401).json({
       status: 'error',
       message: 'User is not a member of the group.',
     });
@@ -207,8 +207,7 @@ export const searchForMembersForNewConversation = catchAsync(
       parsedLimit,
       req.user as User,
     );
-    res.status(200).json({ users: users });
-    return _next();
+    return res.status(200).json({ users: users });
   },
 );
 
