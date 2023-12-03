@@ -4,6 +4,7 @@ yarn.lock
 
 
 .env 
+.env.production
 deskotp.ini
 deliverables/*
 package-lock.json
