@@ -2,7 +2,8 @@ import express from 'express';
 import { validate } from '../utils/validator';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
-  editConversationName,
+  editConversation,
+  getConversationDetails,
   searchForMembers,
 } from '../controllers/conversationController';
 import {
@@ -109,27 +110,6 @@ conversationController;
  *        description: Bad request
  * 
  * '/api/v1/conversation/user/':
- *  post:
- *     tags:
- *     - Conversations
- *     summary: Add user to conversation 
-*     requestBody:
-*      required: true
-*      content:
-*        application/json:
-*           schema:
-*              $ref: '#/components/schemas/addUsers'
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/addUserToConversationResponse'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
  *  get:
  *     tags:
  *     - Conversations
@@ -162,7 +142,11 @@ router
 
 router
   .route('/user')
-  .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
+  .get(
+    isLoggedIn,
+    validate(findMemberConversationPayload),
+    conversationController.searchForMembersForNewConversation,
+  );
 
 router
   .route('/')
@@ -214,6 +198,7 @@ router
 *        description: Conversation not found
 *      
 */
+router.route('/:id').get(isLoggedIn, getConversationDetails);
 
 /**
   @openapi
@@ -286,8 +271,9 @@ router
   .route('/:id')
   .put(
     isLoggedIn,
+    uploadMediaMessageMiddleware,
     validate(updateConversationNamePayload),
-    editConversationName,
+    editConversation,
   );
 
 /**
@@ -343,6 +329,6 @@ router
     userInConversation,
     uploadMediaMessageMiddleware,
     validate(messsageSchema),
-    editConversationName,
+    conversationController.postMessage,
   );
 export default router;

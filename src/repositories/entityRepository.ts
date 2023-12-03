@@ -52,24 +52,24 @@ export const getMessageEntities = async (messageId: string) => {
       },
       include: {
         Mention: {
-          select:{
-            mentionedUser:{
-              select:{
-                userName:true
-              }
-            }
-          }
+          select: {
+            mentionedUser: {
+              select: {
+                userName: true,
+              },
+            },
+          },
         },
         Hashtag: {
-          select:{
-            text:true,
-            count:true
-          }
+          select: {
+            text: true,
+            count: true,
+          },
         },
         Url: {
-          select:{
-            text:true
-          }
+          select: {
+            text: true,
+          },
         },
         Media: true,
       },
@@ -108,6 +108,18 @@ export const createEntityTweet = async (tweet: string, entity: string) => {
   });
   return newRelation;
 };
+export const createEntityMessage = async (
+  messageId: string,
+  entity: string,
+) => {
+  const newRelation = await prisma.messageEntity.create({
+    data: {
+      messageId,
+      entityId: entity,
+    },
+  });
+  return newRelation;
+};
 export const createHashtag = async (entityId: string, text: string) => {
   const createdHashtag = await prisma.hashtag.create({
     data: {
@@ -130,17 +142,22 @@ export const createMention = async (userId: string) => {
 };
 export const createMedia = async (mediaName: string) => {
   const createdEntity = await createEntity('media');
-  const url = process.env.url?.startsWith('http')
-    ? process.env.URL
-    : 'http://' + process.env.URL;
+
+  const imagePath = getImagePath(mediaName, 'tweet');
   const createdMedia = await prisma.media.create({
     data: {
-      url: `${url}/imgs/tweet/${mediaName}`,
+      url: imagePath,
       entityId: createdEntity.id,
       type: getFileTypeByExtension(mediaName),
     },
   });
   return createdMedia;
+};
+export const getImagePath = (fileName: string, domain: string) => {
+  const url = process.env.url?.startsWith('http')
+    ? process.env.URL
+    : 'http://' + process.env.URL;
+  return `${url}/imgs/${domain}/${fileName}`;
 };
 function getFileTypeByExtension(filename: string): string {
   const extension = filename.split('.').pop()?.toLowerCase();

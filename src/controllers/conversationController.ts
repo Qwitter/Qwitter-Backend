@@ -8,12 +8,14 @@ import {
   searchMember,
   searchMemberForNewConversation,
   validMessageReply,
-  
 } from '../repositories/conversationRepository';
-import { getMessageEntities } from '../repositories/entityRepository';
+import {
+  getImagePath,
+  getMessageEntities,
+} from '../repositories/entityRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
-export const editConversationName = catchAsync(
+export const editConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
     if (!conversationId)
@@ -27,6 +29,9 @@ export const editConversationName = catchAsync(
       },
     });
     if (!found) return res.status(400).json({ message: 'Bad Request' });
+    // Updating the conversation photo
+    let photoName = req.file?.filename;
+    if (photoName) photoName = getImagePath(photoName, 'message');
 
     //update
     const newConversationName = req.body.name;
@@ -36,8 +41,10 @@ export const editConversationName = catchAsync(
       },
       data: {
         name: newConversationName,
+        photo: photoName,
       },
     });
+
     if (!updatedConversation)
       return res.status(404).json({ message: 'Not Found' });
 
@@ -46,6 +53,115 @@ export const editConversationName = catchAsync(
   },
 );
 
+export const getConversationDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params;
+  const conversationId = id;
+  const isUserInGroup = await prisma.userConversations.findFirst({
+    where: {
+      userId: (req.user as User).id,
+      conversationId,
+    },
+  });
+
+  if (!isUserInGroup) {
+    res.status(401).json({
+      status: 'error',
+      message: 'User is not a member of the group.',
+    });
+    return;
+  }
+
+  const { page = '1', limit = '10' } = req.query;
+  const parsedPage = parseInt(page as string, 10);
+  const parsedLimit = parseInt(limit as string, 10);
+  const skip = (parsedPage - 1) * parsedLimit;
+
+  await prisma.userConversations.updateMany({
+    where: {
+      conversationId,
+      userId: (req.user as User).id,
+    },
+    data: {
+      seen: true,
+    },
+  });
+
+  const conversationDetails = await prisma.conversation.findUnique({
+    where: {
+      id: conversationId,
+    },
+    include: {
+      Message: {
+        skip,
+        take: parsedLimit,
+        orderBy: {
+          date: 'asc',
+        },
+        include: {
+          sender: true,
+          messageEntity: {
+            select: {
+              entity: {
+                include: {
+                  Url: true,
+                  Media: true,
+                  Mention: true,
+                  Hashtag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      UserConversations: {
+        include: {
+          User: true,
+        },
+      },
+      //isGroup: true,
+    },
+  });
+
+  const formattedMessages = conversationDetails?.Message.map((message) => ({
+    id: message.id,
+    date: message.date.toISOString(),
+    userName: message.sender.userName,
+    userPhoto: message.sender.profileImageUrl,
+    // media: {
+    //   url: message.messageEntity[0]
+    //     ? message.messageEntity[0].entity.type
+    //     : null,
+    //   type: message.messageEntity[0]
+    //     ? message.messageEntity[0].entity.Url?.text
+    //     : null,
+    //   Url: message.messageEntity[0].entity.Url,
+    //   Media: message.messageEntity[0].entity.Media,
+    //   Mention: message.messageEntity[0].entity.Mention,
+    //   Hashtag: message.messageEntity[0].entity.Hashtag,
+    // },
+  }));
+
+  const formattedUsers = conversationDetails?.UserConversations.map(
+    (userConversation) => ({
+      userName: userConversation.User.userName,
+      userPhoto: userConversation.User.profileImageUrl,
+    }),
+  );
+
+  const formattedConversationDetails = {
+    messages: formattedMessages,
+    name: conversationDetails?.name,
+    //type: conversationDetails?.isGroup ? 'group' : 'direct',
+    users: formattedUsers,
+  };
+
+  res.status(200).json(formattedConversationDetails);
+  next();
+};
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
@@ -91,8 +207,7 @@ export const searchForMembersForNewConversation = catchAsync(
       parsedLimit,
       req.user as User,
     );
-    res.status(200).json({ users: users });
-    return _next();
+    return res.status(200).json({ users: users });
   },
 );
 
@@ -102,7 +217,6 @@ export const postMessage = catchAsync(
     const user = req.user as User;
     // Check if there is media
     const photoName = req.file?.filename;
-
     // Check that if there is a reply that the reply is valid
 
     if (req.body.replyId) {
@@ -144,8 +258,7 @@ export const createConversation = catchAsync(
         );
       usersIDs.push(tempUser);
     }
-    if(users.length==0)
-      new AppError("no users provided", 403)
+    if (users.length == 0) return next(new AppError('no users provided', 403));
 
     if (users.length == 1) {
       let tempConv = await prisma.conversation.findFirst({
@@ -253,11 +366,11 @@ export const getConversation = catchAsync(
       },
       select: {
         id: true,
-        photo:true,
-        UserConversations:{
-          select:{
-            seen:true,
-          }
+        photo: true,
+        UserConversations: {
+          select: {
+            seen: true,
+          },
         },
         Message: {
           orderBy: {
@@ -278,7 +391,7 @@ export const getConversation = catchAsync(
         },
         name: true,
         lastActivity: true,
-        isGroup:true
+        isGroup: true,
       },
       orderBy: {
         lastActivity: 'desc',
@@ -286,35 +399,33 @@ export const getConversation = catchAsync(
       skip: skip,
       take: parsedLimit,
     });
-    let responseConvs=[]
-    for(var tempConv of convs)
-    {
+    let responseConvs = [];
+    for (var tempConv of convs) {
       let entities;
-      let lastMessage={}
-      if(tempConv.Message.length!=0)
-      {
-        entities=await getMessageEntities(tempConv.Message[0].id)
-        lastMessage={
-          status:tempConv.UserConversations[0].seen,
-          id:tempConv.Message[0].id,
-          date:tempConv.Message[0].date,
-          text:tempConv.Message[0].text,
-          reply:{},
-          userName:tempConv.Message[0].sender.userName,
-          profileImageUrl:tempConv.Message[0].sender.profileImageUrl,
-          entities:entities
-        }
+      let lastMessage = {};
+      if (tempConv.Message.length != 0) {
+        entities = await getMessageEntities(tempConv.Message[0].id);
+        lastMessage = {
+          status: tempConv.UserConversations[0].seen,
+          id: tempConv.Message[0].id,
+          date: tempConv.Message[0].date,
+          text: tempConv.Message[0].text,
+          reply: {},
+          userName: tempConv.Message[0].sender.userName,
+          profileImageUrl: tempConv.Message[0].sender.profileImageUrl,
+          entities: entities,
+        };
       }
-      
-      let tempResponse={
-        id:tempConv.id,
-        name:tempConv.name,
-        lastActivity:tempConv.lastActivity,
-        lastMessage:lastMessage,
-        photo:tempConv.photo,
-        isGroup:tempConv.isGroup
+
+      let tempResponse = {
+        id: tempConv.id,
+        name: tempConv.name,
+        lastActivity: tempConv.lastActivity,
+        lastMessage: lastMessage,
+        photo: tempConv.photo,
+        isGroup: tempConv.isGroup,
       };
-      responseConvs.push(tempResponse)
+      responseConvs.push(tempResponse);
     }
     res.json(responseConvs).status(200);
     next();

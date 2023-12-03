@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import prisma from '../client';
 import {
-  createEntityTweet,
+  createEntityMessage,
   createMedia,
   extractEntities,
   getMessageEntities,
@@ -128,7 +128,7 @@ export const createMessage = async (
   text: string,
   userId: string,
   conversationId: string,
-  replyId: string | undefined,
+  replyId: string | null,
   mediaUrl: string | undefined,
 ) => {
   const currentDate = new Date();
@@ -138,18 +138,22 @@ export const createMessage = async (
       text,
       conversationId,
       date: currentDate,
-      replyToMessageId: replyId,
+      replyToMessageId: replyId ? replyId : null,
     },
   });
-  if (mediaUrl) await createMedia(mediaUrl);
   //Extract the entities
   const entitiesId: string[] = await extractEntities(text);
+  if (mediaUrl) {
+    const createdMedia = await createMedia(mediaUrl);
+    entitiesId.push(createdMedia.entityId);
+  }
+
   // Linking Entities with Tweets
   for (const id of entitiesId) {
-    await createEntityTweet(createdMessage.id, id);
+    await createEntityMessage(createdMessage.id, id);
   }
   const entities = await getMessageEntities(createdMessage.id);
-  return { ...createMessage, entities };
+  return { ...createdMessage, entities };
 };
 
 export const getMessageById = async (id: string) => {

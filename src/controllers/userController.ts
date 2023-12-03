@@ -122,10 +122,13 @@ export const getUser = catchAsync(
       },
     });
 
-    const isFollowing = await isUserFollowing(
-      (_req.user as User).id,
-      (await getUserByUsername(_req.params.username))?.id || '',
-    );
+    const currentUser = _req.user as User;
+    const isFollowing = currentUser
+      ? await isUserFollowing(
+          currentUser.id,
+          (await getUserByUsername(_req.params.username))?.id || '',
+        )
+      : false;
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
       const resposeObject = {

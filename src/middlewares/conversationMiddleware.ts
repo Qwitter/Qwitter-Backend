@@ -5,6 +5,7 @@ import {
   getConvsersationById,
   userConversationExists,
 } from '../repositories/conversationRepository';
+import { User } from '@prisma/client';
 
 export const conversationExists = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
@@ -20,7 +21,7 @@ export const conversationExists = catchAsync(
 export const userInConversation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const user = req.body.user;
+    const user = req.user as User;
     const conversation = await userConversationExists(user.id, id);
     if (!conversation) {
       return res.status(401).json({ message: 'User is not in conversation' });
