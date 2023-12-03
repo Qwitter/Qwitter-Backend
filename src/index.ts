@@ -17,7 +17,7 @@ const io = new Server(httpServer, {
 });
 try {
   const socketPort = 5555;
-  httpServer.listen(socketPort, 'http://16.171.242.223', () => {
+  httpServer.listen(socketPort, '16.171.242.223', () => {
     console.log(`Socket Running on port ${socketPort}...`);
     socket({ io });
   });
