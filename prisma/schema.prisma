@@ -206,7 +206,6 @@ model Conversation {
   lastActivity      DateTime            @default(now())
   Message           Message[]
   UserConversations UserConversations[]
-  isGroup           Boolean
 
   @@id([id])
 }
