@@ -257,6 +257,14 @@ export const getConversation = catchAsync(
         UserConversations:{
           select:{
             seen:true,
+            User:{
+              select:{
+                name:true,
+                userName:true,
+                profileImageUrl:true
+              }
+              
+            }
           }
         },
         Message: {
@@ -264,10 +272,12 @@ export const getConversation = catchAsync(
             date: 'desc',
           },
           take: 1,
+          
           select: {
             id: true,
             text: true,
             date: true,
+            
             sender: {
               select: {
                 userName: true,
@@ -279,6 +289,7 @@ export const getConversation = catchAsync(
         name: true,
         lastActivity: true,
         isGroup:true
+        
       },
       orderBy: {
         lastActivity: 'desc',
@@ -287,6 +298,7 @@ export const getConversation = catchAsync(
       take: parsedLimit,
     });
     let responseConvs=[]
+
     for(var tempConv of convs)
     {
       let entities;
@@ -312,7 +324,8 @@ export const getConversation = catchAsync(
         lastActivity:tempConv.lastActivity,
         lastMessage:lastMessage,
         photo:tempConv.photo,
-        isGroup:tempConv.isGroup
+        isGroup:tempConv.isGroup,
+        users:tempConv.UserConversations
       };
       responseConvs.push(tempResponse)
     }
