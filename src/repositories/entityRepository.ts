@@ -142,17 +142,22 @@ export const createMention = async (userId: string) => {
 };
 export const createMedia = async (mediaName: string) => {
   const createdEntity = await createEntity('media');
-  const url = process.env.url?.startsWith('http')
-    ? process.env.URL
-    : 'http://' + process.env.URL;
+
+  const imagePath = getImagePath(mediaName, 'tweet');
   const createdMedia = await prisma.media.create({
     data: {
-      url: `${url}/imgs/tweet/${mediaName}`,
+      url: imagePath,
       entityId: createdEntity.id,
       type: getFileTypeByExtension(mediaName),
     },
   });
   return createdMedia;
+};
+export const getImagePath = (fileName: string, domain: string) => {
+  const url = process.env.url?.startsWith('http')
+    ? process.env.URL
+    : 'http://' + process.env.URL;
+  return `${url}/imgs/${domain}/${fileName}`;
 };
 function getFileTypeByExtension(filename: string): string {
   const extension = filename.split('.').pop()?.toLowerCase();

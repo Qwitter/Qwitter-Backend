@@ -2,7 +2,7 @@ import express from 'express';
 import { validate } from '../utils/validator';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
-  editConversationName,
+  editConversation,
   getConversationDetails,
   searchForMembers,
 } from '../controllers/conversationController';
@@ -288,8 +288,9 @@ router
   .route('/:id')
   .put(
     isLoggedIn,
+    uploadMediaMessageMiddleware,
     validate(updateConversationNamePayload),
-    editConversationName,
+    editConversation,
   );
 
 /**
