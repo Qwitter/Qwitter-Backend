@@ -21,6 +21,7 @@ import {
   getTweetsLikedById,
   searchTweet,
   getTweetsMediaById,
+  getTweetById,
 } from '../repositories/tweetRepository';
 
 const getTimeline = async (req: Request) => {
@@ -108,9 +109,28 @@ const getTimeline = async (req: Request) => {
 };
 
 export const postTweet = catchAsync(
-  async (req: Request, res: Response, _next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const currentUser = req.user as User;
     const userId = currentUser.id;
+    // Check that both are not sent
+    if (req.body.replyToTweetId && req.body.retweetedId) {
+      return next(new AppError('Can not retweet and reply together', 401));
+    }
+
+    // Check for replyToTweetId
+    if (req.body.replyToTweetId) {
+      const tweet = await getTweetById(req.body.replyToTweetId);
+      if (!tweet) {
+        return next(new AppError('Invalid replyToTweetId', 401));
+      }
+    }
+    // Check for replyToTweet and retweet
+    if (req.body.retweetedId) {
+      const tweet = await getTweetById(req.body.retweetedId);
+      if (!tweet) {
+        return next(new AppError('Invalid retweetId', 401));
+      }
+    }
     const createdTweet = await prisma.tweet.create({
       data: {
         text: req.body.text,

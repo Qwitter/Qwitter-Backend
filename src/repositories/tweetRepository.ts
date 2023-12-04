@@ -22,6 +22,16 @@ export const getTweetAndUserById = async (tweetId: string) => {
   }
   return { tweet: tweet, tweetingUser: user };
 };
+export const getTweetById = async (tweetId: string) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+      deletedAt: null,
+    },
+  });
+
+  return tweet;
+};
 
 export const searchTweet = async (
   query: string | null,
