@@ -318,3 +318,27 @@ export const getTweetsMediaById = async (
 
   return mediaTweets;
 };
+export const incrementLikes = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      likesCount: { increment: val },
+    },
+  });
+};
+export const incrementReplies = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      replyCount: { increment: val },
+    },
+  });
+};
+export const incrementRetweet = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      retweetCount: { increment: val },
+    },
+  });
+};
