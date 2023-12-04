@@ -13,5 +13,10 @@ prisma/migrations/*
 
 
 
-/public
+/public/imgs/tweet/**.png
+/public/imgs/message/**.png
+/public/imgs/user/**.png
 
+/public/imgs/tweet/**.jpeg
+/public/imgs/message/**.jpeg
+/public/imgs/user/**.jpeg
