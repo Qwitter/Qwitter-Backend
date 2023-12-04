@@ -7,6 +7,7 @@ import userRouter from './routes/users';
 import timelineRouter from './routes/timeline';
 import tweetsRouter from './routes/tweets';
 import conversationRouter from './routes/conversation';
+import trendsRouter from './routes/trends';
 
 import path from 'path';
 import cors from 'cors';
@@ -45,6 +46,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/timeline', timelineRouter);
 app.use('/api/v1/tweets', tweetsRouter);
 app.use('/api/v1/conversation', conversationRouter);
+app.use('/api/v1/trends', trendsRouter);
 
 app.use(globalErrorHandler);
 
