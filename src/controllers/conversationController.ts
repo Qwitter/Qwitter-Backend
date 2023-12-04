@@ -477,3 +477,139 @@ export const postConversationUsers = catchAsync(
     return res.status(201).json({ message: 'Users added successfully' });
   },
 );
+
+
+export const searchConversations = async (req: Request, res: Response, _: NextFunction) => {
+  const { q, page = '1', limit = '10' } = req.query;
+  const parsedPage = parseInt(page as string, 10);
+  const parsedLimit = parseInt(limit as string, 10);
+  const skip = (parsedPage - 1) * parsedLimit;
+
+  if (!q) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Query parameter "q" is required.',
+    });
+    return;
+  }
+
+  const userId = (req.user as User).id; 
+
+  const conversations = await prisma.conversation.findMany({
+    where: {
+      AND: [
+        {
+          UserConversations: {
+            some: {
+              userId,
+            },
+          },
+        },
+        {
+          OR: [
+            {
+              name: {
+                contains: q as string,
+                mode: 'insensitive',
+              },
+            },
+            {
+              Message: {
+                some: {
+                  text: {
+                    contains: q as string,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+            {
+              UserConversations: {
+                some: {
+                  User: {
+                    userName: {
+                      contains: q as string,
+                      mode: 'insensitive',  
+                    }
+                  }
+                }
+              }
+            },
+            {
+              UserConversations: {
+                some: {
+                  User: {
+                    name: {
+                      contains: q as string,
+                      mode: 'insensitive',  
+                    }
+                  }
+                }
+              }
+            }
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      isGroup: true,
+      photo: true,
+      UserConversations: {
+        select: {
+          User: {
+            select: {
+              userName: true,
+              profileImageUrl: true,
+              name: true, 
+            },
+          },
+        },
+      },
+      Message: {
+        select: {
+          id: true,
+          text: true,
+          date: true,
+          sender: {
+            select: {
+              userName: true,
+              profileImageUrl: true,
+            },
+          },
+        },
+        where: {
+          text: {
+            contains: q as string,
+            mode: 'insensitive',
+          },
+        },
+        take: 1,
+        orderBy: {
+          date: 'desc',
+        },
+      },
+    },
+    skip,
+    take: parsedLimit
+  });
+
+  const formattedConversations = conversations.map((conversation) => ({
+    id: conversation.id,
+    name: conversation.name,
+    type: conversation?.isGroup ? 'group' : 'direct',
+    photo: conversation.photo,
+    users: conversation.UserConversations.map((userConversation) => ({
+      userName: userConversation.User.userName,
+      name: userConversation.User.name,
+      userPhoto: userConversation.User.profileImageUrl,
+    })),
+    messages: conversation.Message
+  }));
+
+  res.status(200).json({
+    status: 'success',
+    conversations: formattedConversations,
+  });
+};
