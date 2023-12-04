@@ -197,3 +197,31 @@ export const validMessageReply = async (
     },
   });
 };
+export const addPeopleToConversation = async (
+  conversationId: string,
+  users: { id: string }[],
+) => {
+  const insertedData = users.map((user) => ({
+    conversationId: conversationId,
+    userId: user.id,
+    seen: false,
+  }));
+
+  await prisma.userConversations.createMany({
+    data: insertedData,
+  });
+};
+export const findConversationPeople = async (conversationId: string) => {
+  return await prisma.userConversations.findMany({
+    where: { conversationId },
+    select: {
+      userId: true,
+    },
+  });
+};
+
+export const findConversationById = async (conversationId: string) => {
+  return await prisma.conversation.findUnique({
+    where: { id: conversationId },
+  });
+};

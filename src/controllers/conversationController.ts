@@ -4,10 +4,13 @@ import prisma from '../client';
 import { AppError } from '../utils/appError';
 import { User } from '@prisma/client';
 import {
+  addPeopleToConversation,
   createMessage,
   searchMember,
   searchMemberForNewConversation,
   validMessageReply,
+  findConversationPeople,
+  findConversationById,
 } from '../repositories/conversationRepository';
 import {
   getImagePath,
@@ -429,5 +432,55 @@ export const getConversation = catchAsync(
     }
     res.json(responseConvs).status(200);
     next();
+  },
+);
+export const postConversationUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const conversationId = req.params.id;
+    const conversation = await findConversationById(conversationId);
+
+    if (!conversation) {
+      return res.status(500).json({ message: 'Oops! Something went wrong' });
+    }
+    if (!conversation.isGroup) {
+      return next(
+        new AppError('You can not add users to direct messages', 401),
+      );
+    }
+
+    let users = req.body.users as Array<string>;
+    users = users.map((user) => user.toLowerCase());
+
+    const usersData = await prisma.user.findMany({
+      where: {
+        userName: {
+          in: users,
+        },
+      },
+      select: { id: true },
+    });
+
+    const conversationPeople = await findConversationPeople(conversationId);
+
+    if (usersData.length !== users.length) {
+      return next(new AppError('Not all users are found', 404));
+    }
+    let userExists = false;
+    // O (N ^ 2) Not so good
+    usersData.forEach((idToCheck) => {
+      if (
+        conversationPeople.some(
+          (item) =>
+            JSON.stringify(item) === JSON.stringify({ userId: idToCheck.id }),
+        )
+      ) {
+        userExists = true;
+      }
+    });
+
+    if (userExists) return next(new AppError('User already exists', 401));
+
+    await addPeopleToConversation(conversationId, usersData);
+    return res.status(201).json({ message: 'Users added successfully' });
   },
 );
