@@ -5,7 +5,10 @@
  *    GetTrends:
  *      type: object
  *      properties:
- *        tweets:
+ *        status:
+ *          type: string
+ *          default: success
+ *        trends:
  *          type: array
  *          items:
  *            type: object
