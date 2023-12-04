@@ -549,7 +549,7 @@ export const unfollowUser = catchAsync(
 );
 
 export const getUserSuggestions = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const currentUser = req.user as User;
     let suggestionsIDs = new Set();
     let tempUser = await prisma.user.findUnique({
@@ -676,7 +676,6 @@ export const getUserSuggestions = catchAsync(
         }
       }
     }
-    res.json(suggestions.slice(0, 50)).status(200);
-    next();
+    return res.json(suggestions.slice(0, 50)).status(200);
   },
 );
