@@ -2404,3 +2404,144 @@ describe('get Mute List of a User Function', () => {
     });
   });
 });
+
+describe('get Block List of a User Function', () => {
+  describe('auth_key in header', () => {
+    describe('auth_key is valid', () => {
+      describe('user Found', () => {
+        test('should respond with status 200', async () => {
+          const user = {
+            id: 'eac0ece1',
+            name: 'Zahran',
+            birthDate: new Date(),
+            location: null,
+            url: null,
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 0,
+            followingCount: 0,
+            createdAt: new Date(),
+            deletedAt: null,
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@gmail.com',
+            userName: 'ahmedzahran12364',
+            password:
+              '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+            passwordChangedAt: null,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            google_id: null,
+          };
+          const blockObject = {
+            blockedId: 'dsjhf',
+            blockerId: 'sdjkf',
+            muted: [
+              {
+                id: 'eac0ece1',
+                name: 'Zahran',
+                birthDate: new Date(),
+                location: null,
+                url: null,
+                description: null,
+                protected: false,
+                verified: false,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date(),
+                deletedAt: null,
+                profileBannerUrl: null,
+                profileImageUrl: null,
+                email: 'ahmed@gmail.com',
+                userName: 'ahmedzahran12364',
+                password:
+                  '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+                passwordChangedAt: null,
+                passwordResetToken: null,
+                passwordResetExpires: null,
+                google_id: null,
+              },
+            ],
+          };
+          const block = {
+            blockerId: 'dfgdfsgsfd',
+            blockedId: 'dfsgdsfg',
+          };
+          jest.mock('bcrypt');
+          bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+          jest.mock('jsonwebtoken');
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: '04e10f35-10ed-468b-959e-4a759d7bb6b1',
+            iat: 1701267900,
+            exp: 1709043900,
+          });
+          prismaMock.user.findFirst.mockResolvedValue(user);
+          prismaMock.block.findMany.mockResolvedValue([blockObject]);
+          prismaMock.block.findUnique.mockResolvedValue(block);
+
+          const response = await Request(app)
+            .get('/api/v1/user/block')
+            .set('authorization', 'Bearer abc123');
+          console.log(response.body);
+          expect(response.status).toBe(200);
+        });
+      });
+      describe('user not Found', () => {
+        test('should respond with status 404', async () => {
+          jest.mock('bcrypt');
+          bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+          jest.mock('jsonwebtoken');
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          prismaMock.user.findFirst.mockResolvedValue(null);
+          const response = await Request(app)
+            .get('/api/v1/user/block')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(404);
+          expect(response.body.message).toStrictEqual('User not found');
+        });
+      });
+    });
+    describe('auth_key is invalid', () => {
+      test('should respond with status 409 token expired', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({
+          id: 'eac0ece1',
+          iat: 1699498302,
+          exp: 0,
+        });
+
+        const response = await Request(app)
+          .get('/api/v1/user/block')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual('Token Expired');
+      });
+      test('should respond with status 409 token invalid', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({});
+
+        const response = await Request(app)
+          .get('/api/v1/user/block')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual(
+          'Invalid access credentials',
+        );
+      });
+    });
+  });
+  describe('auth_key not found in header', () => {
+    test('should respond with status 401', async () => {
+      const response = await Request(app).get('/api/v1/user/block');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toStrictEqual('Unauthorized access');
+    });
+  });
+});
