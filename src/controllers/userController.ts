@@ -254,7 +254,8 @@ export const getUserFollowers = catchAsync(
     });
 
     res.status(200).json(
-      followers.map(async (el) => {
+      await Promise.all(
+        followers.map(async (el) => {
         const isFollowing = await isUserFollowing(
           (req.user as User).id,
           (await getUserByUsername(el.folowererId))?.id || '',
@@ -265,7 +266,7 @@ export const getUserFollowers = catchAsync(
           isFollowing,
         };
       }),
-    );
+    ));
     next();
   },
 );
@@ -448,7 +449,7 @@ export const getUsersMutedByCurrentUser = catchAsync(
     });
 
     res.status(200).json(
-      mutedUsers
+      await Promise.all(mutedUsers
         .map((user) => user.muted)
         .map(async (el) => {
           const isFollowing = await isUserFollowing(
@@ -461,7 +462,7 @@ export const getUsersMutedByCurrentUser = catchAsync(
             isFollowing,
           };
         }),
-    );
+    ));
     next();
   },
 );
