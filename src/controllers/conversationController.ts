@@ -129,15 +129,15 @@ export const getConversationDetails = async (
     },
   });
 
-  const formattedMessages = conversationDetails?.Message.map((message) => ({
+  const formattedMessages = await Promise.all((conversationDetails?.Message || []).map(async (message) => ({
     id: message.id,
     date: message.date.toISOString(),
     text: message.text,
     replyToMessage: message.reply,
     userName: message.sender.userName,
     userPhoto: message.sender.profileImageUrl,
-    entities: message.messageEntity.map((e) => e.entity)
-  }));
+    entities: await getMessageEntities(message.id)
+  })));
 
   const formattedUsers = conversationDetails?.UserConversations.map(
     (userConversation) => ({
