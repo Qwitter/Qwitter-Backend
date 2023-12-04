@@ -138,7 +138,12 @@ conversationController;
 
 router
   .route('/:id/user')
-  .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers);
+  .get(isLoggedIn, validate(findMemberConversationPayload), searchForMembers)
+  .post(
+    isLoggedIn,
+    userInConversation,
+    conversationController.postConversationUsers,
+  );
 
 router
   .route('/user')
