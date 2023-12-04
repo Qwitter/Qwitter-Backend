@@ -10,3 +10,8 @@ deliverables/*
 package-lock.json
 coverage
 prisma/migrations/*
+
+
+
+/public
+
