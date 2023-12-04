@@ -382,6 +382,17 @@ export const getTweetLikers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: id },
+    });
+
+    if (!tweet) {
+      res.status(404).json({
+        message: 'Tweet is not Found',
+      });
+      return next();
+    }
+
     const tweetLikers = await prisma.like.findMany({
       where: {
         tweetId: id,
