@@ -58,7 +58,6 @@ const getTimeline = async (req: Request) => {
     include: {
       author: {
         select: {
-          id: true,
           name: true,
           location: true,
           url: true,
@@ -207,7 +206,24 @@ export const getTweetReplies = catchAsync(
         createdAt: 'desc',
       },
       include: {
-        author: {},
+        author: {
+          select: {
+            name: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+            userName: true,
+            birthDate: true,
+          },
+        },
       },
     });
     for (var reply of replies) {
@@ -221,7 +237,7 @@ export const getTweetReplies = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
-      let response = { ...tweet, liked: liked != null, isFollowing };
+      let response = { ...reply, liked: liked != null, isFollowing };
       responses.push(response);
     }
 
@@ -401,7 +417,6 @@ export const getTweetLikers = catchAsync(
       include: {
         liker: {
           select: {
-            id: true,
             name: true,
             location: true,
             url: true,
