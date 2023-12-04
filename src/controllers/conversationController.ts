@@ -103,6 +103,7 @@ export const getConversationDetails = async (
         },
         include: {
           sender: true,
+          reply: true,
           messageEntity: {
             select: {
               entity: {
@@ -122,32 +123,23 @@ export const getConversationDetails = async (
           User: true,
         },
       },
-      //isGroup: true,
     },
   });
 
   const formattedMessages = conversationDetails?.Message.map((message) => ({
     id: message.id,
     date: message.date.toISOString(),
+    text: message.text,
+    replyToMessage: message.reply,
     userName: message.sender.userName,
     userPhoto: message.sender.profileImageUrl,
-    // media: {
-    //   url: message.messageEntity[0]
-    //     ? message.messageEntity[0].entity.type
-    //     : null,
-    //   type: message.messageEntity[0]
-    //     ? message.messageEntity[0].entity.Url?.text
-    //     : null,
-    //   Url: message.messageEntity[0].entity.Url,
-    //   Media: message.messageEntity[0].entity.Media,
-    //   Mention: message.messageEntity[0].entity.Mention,
-    //   Hashtag: message.messageEntity[0].entity.Hashtag,
-    // },
+    entities: message.messageEntity.map((e) => e.entity)
   }));
 
   const formattedUsers = conversationDetails?.UserConversations.map(
     (userConversation) => ({
       userName: userConversation.User.userName,
+      Name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     }),
   );
@@ -155,7 +147,8 @@ export const getConversationDetails = async (
   const formattedConversationDetails = {
     messages: formattedMessages,
     name: conversationDetails?.name,
-    //type: conversationDetails?.isGroup ? 'group' : 'direct',
+    type: conversationDetails?.isGroup ? 'group' : 'direct',
+    photo: conversationDetails?.photo,
     users: formattedUsers,
   };
 
