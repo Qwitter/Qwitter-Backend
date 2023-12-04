@@ -192,14 +192,22 @@ export const getUsers = catchAsync(
 
     const users = await getUsersByName(query as string, skip, parsedLimit);
 
+    const ret: object[] = [];
+
+    for (let user of users) {
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        (await getUserByUsername(user.userName))?.id || '',
+      );
+      const tweetCount = await getNumOfTweets(user.userName);
+      ret.push({
+        ...user,
+        tweetCount,
+        isFollowing,
+      });
+    }
     res.status(200).json({
-      users: users.map(async (el) => {
-        const isFollowing = await isUserFollowing(
-          (req.user as User).id,
-          (await getUserByUsername(el.userName))?.id || '',
-        );
-        return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
-      }),
+      users: ret,
     });
     next();
   },
