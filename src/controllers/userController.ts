@@ -270,7 +270,7 @@ export const getUserFollowers = catchAsync(
         );
         return {
           ...el.follower,
-          tweetCount: getNumOfTweets(el.follower.userName),
+          tweetCount: await getNumOfTweets(el.follower.userName),
           isFollowing,
         };
       }),
@@ -472,7 +472,7 @@ export const getUsersMutedByCurrentUser = catchAsync(
           );
           return {
             ...el,
-            tweetCount: getNumOfTweets(el.userName),
+            tweetCount: await getNumOfTweets(el.userName),
             isFollowing,
           };
         }),
