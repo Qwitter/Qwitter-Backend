@@ -242,8 +242,14 @@ export const changeUserName = catchAsync(
 );
 
 export const getUserFollowers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _: NextFunction) => {
     const userId = (req.user as User).id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
     const followers = await prisma.follow.findMany({
       where: {
         followedId: userId,
@@ -251,6 +257,8 @@ export const getUserFollowers = catchAsync(
       include: {
         follower: true,
       },
+      skip,
+      take: parsedLimit
     });
 
     res.status(200).json(
@@ -267,7 +275,6 @@ export const getUserFollowers = catchAsync(
         };
       }),
     ));
-    next();
   },
 );
 
@@ -436,8 +443,13 @@ export const unmuteUser = catchAsync(
 );
 
 export const getUsersMutedByCurrentUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _: NextFunction) => {
     const muterId = (req.user as User).id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
 
     const mutedUsers = await prisma.mute.findMany({
       where: {
@@ -446,6 +458,8 @@ export const getUsersMutedByCurrentUser = catchAsync(
       include: {
         muted: true,
       },
+      skip,
+      take: parsedLimit
     });
 
     res.status(200).json(
@@ -463,7 +477,6 @@ export const getUsersMutedByCurrentUser = catchAsync(
           };
         }),
     ));
-    next();
   },
 );
 
