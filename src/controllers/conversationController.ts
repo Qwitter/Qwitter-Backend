@@ -139,6 +139,7 @@ export const getConversationDetails = async (
   const formattedUsers = conversationDetails?.UserConversations.map(
     (userConversation) => ({
       userName: userConversation.User.userName,
+      Name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     }),
   );
