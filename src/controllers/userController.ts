@@ -145,7 +145,7 @@ export const getUser = catchAsync(
         profileBannerUrl: user.profileBannerUrl,
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
-        tweetCount: getNumOfTweets(user.userName),
+        tweetCount: await getNumOfTweets(user.userName),
         isFollowing,
       };
       res.json(resposeObject).status(200);
@@ -171,7 +171,7 @@ export const getRequestingUser = async (req: Request) => {
     profileBannerUrl: user.profileBannerUrl,
     profileImageUrl: user.profileImageUrl,
     email: user.email.toLowerCase(),
-    tweetCount: getNumOfTweets(user.userName),
+    tweetCount: await getNumOfTweets(user.userName),
   };
   return resposeObject;
 };
@@ -258,23 +258,24 @@ export const getUserFollowers = catchAsync(
         follower: true,
       },
       skip,
-      take: parsedLimit
+      take: parsedLimit,
     });
 
     res.status(200).json(
       await Promise.all(
         followers.map(async (el) => {
-        const isFollowing = await isUserFollowing(
-          (req.user as User).id,
-          (await getUserByUsername(el.folowererId))?.id || '',
-        );
-        return {
-          ...el.follower,
-          tweetCount: await getNumOfTweets(el.follower.userName),
-          isFollowing,
-        };
-      }),
-    ));
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            (await getUserByUsername(el.folowererId))?.id || '',
+          );
+          return {
+            ...el.follower,
+            tweetCount: await getNumOfTweets(el.follower.userName),
+            isFollowing,
+          };
+        }),
+      ),
+    );
   },
 );
 
@@ -305,7 +306,7 @@ export const putUserProfile = catchAsync(
     } = updatedUser;
     res.status(200).json({
       ...resposeObject,
-      tweetCount: getNumOfTweets(resposeObject.userName),
+      tweetCount: await getNumOfTweets(resposeObject.userName),
     });
   },
 );
@@ -315,9 +316,11 @@ export const getBlockedUsers = catchAsync(
     const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
     res
       .json(
-        blockedUsers.map((el) => {
-          return { ...el, tweetCount: getNumOfTweets(el.userName) };
-        }),
+        await Promise.all(
+          blockedUsers.map(async (el) => {
+            return { ...el, tweetCount: await getNumOfTweets(el.userName) };
+          }),
+        ),
       )
       .status(200);
   },
@@ -459,24 +462,26 @@ export const getUsersMutedByCurrentUser = catchAsync(
         muted: true,
       },
       skip,
-      take: parsedLimit
+      take: parsedLimit,
     });
 
     res.status(200).json(
-      await Promise.all(mutedUsers
-        .map((user) => user.muted)
-        .map(async (el) => {
-          const isFollowing = await isUserFollowing(
-            (req.user as User).id,
-            el.id,
-          );
-          return {
-            ...el,
-            tweetCount: await getNumOfTweets(el.userName),
-            isFollowing,
-          };
-        }),
-    ));
+      await Promise.all(
+        mutedUsers
+          .map((user) => user.muted)
+          .map(async (el) => {
+            const isFollowing = await isUserFollowing(
+              (req.user as User).id,
+              el.id,
+            );
+            return {
+              ...el,
+              tweetCount: await getNumOfTweets(el.userName),
+              isFollowing,
+            };
+          }),
+      ),
+    );
   },
 );
 
