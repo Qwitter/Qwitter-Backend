@@ -102,7 +102,7 @@ export const getConversationDetails = async (
         skip,
         take: parsedLimit,
         orderBy: {
-          date: 'asc',
+          date: 'desc',
         },
         include: {
           sender: true,
