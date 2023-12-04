@@ -645,7 +645,6 @@ export const unlikeTweet = catchAsync(
     const existingTweet = await prisma.tweet.findUnique({
       where: { id },
     });
-    console.log(existingLike, existingTweet);
     if (!existingLike || !existingTweet) {
       return next(new AppError("Tweet is not liked or doesn't exist", 400));
     }
