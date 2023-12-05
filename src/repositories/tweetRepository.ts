@@ -210,7 +210,7 @@ export const searchTweet = async (
   return Querytweets;
 };
 export const deleteTweetById = async (tweetId: string) => {
-  await prisma.tweet.update({
+  const tweet = await prisma.tweet.update({
     where: {
       id: tweetId,
       deletedAt: null,
@@ -219,6 +219,12 @@ export const deleteTweetById = async (tweetId: string) => {
       deletedAt: new Date(),
     },
   });
+  if (tweet.replyToTweetId) {
+    await incrementReplies(tweet.replyToTweetId, -1);
+  }
+  if (tweet.retweetedId) {
+    await incrementRetweet(tweet.retweetedId, -1);
+  }
 };
 
 export const getTweetsLikedById = async (
