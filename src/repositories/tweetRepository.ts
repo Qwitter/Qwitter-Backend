@@ -1,3 +1,4 @@
+import { Tweet } from '@prisma/client';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 
@@ -21,6 +22,36 @@ export const getTweetAndUserById = async (tweetId: string) => {
     });
   }
   return { tweet: tweet, tweetingUser: user };
+};
+export const getTweetAndEntitiesById = async (tweetId: string) => {
+  const tweet = await prisma.tweet.findUnique({
+    where: {
+      id: tweetId,
+      deletedAt: null,
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+          location: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          email: true,
+          userName: true,
+          birthDate: true,
+        },
+      },
+    },
+  });
+  const entities = await getTweetEntities(tweetId);
+  return { ...tweet, entities };
 };
 export const getTweetById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
@@ -179,7 +210,7 @@ export const searchTweet = async (
   return Querytweets;
 };
 export const deleteTweetById = async (tweetId: string) => {
-  await prisma.tweet.update({
+  const tweet = await prisma.tweet.update({
     where: {
       id: tweetId,
       deletedAt: null,
@@ -188,6 +219,12 @@ export const deleteTweetById = async (tweetId: string) => {
       deletedAt: new Date(),
     },
   });
+  if (tweet.replyToTweetId) {
+    await incrementReplies(tweet.replyToTweetId, -1);
+  }
+  if (tweet.retweetedId) {
+    await incrementRetweet(tweet.retweetedId, -1);
+  }
 };
 
 export const getTweetsLikedById = async (
@@ -317,4 +354,59 @@ export const getTweetsMediaById = async (
   }
 
   return mediaTweets;
+};
+export const incrementLikes = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      likesCount: { increment: val },
+    },
+  });
+};
+export const incrementReplies = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      replyCount: { increment: val },
+    },
+  });
+};
+export const incrementRetweet = async (id: string, val: number = 1) => {
+  await prisma.tweet.update({
+    where: { id },
+    data: {
+      retweetCount: { increment: val },
+    },
+  });
+};
+export const getTweetsRepliesRetweets = async (tweets: Tweet[]) => {
+  let newTweets = [];
+  for (const tweet of tweets) {
+    if (tweet.replyToTweetId) {
+      newTweets.push(await getTweetReply(tweet));
+    } else if (tweet.retweetedId) {
+      let retweetedTweet = await getTweetRetweet(tweet); // This the is the original tweet + The retweeted tweet
+      if (retweetedTweet.retweetedTweet.replyToTweetId) {
+        // If the retweeted is a reply
+        let retweetReply = await getTweetReply(retweetedTweet.retweetedTweet); // This will be the retweeted tweet and the the tweet replied to
+        retweetedTweet.retweetedTweet = retweetReply;
+      }
+      newTweets.push(retweetedTweet);
+    } else {
+      newTweets.push(tweet);
+    }
+  }
+  return newTweets;
+};
+export const getTweetReply = async (tweet: any) => {
+  const replyToTweet = await getTweetAndEntitiesById(
+    tweet.replyToTweetId as string,
+  );
+  return { ...tweet, replyToTweet };
+};
+export const getTweetRetweet = async (tweet: any) => {
+  const retweetedTweet = await getTweetAndEntitiesById(
+    tweet.retweetedId as string,
+  );
+  return { ...tweet, retweetedTweet };
 };

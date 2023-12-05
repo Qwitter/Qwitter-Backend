@@ -603,7 +603,6 @@ export const getUserSuggestions = catchAsync(
     ) {
       i++;
       let randomIndex = Math.floor(Math.random() * followedIDs.length);
-      console.log(randomIndex);
       let followersArray = await prisma.follow.findMany({
         take: 10,
         where: {

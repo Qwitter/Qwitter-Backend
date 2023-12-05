@@ -22,6 +22,10 @@ import {
   searchTweet,
   getTweetsMediaById,
   getTweetById,
+  incrementReplies,
+  incrementRetweet,
+  incrementLikes,
+  getTweetsRepliesRetweets,
 } from '../repositories/tweetRepository';
 
 const getTimeline = async (req: Request) => {
@@ -75,14 +79,12 @@ const getTimeline = async (req: Request) => {
           birthDate: true,
         },
       },
-      replyToTweet: true,
-      reTweet: true,
-      qouteTweet: true,
       likes: true,
     },
     skip,
     take: parsedLimit,
   });
+
   let responses = [];
   for (var tweet of timelineTweets) {
     const liked = await prisma.like.findFirst({
@@ -105,7 +107,8 @@ const getTimeline = async (req: Request) => {
     responses.push(response);
   }
 
-  return responses;
+  // return responses;
+  return getTweetsRepliesRetweets(responses);
 };
 
 export const postTweet = catchAsync(
@@ -122,6 +125,8 @@ export const postTweet = catchAsync(
       const tweet = await getTweetById(req.body.replyToTweetId);
       if (!tweet) {
         return next(new AppError('Invalid replyToTweetId', 401));
+      } else {
+        await incrementReplies(req.body.replyToTweetId);
       }
     }
     // Check for replyToTweet and retweet
@@ -129,6 +134,8 @@ export const postTweet = catchAsync(
       const tweet = await getTweetById(req.body.retweetedId);
       if (!tweet) {
         return next(new AppError('Invalid retweetId', 401));
+      } else {
+        await incrementRetweet(req.body.retweetedId);
       }
     }
     const createdTweet = await prisma.tweet.create({
@@ -670,6 +677,7 @@ export const likeTweet = catchAsync(
         tweetId: id,
       },
     });
+    await incrementLikes(id);
 
     res.status(200).json({ status: 'success' });
     next();
@@ -694,6 +702,7 @@ export const unlikeTweet = catchAsync(
     if (!existingLike || !existingTweet) {
       return next(new AppError("Tweet is not liked or doesn't exist", 400));
     }
+    await incrementLikes(id, -1);
 
     await prisma.like.delete({
       where: {
