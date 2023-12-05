@@ -125,7 +125,7 @@ export const createHashtag = async (entityId: string, text: string) => {
     data: {
       text: text,
       entityId: entityId,
-      count: 0,
+      count: 1,
     },
   });
   return createdHashtag;
