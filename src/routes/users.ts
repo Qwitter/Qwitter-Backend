@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * '/api/v1/user/followers':
+ * '/api/v1/user/followers/{username}':
  *  get:
  *     tags:
  *     - User
@@ -25,6 +25,13 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
+ *       - name: username
+ *         in: path
+ *         description: username of the target user
+ *         required: true
+ *         schema:
+ *           type: string
+
 
  *     responses:
  *      200:
@@ -40,10 +47,10 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
-router.get('/followers', isLoggedIn, userController.getUserFollowers);
+router.get('/followers/:username', isLoggedIn, userController.getUserFollowers);
 /**
  * @openapi
- * '/api/v1/user/follow':
+ * '/api/v1/user/follow/{username}':
  *  get:
  *     tags:
  *     - User
@@ -52,6 +59,12 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *       - name: authorization
  *         in: header
  *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: username
+ *         in: path
+ *         description: username of the target user
  *         required: true
  *         schema:
  *           type: string
@@ -70,6 +83,9 @@ router.get('/followers', isLoggedIn, userController.getUserFollowers);
  *      400:
  *        description: Bad request
  */
+
+router.get('/follow/:username', isLoggedIn, userController.getUserFollowings);
+
 
 /**
  * @openapi

@@ -242,8 +242,17 @@ export const changeUserName = catchAsync(
 );
 
 export const getUserFollowers = catchAsync(
-  async (req: Request, res: Response, _: NextFunction) => {
-    const userId = (req.user as User).id;
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const userName=(req.params).username;
+    const user= await prisma.user.findUnique({
+      where:{
+        userName:userName
+      }
+    })
+    const userId=user?.id
+    if(!user)
+      return _next(new AppError('user not found', 404));
+
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
@@ -255,12 +264,27 @@ export const getUserFollowers = catchAsync(
         followedId: userId,
       },
       include: {
-        follower: true,
+        follower:{
+          select:{
+            userName: true,
+            name: true,
+            birthDate: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+          }
+        }
       },
       skip,
       take: parsedLimit,
     });
-
     res.status(200).json(
       await Promise.all(
         followers.map(async (el) => {
@@ -278,6 +302,69 @@ export const getUserFollowers = catchAsync(
     );
   },
 );
+
+
+
+
+export const getUserFollowings = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const userName = (req.params).username;
+    const user= await prisma.user.findUnique({
+      where:{
+        userName:userName
+      }
+    })
+    const userId=user?.id
+    if(!user)
+      return _next(new AppError('user not found', 404));
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const followings = await prisma.follow.findMany({
+      where: {
+        folowererId: userId,
+      },
+      include: {
+        followed:{
+        select:{  
+          userName: true,
+          name: true,
+          birthDate: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          email: true,
+          }
+        }
+      },
+      skip,
+      take: parsedLimit,
+    });
+
+    res.status(200).json(
+      await Promise.all(
+        followings.map(async (el) => {
+          const isFollowing = true
+          return {
+            ...el.followed,
+            tweetCount: await getNumOfTweets(el.followed.userName),
+            isFollowing,
+          };
+        }),
+      ),
+    );
+  },
+);
+
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
