@@ -228,7 +228,7 @@ export const extractEntities = async (text: string) => {
       entityId = newEntity.id;
       await createHashtag(entityId, hashtag);
     }
-    entitiesId.push(entityId);
+    if (!entitiesId.includes(entityId)) entitiesId.push(entityId);
   }
 
   // Processing Mentions
@@ -244,7 +244,7 @@ export const extractEntities = async (text: string) => {
       const newMention = await createMention(existingUser.id);
       entityId = newMention.entityId;
     }
-    entitiesId.push(entityId);
+    if (!entitiesId.includes(entityId)) entitiesId.push(entityId);
   }
   return entitiesId;
 };

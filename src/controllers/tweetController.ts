@@ -25,6 +25,7 @@ import {
   incrementReplies,
   incrementRetweet,
   incrementLikes,
+  getTweetsRepliesRetweets,
 } from '../repositories/tweetRepository';
 
 const getTimeline = async (req: Request) => {
@@ -78,14 +79,12 @@ const getTimeline = async (req: Request) => {
           birthDate: true,
         },
       },
-      replyToTweet: true,
-      reTweet: true,
-      qouteTweet: true,
       likes: true,
     },
     skip,
     take: parsedLimit,
   });
+
   let responses = [];
   for (var tweet of timelineTweets) {
     const liked = await prisma.like.findFirst({
@@ -108,7 +107,8 @@ const getTimeline = async (req: Request) => {
     responses.push(response);
   }
 
-  return responses;
+  // return responses;
+  return getTweetsRepliesRetweets(responses);
 };
 
 export const postTweet = catchAsync(
@@ -135,7 +135,7 @@ export const postTweet = catchAsync(
       if (!tweet) {
         return next(new AppError('Invalid retweetId', 401));
       } else {
-        await incrementRetweet(req.body.replyToTweetId);
+        await incrementRetweet(req.body.retweetedId);
       }
     }
     const createdTweet = await prisma.tweet.create({
