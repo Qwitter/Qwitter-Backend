@@ -282,7 +282,11 @@ export const createConversation = catchAsync(
         },
       });
       if (tempConv)
-        return next(new AppError('Conversation already exists', 404));
+      {
+        res.json(tempConv).status(200);
+        next();
+        return
+      }
       newConv = await prisma.conversation.create({
         data: {
           name: authUser.name + ', ' + usersIDs[0].name,
