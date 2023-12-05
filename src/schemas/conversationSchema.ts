@@ -103,8 +103,6 @@ import { object, string } from 'zod';
  *     GetUserConversationsResponse:
  *       type: object
  *       properties:
- *         unseen:
- *           type: integer
  *         conversations:
  *           type: array
  *           items:
@@ -114,10 +112,31 @@ import { object, string } from 'zod';
  *                 type: integer
  *               name:
  *                 type: string
+ *               ph:
+ *                 type: string
  *               status:
  *                 type: string
+ *               photo:
+ *                 type: string
+ *               isGroup:
+ *                 type: boolean
  *               lastMessage:
  *                 $ref: '#/components/schemas/Message'
+ *               users:
+ *                 $ref: '#/components/schemas/GetConversationsUsersResponse'
+ *  
+ *     GetConversationsUsersResponse:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               userName:
+ *                 type: string
+ *               profileImageUrl:
+ *                 type: string              
+ *               
  *
  *     # Definition for a message object
  *     Message:
@@ -131,6 +150,8 @@ import { object, string } from 'zod';
  *           type: string
  *         userName:
  *           type: string
+ *         isMessage:
+ *           type: boolean
  *         userPhoto:
  *           type: string
  *         entities:
