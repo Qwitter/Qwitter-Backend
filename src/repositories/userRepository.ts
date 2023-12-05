@@ -1,4 +1,5 @@
 import prisma from '../client';
+import { getTweetEntities } from './entityRepository';
 
 export const getUserByUsername = async (user_name: string) => {
   return await prisma.user.findUnique({
@@ -89,8 +90,33 @@ export const getTweetsCreatedByUser = async (userId: string) => {
     where: {
       userId,
     },
+    include: {
+      author: {
+        select: {
+          name: true,
+          location: true,
+          url: true,
+          description: true,
+          protected: true,
+          verified: true,
+          followersCount: true,
+          followingCount: true,
+          createdAt: true,
+          profileBannerUrl: true,
+          profileImageUrl: true,
+          email: true,
+          userName: true,
+          birthDate: true,
+        },
+      },
+    },
   });
-  return tweets;
+  let tweetWithEntities = [];
+  for (var tweet of tweets) {
+    const entities = await getTweetEntities(tweet.id);
+    tweetWithEntities.push({ ...tweet, entities });
+  }
+  return tweetWithEntities;
 };
 
 export const isUserFollowing = async (
