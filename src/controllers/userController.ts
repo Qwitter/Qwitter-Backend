@@ -243,15 +243,14 @@ export const changeUserName = catchAsync(
 
 export const getUserFollowers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const userName=(req.params).username;
-    const user= await prisma.user.findUnique({
-      where:{
-        userName:userName
-      }
-    })
-    const userId=user?.id
-    if(!user)
-      return _next(new AppError('user not found', 404));
+    const userName = req.params.username;
+    const user = await prisma.user.findUnique({
+      where: {
+        userName: userName,
+      },
+    });
+    const userId = user?.id;
+    if (!user) return _next(new AppError('user not found', 404));
 
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
@@ -264,8 +263,8 @@ export const getUserFollowers = catchAsync(
         followedId: userId,
       },
       include: {
-        follower:{
-          select:{
+        follower: {
+          select: {
             userName: true,
             name: true,
             birthDate: true,
@@ -279,44 +278,43 @@ export const getUserFollowers = catchAsync(
             profileBannerUrl: true,
             profileImageUrl: true,
             email: true,
-          }
-        }
+          },
+        },
       },
       skip,
       take: parsedLimit,
     });
-    res.status(200).json(
-      await Promise.all(
-        followers.map(async (el) => {
-          const isFollowing = await isUserFollowing(
-            (req.user as User).id,
-            (await getUserByUsername(el.folowererId))?.id || '',
-          );
-          return {
-            ...el.follower,
-            tweetCount: await getNumOfTweets(el.follower.userName),
-            isFollowing,
-          };
-        }),
-      ),
-    );
+
+    const resultArray = [];
+    for (const el of followers) {
+      const user = await getUserByUsername(el.folowererId);
+      const followerId = user ? user.id : '';
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        followerId,
+      );
+      const resultObject = {
+        ...el.follower,
+        tweetCount: await getNumOfTweets(el.follower.userName),
+        isFollowing,
+      };
+
+      resultArray.push(resultObject);
+    }
+    res.status(200).json(resultArray);
   },
 );
 
-
-
-
 export const getUserFollowings = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const userName = (req.params).username;
-    const user= await prisma.user.findUnique({
-      where:{
-        userName:userName
-      }
-    })
-    const userId=user?.id
-    if(!user)
-      return _next(new AppError('user not found', 404));
+    const userName = req.params.username;
+    const user = await prisma.user.findUnique({
+      where: {
+        userName: userName,
+      },
+    });
+    const userId = user?.id;
+    if (!user) return _next(new AppError('user not found', 404));
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
@@ -328,23 +326,23 @@ export const getUserFollowings = catchAsync(
         folowererId: userId,
       },
       include: {
-        followed:{
-        select:{  
-          userName: true,
-          name: true,
-          birthDate: true,
-          url: true,
-          description: true,
-          protected: true,
-          verified: true,
-          followersCount: true,
-          followingCount: true,
-          createdAt: true,
-          profileBannerUrl: true,
-          profileImageUrl: true,
-          email: true,
-          }
-        }
+        followed: {
+          select: {
+            userName: true,
+            name: true,
+            birthDate: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+          },
+        },
       },
       skip,
       take: parsedLimit,
@@ -353,7 +351,7 @@ export const getUserFollowings = catchAsync(
     res.status(200).json(
       await Promise.all(
         followings.map(async (el) => {
-          const isFollowing = true
+          const isFollowing = true;
           return {
             ...el.followed,
             tweetCount: await getNumOfTweets(el.followed.userName),
@@ -364,7 +362,6 @@ export const getUserFollowings = catchAsync(
     );
   },
 );
-
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
