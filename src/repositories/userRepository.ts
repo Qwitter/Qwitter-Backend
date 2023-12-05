@@ -11,6 +11,15 @@ export const getUserByUsername = async (user_name: string) => {
   });
 };
 
+export const getUserByID = async (id: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+};
+
 export const getUserBlocked = async (
   blockingUser: string,
   blockedUser: string,

@@ -11,6 +11,7 @@ import {
   getUsersByName,
   getNumOfTweets,
   isUserFollowing,
+  getUserByID,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -287,7 +288,7 @@ export const getUserFollowers = catchAsync(
 
     const resultArray = [];
     for (const el of followers) {
-      const user = await getUserByUsername(el.folowererId);
+      const user = await getUserByID(el.folowererId);
       const followerId = user ? user.id : '';
       const isFollowing = await isUserFollowing(
         (req.user as User).id,
