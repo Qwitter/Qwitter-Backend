@@ -1,3 +1,9 @@
+import express from 'express';
+import { getTrends } from '../../src/controllers/trendController';
+import { isLoggedIn } from '../../src/middlewares/authMiddlewares';
+
+const router = express.Router();
+
 /**
  * @openapi
  * '/api/v1/trends':
@@ -17,3 +23,7 @@
  *      400:
  *        description: Bad request
  */
+
+router.get('/', isLoggedIn, getTrends);
+
+export default router;

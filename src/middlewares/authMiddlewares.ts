@@ -30,11 +30,10 @@ export const isLoggedIn = catchAsync(
         deletedAt: null,
       },
     });
-
-    req.user = user as User;
     if (!user) {
       return next(new AppError('User not found', 404));
     }
+    req.user = user as User;
     return next();
   },
 );

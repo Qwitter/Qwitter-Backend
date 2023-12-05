@@ -122,10 +122,13 @@ export const getUser = catchAsync(
       },
     });
 
-    const isFollowing = await isUserFollowing(
-      (_req.user as User).id,
-      (await getUserByUsername(_req.params.username))?.id || '',
-    );
+    const currentUser = _req.user as User;
+    const isFollowing = currentUser
+      ? await isUserFollowing(
+          currentUser.id,
+          (await getUserByUsername(_req.params.username))?.id || '',
+        )
+      : false;
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
       const resposeObject = {
@@ -142,7 +145,7 @@ export const getUser = catchAsync(
         profileBannerUrl: user.profileBannerUrl,
         profileImageUrl: user.profileImageUrl,
         email: user.email.toLowerCase(),
-        tweetCount: getNumOfTweets(user.userName),
+        tweetCount: await getNumOfTweets(user.userName),
         isFollowing,
       };
       res.json(resposeObject).status(200);
@@ -168,7 +171,7 @@ export const getRequestingUser = async (req: Request) => {
     profileBannerUrl: user.profileBannerUrl,
     profileImageUrl: user.profileImageUrl,
     email: user.email.toLowerCase(),
-    tweetCount: getNumOfTweets(user.userName),
+    tweetCount: await getNumOfTweets(user.userName),
   };
   return resposeObject;
 };
@@ -189,14 +192,22 @@ export const getUsers = catchAsync(
 
     const users = await getUsersByName(query as string, skip, parsedLimit);
 
+    const ret: object[] = [];
+
+    for (let user of users) {
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        (await getUserByUsername(user.userName))?.id || '',
+      );
+      const tweetCount = await getNumOfTweets(user.userName);
+      ret.push({
+        ...user,
+        tweetCount,
+        isFollowing,
+      });
+    }
     res.status(200).json({
-      users: users.map(async (el) => {
-        const isFollowing = await isUserFollowing(
-          (req.user as User).id,
-          (await getUserByUsername(el.userName))?.id || '',
-        );
-        return { ...el, tweetCount: getNumOfTweets(el.userName), isFollowing };
-      }),
+      users: ret,
     });
     next();
   },
@@ -231,8 +242,14 @@ export const changeUserName = catchAsync(
 );
 
 export const getUserFollowers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _: NextFunction) => {
     const userId = (req.user as User).id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
     const followers = await prisma.follow.findMany({
       where: {
         followedId: userId,
@@ -240,22 +257,25 @@ export const getUserFollowers = catchAsync(
       include: {
         follower: true,
       },
+      skip,
+      take: parsedLimit,
     });
 
     res.status(200).json(
-      followers.map(async (el) => {
-        const isFollowing = await isUserFollowing(
-          (req.user as User).id,
-          (await getUserByUsername(el.folowererId))?.id || '',
-        );
-        return {
-          ...el.follower,
-          tweetCount: getNumOfTweets(el.follower.userName),
-          isFollowing,
-        };
-      }),
+      await Promise.all(
+        followers.map(async (el) => {
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            (await getUserByUsername(el.folowererId))?.id || '',
+          );
+          return {
+            ...el.follower,
+            tweetCount: await getNumOfTweets(el.follower.userName),
+            isFollowing,
+          };
+        }),
+      ),
     );
-    next();
   },
 );
 
@@ -286,7 +306,7 @@ export const putUserProfile = catchAsync(
     } = updatedUser;
     res.status(200).json({
       ...resposeObject,
-      tweetCount: getNumOfTweets(resposeObject.userName),
+      tweetCount: await getNumOfTweets(resposeObject.userName),
     });
   },
 );
@@ -296,9 +316,11 @@ export const getBlockedUsers = catchAsync(
     const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
     res
       .json(
-        blockedUsers.map((el) => {
-          return { ...el, tweetCount: getNumOfTweets(el.userName) };
-        }),
+        await Promise.all(
+          blockedUsers.map(async (el) => {
+            return { ...el, tweetCount: await getNumOfTweets(el.userName) };
+          }),
+        ),
       )
       .status(200);
   },
@@ -424,8 +446,13 @@ export const unmuteUser = catchAsync(
 );
 
 export const getUsersMutedByCurrentUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _: NextFunction) => {
     const muterId = (req.user as User).id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
 
     const mutedUsers = await prisma.mute.findMany({
       where: {
@@ -434,24 +461,27 @@ export const getUsersMutedByCurrentUser = catchAsync(
       include: {
         muted: true,
       },
+      skip,
+      take: parsedLimit,
     });
 
     res.status(200).json(
-      mutedUsers
-        .map((user) => user.muted)
-        .map(async (el) => {
-          const isFollowing = await isUserFollowing(
-            (req.user as User).id,
-            el.id,
-          );
-          return {
-            ...el,
-            tweetCount: getNumOfTweets(el.userName),
-            isFollowing,
-          };
-        }),
+      await Promise.all(
+        mutedUsers
+          .map((user) => user.muted)
+          .map(async (el) => {
+            const isFollowing = await isUserFollowing(
+              (req.user as User).id,
+              el.id,
+            );
+            return {
+              ...el,
+              tweetCount: await getNumOfTweets(el.userName),
+              isFollowing,
+            };
+          }),
+      ),
     );
-    next();
   },
 );
 
@@ -546,7 +576,7 @@ export const unfollowUser = catchAsync(
 );
 
 export const getUserSuggestions = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const currentUser = req.user as User;
     let suggestionsIDs = new Set();
     let tempUser = await prisma.user.findUnique({
@@ -573,7 +603,6 @@ export const getUserSuggestions = catchAsync(
     ) {
       i++;
       let randomIndex = Math.floor(Math.random() * followedIDs.length);
-      console.log(randomIndex);
       let followersArray = await prisma.follow.findMany({
         take: 10,
         where: {
@@ -673,7 +702,6 @@ export const getUserSuggestions = catchAsync(
         }
       }
     }
-    res.json(suggestions.slice(0, 50)).status(200);
-    next();
+    return res.json(suggestions.slice(0, 50)).status(200);
   },
 );

@@ -387,7 +387,6 @@ router.delete('/mute/:username', isLoggedIn, userController.unmuteUser);
  *        description: Bad request
  */
 
-
 /**
  * @openapi
  * '/api/v1/user/profile_picture':
@@ -555,33 +554,6 @@ router.delete(
   isLoggedIn,
   userController.deleteProfileBanner,
 );
-/**
- * @openapi
- * '/api/v1/user/{username}':
- *  get:
- *     tags:
- *     - User
- *     summary: get user details
- *     parameters:
- *       - name: authorization
- *         in: header
- *         description: ''
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/User'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
- */
-router.get('/:username', userController.getUser);
 
 /**
  * @openapi
@@ -676,6 +648,32 @@ router
 
 router.get('/', isLoggedIn, validate(getUserSchema), userController.getUsers);
 router.route('/suggestions').get(isLoggedIn, userController.getUserSuggestions);
-
+/**
+ * @openapi
+ * '/api/v1/user/{username}':
+ *  get:
+ *     tags:
+ *     - User
+ *     summary: get user details
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         description: ''
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *      200:
+ *        description: Success
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ *      409:
+ *        description: Conflict
+ *      400:
+ *        description: Bad request
+ */
+router.get('/:username', userController.getUser);
 
 export default router;

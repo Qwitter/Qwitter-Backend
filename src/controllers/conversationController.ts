@@ -4,16 +4,21 @@ import prisma from '../client';
 import { AppError } from '../utils/appError';
 import { User } from '@prisma/client';
 import {
+  addPeopleToConversation,
   createMessage,
   searchMember,
   searchMemberForNewConversation,
   validMessageReply,
-  
+  findConversationPeople,
+  findConversationById,
 } from '../repositories/conversationRepository';
-import { getMessageEntities } from '../repositories/entityRepository';
+import {
+  getImagePath,
+  getMessageEntities,
+} from '../repositories/entityRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
-export const editConversationName = catchAsync(
+export const editConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
     if (!conversationId)
@@ -27,6 +32,9 @@ export const editConversationName = catchAsync(
       },
     });
     if (!found) return res.status(400).json({ message: 'Bad Request' });
+    // Updating the conversation photo
+    let photoName = req.file?.filename;
+    if (photoName) photoName = getImagePath(photoName, 'message');
 
     //update
     const newConversationName = req.body.name;
@@ -36,8 +44,10 @@ export const editConversationName = catchAsync(
       },
       data: {
         name: newConversationName,
+        photo: photoName,
       },
     });
+
     if (!updatedConversation)
       return res.status(404).json({ message: 'Not Found' });
 
@@ -46,6 +56,110 @@ export const editConversationName = catchAsync(
   },
 );
 
+export const getConversationDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params;
+  const conversationId = id;
+  const isUserInGroup = await prisma.userConversations.findFirst({
+    where: {
+      userId: (req.user as User).id,
+      conversationId,
+    },
+  });
+
+  if (!isUserInGroup) {
+    res.status(401).json({
+      status: 'error',
+      message: 'User is not a member of the group.',
+    });
+    return;
+  }
+
+  const { page = '1', limit = '10' } = req.query;
+  const parsedPage = parseInt(page as string, 10);
+  const parsedLimit = parseInt(limit as string, 10);
+  const skip = (parsedPage - 1) * parsedLimit;
+
+  await prisma.userConversations.updateMany({
+    where: {
+      conversationId,
+      userId: (req.user as User).id,
+    },
+    data: {
+      seen: true,
+    },
+  });
+
+  const conversationDetails = await prisma.conversation.findUnique({
+    where: {
+      id: conversationId,
+    },
+    include: {
+      Message: {
+        skip,
+        take: parsedLimit,
+        orderBy: {
+          date: 'desc',
+        },
+        include: {
+          sender: true,
+          reply: true,
+          messageEntity: {
+            select: {
+              entity: {
+                include: {
+                  Url: true,
+                  Media: true,
+                  Mention: true,
+                  Hashtag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      UserConversations: {
+        include: {
+          User: true,
+        },
+      },
+    },
+  });
+
+  const formattedMessages = await Promise.all(
+    (conversationDetails?.Message || []).map(async (message) => ({
+      id: message.id,
+      date: message.date.toISOString(),
+      text: message.text,
+      replyToMessage: message.reply,
+      userName: message.sender.userName,
+      profileImageUrl: message.sender.profileImageUrl,
+      entities: await getMessageEntities(message.id),
+    })),
+  );
+
+  const formattedUsers = conversationDetails?.UserConversations.map(
+    (userConversation) => ({
+      userName: userConversation.User.userName,
+      Name: userConversation.User.name,
+      userPhoto: userConversation.User.profileImageUrl,
+    }),
+  );
+
+  const formattedConversationDetails = {
+    messages: formattedMessages,
+    name: conversationDetails?.name,
+    type: conversationDetails?.isGroup ? 'group' : 'direct',
+    photo: conversationDetails?.photo,
+    users: formattedUsers,
+  };
+
+  res.status(200).json(formattedConversationDetails);
+  next();
+};
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
@@ -91,8 +205,7 @@ export const searchForMembersForNewConversation = catchAsync(
       parsedLimit,
       req.user as User,
     );
-    res.status(200).json({ users: users });
-    return _next();
+    return res.status(200).json({ users: users });
   },
 );
 
@@ -102,7 +215,6 @@ export const postMessage = catchAsync(
     const user = req.user as User;
     // Check if there is media
     const photoName = req.file?.filename;
-
     // Check that if there is a reply that the reply is valid
 
     if (req.body.replyId) {
@@ -144,8 +256,7 @@ export const createConversation = catchAsync(
         );
       usersIDs.push(tempUser);
     }
-    if(users.length==0)
-      new AppError("no users provided", 403)
+    if (users.length == 0) return next(new AppError('no users provided', 403));
 
     if (users.length == 1) {
       let tempConv = await prisma.conversation.findFirst({
@@ -313,8 +424,7 @@ export const getConversation = catchAsync(
         name: true,
         lastActivity: true,
         isGroup:true
-        
-        
+
       },
       orderBy: {
         lastActivity: 'desc',
@@ -372,9 +482,59 @@ export const getConversation = catchAsync(
         isGroup:tempConv.isGroup,
         users:users
       };
-      responseConvs.push(tempResponse)
+      responseConvs.push(tempResponse);
     }
     res.json(responseConvs).status(200);
     next();
+  },
+);
+export const postConversationUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const conversationId = req.params.id;
+    const conversation = await findConversationById(conversationId);
+
+    if (!conversation) {
+      return res.status(500).json({ message: 'Oops! Something went wrong' });
+    }
+    if (!conversation.isGroup) {
+      return next(
+        new AppError('You can not add users to direct messages', 401),
+      );
+    }
+
+    let users = req.body.users as Array<string>;
+    users = users.map((user) => user.toLowerCase());
+
+    const usersData = await prisma.user.findMany({
+      where: {
+        userName: {
+          in: users,
+        },
+      },
+      select: { id: true },
+    });
+
+    const conversationPeople = await findConversationPeople(conversationId);
+
+    if (usersData.length !== users.length) {
+      return next(new AppError('Not all users are found', 404));
+    }
+    let userExists = false;
+    // O (N ^ 2) Not so good
+    usersData.forEach((idToCheck) => {
+      if (
+        conversationPeople.some(
+          (item) =>
+            JSON.stringify(item) === JSON.stringify({ userId: idToCheck.id }),
+        )
+      ) {
+        userExists = true;
+      }
+    });
+
+    if (userExists) return next(new AppError('User already exists', 401));
+
+    await addPeopleToConversation(conversationId, usersData);
+    return res.status(201).json({ message: 'Users added successfully' });
   },
 );
