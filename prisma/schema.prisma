@@ -219,7 +219,7 @@ model Message {
   userId         String
   Conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
-
+  isMessage      Boolean            @default(true)
   reply            Message?        @relation("reply", fields: [replyToMessageId], references: [id])
   Message          Message[]       @relation("reply")
   replyToMessageId String?

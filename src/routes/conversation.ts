@@ -197,10 +197,10 @@ router
 
 *      409:
 *        description: Conflict
-*      400:
-*        description: Bad request
-*      404:
-*        description: Conversation not found
+*      402:
+*        description: cannot leave individual conversations
+*      401:
+*        description: conversation not found
 *      
 */
 router.route('/:id').get(isLoggedIn, getConversationDetails);

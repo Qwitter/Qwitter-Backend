@@ -307,6 +307,16 @@ export const createConversation = catchAsync(
           },
         },
       });
+      await prisma.message.create({
+        data:{
+          text:authUser.userName + " created this group",
+          userId:authUser.id,
+          date: new Date(),
+          conversationId:newConv.id,
+          isMessage:false,
+
+        }
+      })
       for (var tempUser of usersIDs)
         await prisma.userConversations.create({
           data: {
@@ -335,12 +345,25 @@ export const deleteConversation = catchAsync(
       },
     });
     if (!conv) return next(new AppError('conversation not found', 401));
+    if(conv.isGroup==false)
+      return next(new AppError('cannot leave individual conversations', 402));
 
     const deletedConv = await prisma.userConversations.delete({
       where: {
         userId_conversationId: { userId: authUser.id, conversationId: conv.id },
       },
     });
+    await prisma.message.create({
+      data:{
+        text:authUser.userName + " left this group",
+        userId:authUser.id,
+        date: new Date(),
+        conversationId:deletedConv.conversationId,
+        isMessage:false,
+
+      }
+    })
+
     if (deletedConv) res.json({ operationSuccess: true }).status(200);
     else res.json({ operationSuccess: false }).status(404);
     next();
@@ -364,21 +387,32 @@ export const getConversation = catchAsync(
       },
       select: {
         id: true,
-        photo: true,
-        UserConversations: {
-          select: {
-            seen: true,
-          },
+        photo:true,
+        UserConversations:{
+          select:{
+            User:{
+              
+              select:{
+                name:true,
+                userName:true,
+                profileImageUrl:true
+              }
+              
+            }
+          }
         },
         Message: {
           orderBy: {
             date: 'desc',
           },
           take: 1,
+          
           select: {
             id: true,
             text: true,
             date: true,
+            isMessage:true,
+            
             sender: {
               select: {
                 userName: true,
@@ -389,7 +423,8 @@ export const getConversation = catchAsync(
         },
         name: true,
         lastActivity: true,
-        isGroup: true,
+        isGroup:true
+
       },
       orderBy: {
         lastActivity: 'desc',
@@ -397,31 +432,55 @@ export const getConversation = catchAsync(
       skip: skip,
       take: parsedLimit,
     });
-    let responseConvs = [];
-    for (var tempConv of convs) {
-      let entities;
-      let lastMessage = {};
-      if (tempConv.Message.length != 0) {
-        entities = await getMessageEntities(tempConv.Message[0].id);
-        lastMessage = {
-          status: tempConv.UserConversations[0].seen,
-          id: tempConv.Message[0].id,
-          date: tempConv.Message[0].date,
-          text: tempConv.Message[0].text,
-          reply: {},
-          userName: tempConv.Message[0].sender.userName,
-          profileImageUrl: tempConv.Message[0].sender.profileImageUrl,
-          entities: entities,
-        };
-      }
+    let responseConvs=[]
 
-      let tempResponse = {
-        id: tempConv.id,
-        name: tempConv.name,
-        lastActivity: tempConv.lastActivity,
-        lastMessage: lastMessage,
-        photo: tempConv.photo,
-        isGroup: tempConv.isGroup,
+
+    for(var tempConv of convs)
+    {
+      let entities;
+      let lastMessage={}
+      if(tempConv.Message.length!=0)
+      {
+        let seen=await prisma.userConversations.findUnique({
+          where:{
+            userId_conversationId:{userId:authUser.id,
+              conversationId:tempConv.id}
+          },
+          select:{
+            seen:true
+          }
+        })
+        
+        entities=await getMessageEntities(tempConv.Message[0].id)
+        lastMessage={
+          status:seen,
+          isMessage:tempConv.Message[0].isMessage,
+          id:tempConv.Message[0].id,
+          date:tempConv.Message[0].date,
+          text:tempConv.Message[0].text,
+          reply:{},
+          userName:tempConv.Message[0].sender.userName,
+          profileImageUrl:tempConv.Message[0].sender.profileImageUrl,
+          entities:entities
+        }
+      }
+      let tempAuthUser={
+        name:authUser.name,
+        userName:authUser.userName,
+        profileImageUrl:authUser.profileImageUrl
+      }
+      let users=[]
+      for(let i=0;i<tempConv.UserConversations.length;i++)
+        if(tempConv.UserConversations[i].User.userName!=authUser.userName)
+          users.push(tempConv.UserConversations[i].User)
+      users.push(tempAuthUser)
+      let tempResponse={
+        id:tempConv.id,
+        name:tempConv.name,
+        lastMessage:lastMessage,
+        photo:tempConv.photo,
+        isGroup:tempConv.isGroup,
+        users:users
       };
       responseConvs.push(tempResponse);
     }
