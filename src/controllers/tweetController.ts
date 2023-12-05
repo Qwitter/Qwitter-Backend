@@ -543,6 +543,7 @@ export const getUserTweets = catchAsync(
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
+    responses = await getTweetsRepliesRetweets(responses);
     return res.status(200).json({
       tweets: responses,
     });
