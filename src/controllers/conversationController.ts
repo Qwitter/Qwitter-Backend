@@ -290,6 +290,7 @@ export const getConversation = catchAsync(
         lastActivity: true,
         isGroup:true
         
+        
       },
       orderBy: {
         lastActivity: 'desc',
@@ -321,7 +322,6 @@ export const getConversation = catchAsync(
       let tempResponse={
         id:tempConv.id,
         name:tempConv.name,
-        lastActivity:tempConv.lastActivity,
         lastMessage:lastMessage,
         photo:tempConv.photo,
         isGroup:tempConv.isGroup,
