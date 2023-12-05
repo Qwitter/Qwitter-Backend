@@ -1,0 +1,16 @@
+export const authorSelectOptions = {
+  name: true,
+  location: true,
+  url: true,
+  description: true,
+  protected: true,
+  verified: true,
+  followersCount: true,
+  followingCount: true,
+  createdAt: true,
+  profileBannerUrl: true,
+  profileImageUrl: true,
+  email: true,
+  userName: true,
+  birthDate: true,
+};

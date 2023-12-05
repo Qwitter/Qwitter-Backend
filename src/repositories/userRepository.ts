@@ -1,3 +1,4 @@
+import { authorSelectOptions } from '../types/user';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 
@@ -92,22 +93,7 @@ export const getTweetsCreatedByUser = async (userId: string) => {
     },
     include: {
       author: {
-        select: {
-          name: true,
-          location: true,
-          url: true,
-          description: true,
-          protected: true,
-          verified: true,
-          followersCount: true,
-          followingCount: true,
-          createdAt: true,
-          profileBannerUrl: true,
-          profileImageUrl: true,
-          email: true,
-          userName: true,
-          birthDate: true,
-        },
+        select: authorSelectOptions,
       },
     },
   });

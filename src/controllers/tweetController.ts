@@ -27,6 +27,7 @@ import {
   incrementLikes,
   getTweetsRepliesRetweets,
 } from '../repositories/tweetRepository';
+import { authorSelectOptions } from '../types/user';
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -62,22 +63,7 @@ const getTimeline = async (req: Request) => {
     },
     include: {
       author: {
-        select: {
-          name: true,
-          location: true,
-          url: true,
-          description: true,
-          protected: true,
-          verified: true,
-          followersCount: true,
-          followingCount: true,
-          createdAt: true,
-          profileBannerUrl: true,
-          profileImageUrl: true,
-          email: true,
-          userName: true,
-          birthDate: true,
-        },
+        select: authorSelectOptions,
       },
       likes: true,
     },
@@ -234,22 +220,7 @@ export const getTweetReplies = catchAsync(
       },
       include: {
         author: {
-          select: {
-            name: true,
-            location: true,
-            url: true,
-            description: true,
-            protected: true,
-            verified: true,
-            followersCount: true,
-            followingCount: true,
-            createdAt: true,
-            profileBannerUrl: true,
-            profileImageUrl: true,
-            email: true,
-            userName: true,
-            birthDate: true,
-          },
+          select: authorSelectOptions,
         },
       },
     });
@@ -302,7 +273,7 @@ export const getTweetRetweets = catchAsync(
         deletedAt: null,
       },
       include: {
-        author: true,
+        author: { select: authorSelectOptions },
       },
     });
 
