@@ -577,6 +577,7 @@ export const getUserReplies = catchAsync(
       let response = { ...tweet, liked: liked != null, isFollowing };
       responses.push(response);
     }
+    responses = await getTweetsRepliesRetweets(responses);
     return res.status(200).json({
       tweets: responses,
     });
@@ -615,8 +616,8 @@ export const getUserLikedTweets = catchAsync(
       skip,
       parsedLimit,
     );
-
-    res.status(200).json({ tweets: tweets });
+    const responses = await getTweetsRepliesRetweets(tweets);
+    res.status(200).json({ tweets: responses });
     next();
   },
 );
@@ -646,8 +647,8 @@ export const getUserMediaTweets = catchAsync(
       skip,
       parsedLimit,
     );
-
-    res.status(200).json({ tweets: tweets });
+    const responses = await getTweetsRepliesRetweets(tweets);
+    res.status(200).json({ tweets: responses });
     next();
   },
 );

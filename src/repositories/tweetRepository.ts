@@ -1,4 +1,3 @@
-import { Tweet } from '@prisma/client';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 
@@ -379,7 +378,7 @@ export const incrementRetweet = async (id: string, val: number = 1) => {
     },
   });
 };
-export const getTweetsRepliesRetweets = async (tweets: Tweet[]) => {
+export const getTweetsRepliesRetweets = async (tweets: any[]) => {
   let newTweets = [];
   for (const tweet of tweets) {
     if (tweet.replyToTweetId) {
