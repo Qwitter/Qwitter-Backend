@@ -125,7 +125,7 @@ export const createHashtag = async (entityId: string, text: string) => {
     data: {
       text: text,
       entityId: entityId,
-      count: 0,
+      count: 1,
     },
   });
   return createdHashtag;
@@ -140,10 +140,10 @@ export const createMention = async (userId: string) => {
   });
   return createdmention;
 };
-export const createMedia = async (mediaName: string) => {
+export const createMedia = async (mediaName: string, folder: string) => {
   const createdEntity = await createEntity('media');
 
-  const imagePath = getImagePath(mediaName, 'tweet');
+  const imagePath = getImagePath(mediaName, folder);
   const createdMedia = await prisma.media.create({
     data: {
       url: imagePath,
