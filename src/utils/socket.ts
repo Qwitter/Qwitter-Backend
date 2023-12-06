@@ -1,4 +1,5 @@
 import { User } from '@prisma/client';
+import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
 
 const EVENTS = {
@@ -21,41 +22,39 @@ const rooms: Record<string, { name: string }> = {};
 export function sendRoomMessage(
   socket: CustomSocket,
   roomId: string,
-  message: string,
-  username: string,
+  message: Message,
 ) {
   const date = new Date();
-  console.log(message, username);
+  console.log(message);
   socket.to(roomId).emit(EVENTS.SERVER.ROOM_MESSAGE, {
     message,
-    username,
     time: `${date.getHours()}:${date.getMinutes()}`,
   });
 }
 
 function socket({ io }: { io: Server }) {
-  io.use((_socket, next) => {
-    // Extract token from query parameters
-    // const token = socket.handshake.query.token;
+  // io.use((_socket, next) => {
+  //   // Extract token from query parameters
+  //   // const token = socket.handshake.query.token;
 
-    // if (!token) {
-    //   return next(new Error('Authentication error: Token not provided'));
-    // }
+  //   // if (!token) {
+  //   //   return next(new Error('Authentication error: Token not provided'));
+  //   // }
 
-    next();
+  //   next();
 
-    // jwt.verify(token, secretKey, (err, decoded) => {
-    //   if (err) {
-    //     return next(new Error('Authentication error: Invalid token'));
-    //   }
+  //   // jwt.verify(token, secretKey, (err, decoded) => {
+  //   //   if (err) {
+  //   //     return next(new Error('Authentication error: Invalid token'));
+  //   //   }
 
-    //   // Attach user information to the socket
-    //   socket.user = decoded.user;
-    //   next();
-    // });
+  //   //   // Attach user information to the socket
+  //   //   socket.user = decoded.user;
+  //   //   next();
+  //   // });
 
-    // TODO: Here should be added authentication layer using jwt
-  });
+  //   // TODO: Here should be added authentication layer using jwt
+  // });
 
   io.on(EVENTS.connection, (socket: CustomSocket) => {
     console.log('User connected ' + socket.id);
@@ -67,12 +66,10 @@ function socket({ io }: { io: Server }) {
      * When a user sends a room message
      */
 
-    socket.on(
-      EVENTS.CLIENT.SEND_ROOM_MESSAGE,
-      ({ roomId, message, username }) => {
-        sendRoomMessage(socket, roomId, message, username);
-      },
-    );
+    socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, ({ roomId, message }) => {
+      sendRoomMessage(socket, roomId, message);
+      console.log(message);
+    });
 
     /*
      * When a user joins a room
@@ -82,6 +79,7 @@ function socket({ io }: { io: Server }) {
       // if (!socket.user) {
       //   console.log('unable to join. Please log in first');
       // }
+      console.log('User joined room ' + roomId);
       socket.join(roomId);
       socket.emit(EVENTS.SERVER.JOINED_ROOM, roomId);
     });

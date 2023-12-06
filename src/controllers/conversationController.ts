@@ -138,6 +138,7 @@ export const getConversationDetails = async (
       userName: message.sender.userName,
       profileImageUrl: message.sender.profileImageUrl,
       entities: await getMessageEntities(message.id),
+      isMessage: message.isMessage,
     })),
   );
 
@@ -150,11 +151,13 @@ export const getConversationDetails = async (
   );
 
   const formattedConversationDetails = {
+    id: conversationDetails?.id,
     messages: formattedMessages,
     name: conversationDetails?.name,
-    type: conversationDetails?.isGroup ? 'group' : 'direct',
+    isGroup: conversationDetails?.isGroup,
     photo: conversationDetails?.photo,
     users: formattedUsers,
+    seen: true,
   };
 
   res.status(200).json(formattedConversationDetails);
@@ -436,41 +439,33 @@ export const getConversation = catchAsync(
       let entities;
       let lastMessage = {};
       if (tempConv.Message.length != 0) {
-        let seen = await prisma.userConversations.findUnique({
-          where: {
-            userId_conversationId: {
-              userId: authUser.id,
-              conversationId: tempConv.id,
-            },
-          },
-          select: {
-            seen: true,
-          },
-        });
-
         entities = await getMessageEntities(tempConv.Message[0].id);
         lastMessage = {
-          seen,
           isMessage: tempConv.Message[0].isMessage,
           id: tempConv.Message[0].id,
           date: tempConv.Message[0].date,
           text: tempConv.Message[0].text,
-          reply: {},
+          replyToMessage: {},
           userName: tempConv.Message[0].sender.userName,
           profileImageUrl: tempConv.Message[0].sender.profileImageUrl,
           entities: entities,
         };
       }
-      let tempAuthUser = {
-        name: authUser.name,
-        userName: authUser.userName,
-        profileImageUrl: authUser.profileImageUrl,
-      };
+      let status = await prisma.userConversations.findUnique({
+        where: {
+          userId_conversationId: {
+            userId: authUser.id,
+            conversationId: tempConv.id,
+          },
+        },
+        select: {
+          seen: true,
+        },
+      });
       let users = [];
       for (let i = 0; i < tempConv.UserConversations.length; i++)
         if (tempConv.UserConversations[i].User.userName != authUser.userName)
           users.push(tempConv.UserConversations[i].User);
-      users.push(tempAuthUser);
       let tempResponse = {
         id: tempConv.id,
         name: tempConv.name,
@@ -478,6 +473,7 @@ export const getConversation = catchAsync(
         photo: tempConv.photo,
         isGroup: tempConv.isGroup,
         users: users,
+        seen: status?.seen,
       };
       responseConvs.push(tempResponse);
     }
