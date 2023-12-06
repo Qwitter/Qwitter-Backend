@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { Message } from '../types/conversations';
+// import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
 
 const EVENTS = {
@@ -22,7 +22,7 @@ interface CustomSocket extends Socket {
 export function sendRoomMessage(
   socket: CustomSocket,
   roomId: string,
-  message: Message,
+  message: any,
 ) {
   const date = new Date();
   console.log(message);
@@ -36,6 +36,7 @@ function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
     console.log('User connected ' + socket.id);
     socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
+      sendRoomMessage(socket, message.conversationId, message.data);
       console.log('Received room message');
       console.log(message);
     });
