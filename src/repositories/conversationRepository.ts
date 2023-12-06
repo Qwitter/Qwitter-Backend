@@ -140,6 +140,9 @@ export const createMessage = async (
       date: currentDate,
       replyToMessageId: replyId ? replyId : null,
     },
+    include: {
+      reply: true,
+    },
   });
   //Extract the entities
   const entitiesId: string[] = await extractEntities(text);

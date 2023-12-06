@@ -17,18 +17,13 @@ const EVENTS = {
 interface CustomSocket extends Socket {
   user: User;
 }
-// const rooms: Record<string, { name: string }> = {};
-
 export function sendRoomMessage(
   socket: CustomSocket,
   roomId: string,
   message: any,
 ) {
-  const date = new Date();
-  console.log(message);
   socket.to(roomId).emit(EVENTS.SERVER.ROOM_MESSAGE, {
     message,
-    time: `${date.getHours()}:${date.getMinutes()}`,
   });
 }
 

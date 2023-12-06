@@ -219,7 +219,6 @@ export const postMessage = catchAsync(
     // Check if there is media
     const photoName = req.file?.filename;
     // Check that if there is a reply that the reply is valid
-
     if (req.body.replyId) {
       const valid = await validMessageReply(id, req.body.replyId);
       if (!valid) {
@@ -234,9 +233,19 @@ export const postMessage = catchAsync(
       req.body.replyId,
       photoName,
     );
+    const formattedMessage = {
+      profileImageUrl: user.profileImageUrl,
+      userName: user.userName,
+      replyToMessage: createdMessage.reply,
+      id: createdMessage.id,
+      entities: createdMessage.entities,
+      text: createdMessage.text,
+      isMessage: createdMessage.isMessage,
+      date: createdMessage.date,
+    };
     // Send the message to the socket
     return res.status(201).json({
-      createdMessage,
+      createdMessage: formattedMessage,
     });
   },
 );
@@ -302,6 +311,15 @@ export const createConversation = catchAsync(
           },
         },
       });
+      await prisma.message.create({
+        data: {
+          text: authUser.userName + ' created this group',
+          userId: authUser.id,
+          date: new Date(),
+          conversationId: newConv.id,
+          isMessage: false,
+        },
+      });
     } else {
       newConv = await prisma.conversation.create({
         data: {
@@ -350,8 +368,6 @@ export const deleteConversation = catchAsync(
       },
     });
     if (!conv) return next(new AppError('conversation not found', 401));
-    if (conv.isGroup == false)
-      return next(new AppError('cannot leave individual conversations', 402));
 
     const deletedConv = await prisma.userConversations.delete({
       where: {
