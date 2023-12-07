@@ -95,7 +95,11 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   return blockedUsers;
 };
 
-export const getTweetsCreatedByUser = async (userId: string) => {
+export const getTweetsCreatedByUser = async (
+  userId: string,
+  skip: number = 0,
+  take: number = 10,
+) => {
   const tweets = await prisma.tweet.findMany({
     where: {
       userId,
@@ -105,6 +109,8 @@ export const getTweetsCreatedByUser = async (userId: string) => {
         select: authorSelectOptions,
       },
     },
+    skip,
+    take,
   });
   let tweetWithEntities = [];
   for (var tweet of tweets) {
