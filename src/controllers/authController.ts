@@ -49,10 +49,15 @@ export const login = catchAsync(
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
-    res.status(200).json({
-      token: token,
-      user: { ...user, tweetCount: getNumOfTweets(user.userName) },
-    });
+    sendToken(
+      token,
+      200,
+      {
+        token: token,
+        user: { ...user, tweetCount: getNumOfTweets(user.userName) },
+      },
+      res,
+    );
   },
 );
 
@@ -257,14 +262,19 @@ export const signUp = catchAsync(
         const token = sign({ id: id }, process.env.JWT_SECRET as string, {
           expiresIn: process.env.JWT_EXPIRES_IN,
         });
-        _res.status(200).json({
+        sendToken(
           token,
-          data: {
-            ...newObject,
-            tweetCount: getNumOfTweets(newObject.userName),
+          200,
+          {
+            token,
+            data: {
+              ...newObject,
+              tweetCount: getNumOfTweets(newObject.userName),
+            },
+            suggestions: uniqueUserName.slice(1, 6),
           },
-          suggestions: uniqueUserName.slice(1, 6),
-        });
+          _res,
+        );
       }
     }
   },
@@ -646,4 +656,19 @@ export const signJWT = (id: string) => {
   return sign({ id: id }, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+};
+const sendToken = (
+  token: string,
+  statusCode: number,
+  responseBody: any,
+  res: Response,
+) => {
+  const expiresIn = process.env.JWT_EXPIRES_IN;
+  const days = Number(expiresIn?.substring(0, expiresIn.length - 1)); // To remove the d in the end
+  res.cookie('qwitter_jwt', token, {
+    expires: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    // secure: true, // Will be uncommented when we deploy https
+  });
+  res.status(statusCode).json(responseBody);
 };
