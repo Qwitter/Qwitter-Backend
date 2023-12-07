@@ -11,7 +11,7 @@
 // To send a new message, just use the endpoint for sending a new message. No need for socket in the client here. The server will send the message to the socket
 
 const io = require('socket.io-client');
-const SOCKET_URL = process.env.SOCKET_URL || 'http://localhost:4000';
+const SOCKET_URL = 'http://qwitterback.cloudns.org:3000/';
 const EVENTS = {
   connection: 'connection',
   CLIENT: {
@@ -26,7 +26,7 @@ const EVENTS = {
   },
 };
 const socket = io(SOCKET_URL);
-socket.emit('JOIN_ROOM', '123');
+socket.emit('JOIN_ROOM', '133e0737-7671-4e03-a7f0-342f34effaf5');
 socket.on(EVENTS.SERVER.ROOM_MESSAGE, ({ message, username, time }) => {
   console.log('Socket1: ' + message);
 });

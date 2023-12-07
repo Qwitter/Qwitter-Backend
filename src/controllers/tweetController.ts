@@ -160,7 +160,7 @@ export const postTweet = catchAsync(
     const files = (req.files as Express.Multer.File[]) || [];
     const fileNames = files?.map((file: { filename: string }) => file.filename);
     for (const fileName of fileNames) {
-      const createdMedia = await createMedia(fileName);
+      const createdMedia = await createMedia(fileName, 'tweet');
       entitiesId.push(createdMedia.entityId);
     }
 
@@ -194,6 +194,11 @@ export const postTweet = catchAsync(
 export const getTweetReplies = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const tweetId = req.params.id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
     let responses = [];
     const tweet = await prisma.tweet.findUnique({
       where: {
@@ -223,6 +228,8 @@ export const getTweetReplies = catchAsync(
           select: authorSelectOptions,
         },
       },
+      skip,
+      take: parsedLimit,
     });
     for (var reply of replies) {
       const liked = await prisma.like.findFirst({
@@ -251,7 +258,11 @@ export const getTweetReplies = catchAsync(
 export const getTweetRetweets = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const tweetId = req.params.id;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
 
+    const skip = (parsedPage - 1) * parsedLimit;
     const tweet = await prisma.tweet.findUnique({
       where: {
         id: tweetId,
@@ -275,6 +286,8 @@ export const getTweetRetweets = catchAsync(
       include: {
         author: { select: authorSelectOptions },
       },
+      skip,
+      take: parsedLimit,
     });
 
     res.status(200).json({
@@ -394,6 +407,11 @@ export const deleteTweet = catchAsync(
 
 export const getTweetLikers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
     const { id } = req.params;
 
     const tweet = await prisma.tweet.findUnique({
@@ -432,6 +450,8 @@ export const getTweetLikers = catchAsync(
           },
         },
       },
+      skip,
+      take: parsedLimit,
     });
 
     const likers = tweetLikers.map((like) => like.liker);
@@ -489,6 +509,12 @@ export const searchTweets = catchAsync(
 export const getUserTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;
+
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
     let responses = [];
     const user = await getUserByUsername(userName);
     // Checking that the user exists
@@ -498,7 +524,7 @@ export const getUserTweets = catchAsync(
         message: 'User Not found',
       });
     }
-    const tweets = await getTweetsCreatedByUser(user.id);
+    const tweets = await getTweetsCreatedByUser(user.id, skip, parsedLimit);
     for (var tweet of tweets) {
       if (tweet.replyToTweetId != null) continue;
       const liked = await prisma.like.findFirst({
@@ -524,6 +550,11 @@ export const getUserTweets = catchAsync(
 export const getUserReplies = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
     let responses = [];
     const user = await getUserByUsername(userName);
     // Checking that the user exists
@@ -533,7 +564,7 @@ export const getUserReplies = catchAsync(
         message: 'User Not found',
       });
     }
-    const tweets = await getTweetsCreatedByUser(user.id);
+    const tweets = await getTweetsCreatedByUser(user.id, skip, parsedLimit);
     for (var tweet of tweets) {
       const liked = await prisma.like.findFirst({
         where: {
