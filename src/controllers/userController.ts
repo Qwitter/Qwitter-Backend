@@ -156,35 +156,32 @@ export const getUser = catchAsync(
   },
 );
 
-export const getRequestingUser = async (req: Request) => {
-  const user = req.user as User;
-  const resposeObject = {
-    userName: user.userName,
-    name: user.name,
-    birthDate: user.birthDate,
-    url: user.url,
-    description: user.description,
-    protected: user.protected,
-    verified: user.verified,
-    followersCount: user.followersCount,
-    followingCount: user.followingCount,
-    createdAt: user.createdAt,
-    profileBannerUrl: user.profileBannerUrl,
-    profileImageUrl: user.profileImageUrl,
-    email: user.email.toLowerCase(),
-    tweetCount: await getNumOfTweets(user.userName),
-  };
-  return resposeObject;
-};
+export const getRequestingUser = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const user = req.user as User;
+    const resposeObject = {
+      userName: user.userName,
+      name: user.name,
+      birthDate: user.birthDate,
+      url: user.url,
+      description: user.description,
+      protected: user.protected,
+      verified: user.verified,
+      followersCount: user.followersCount,
+      followingCount: user.followingCount,
+      createdAt: user.createdAt,
+      profileBannerUrl: user.profileBannerUrl,
+      profileImageUrl: user.profileImageUrl,
+      email: user.email.toLowerCase(),
+      tweetCount: await getNumOfTweets(user.userName),
+    };
+    return res.status(200).json(resposeObject);
+  },
+);
 
 export const getUsers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const query = req.query.q;
-    if (!query) {
-      const user = await getRequestingUser(req);
-      res.status(200).json({ user: user });
-      return next();
-    }
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
@@ -207,10 +204,9 @@ export const getUsers = catchAsync(
         isFollowing,
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       users: ret,
     });
-    next();
   },
 );
 

@@ -86,7 +86,6 @@ router.get('/followers/:username', isLoggedIn, userController.getUserFollowers);
 
 router.get('/follow/:username', isLoggedIn, userController.getUserFollowings);
 
-
 /**
  * @openapi
  * '/api/v1/user/follow/{username}':
@@ -662,7 +661,14 @@ router
     userController.changeUserName,
   );
 
-router.get('/', isLoggedIn, validate(getUserSchema), userController.getUsers);
+router.get('/', isLoggedIn, userController.getRequestingUser);
+router.get(
+  '/search',
+  isLoggedIn,
+  validate(getUserSchema),
+  userController.getUsers,
+);
+
 router.route('/suggestions').get(isLoggedIn, userController.getUserSuggestions);
 /**
  * @openapi

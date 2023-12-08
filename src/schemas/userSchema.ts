@@ -197,5 +197,8 @@ export const getUserSchema = object({
         },
       )
       .optional(),
+    q: string({
+      required_error: 'User name is required',
+    }),
   }),
 });

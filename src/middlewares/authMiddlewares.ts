@@ -8,7 +8,8 @@ import { User } from '@prisma/client';
 export const isLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
-    const auth_header: string = req.headers.authorization as string;
+    const auth_header: string =
+      req.cookies.qwitter_jwt || (req.headers.authorization as string);
 
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return next(new AppError('Unauthorized access', 401));
@@ -41,8 +42,8 @@ export const isLoggedIn = catchAsync(
 export const mobileLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
-    const auth_header: string = req.headers.authorization as string;
-
+    const auth_header: string =
+      req.cookies.qwitter_jwt || (req.headers.authorization as string);
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return next(new AppError('Unauthorized access', 401));
     }
