@@ -137,10 +137,15 @@ export const resetPassword = catchAsync(
       },
     });
 
-    _res.status(200).send({
-      token: token,
-      message: 'Password reset was successful',
-    });
+    sendToken(
+      token,
+      200,
+      {
+        token: token,
+        message: 'Password reset was successful',
+      },
+      _res,
+    );
   },
 );
 
@@ -665,7 +670,7 @@ const sendToken = (
 ) => {
   const expiresIn = process.env.JWT_EXPIRES_IN;
   const days = Number(expiresIn?.substring(0, expiresIn.length - 1)); // To remove the d in the end
-  res.cookie('qwitter_jwt', token, {
+  res.cookie('qwitter_jwt', 'Bearer ' + token, {
     expires: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
     httpOnly: true,
     // secure: true, // Will be uncommented when we deploy https
