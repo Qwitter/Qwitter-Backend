@@ -68,6 +68,7 @@ app.use('/api/v1/trends', trendsRouter);
 
 app.all('*', (req, _res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  return;
 });
 
 app.use(globalErrorHandler);
