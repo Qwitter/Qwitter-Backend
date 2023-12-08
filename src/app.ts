@@ -52,7 +52,7 @@ app.use(cookieParser());
 configurePassport();
 
 app.get('/', (_, res) => {
-  res.sendFile(path.join(__dirname, '', 'index.html'));
+  return res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
 // Routes
