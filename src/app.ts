@@ -52,9 +52,7 @@ app.use(cookieParser());
 configurePassport();
 
 app.get('/', (_, res) => {
-  const dirName = __dirname.replace('src', 'public');
-  const url = path.join(dirName, '', 'index.html');
-  return res.sendFile(url);
+  res.send('Qwitter');
 });
 
 // Routes
