@@ -362,6 +362,14 @@ export const getUserFollowings = catchAsync(
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
+    if(_req.body.url)
+    {
+      if(!((_req.body.url as String).indexOf('.')>0) || !((_req.body.url as String).startsWith("http")) )
+        return _next(new AppError('invalid url', 401));
+    }
+    else{
+      _req.body.url=null
+    }
     const user = _req.user as User;
     const updatedUser = await prisma.user.update({
       where: {
