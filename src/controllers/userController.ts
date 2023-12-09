@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
+import { JwtPayload, verify } from 'jsonwebtoken';
+
 import {
   getUserByUsername,
   blockUserByIDs,
@@ -12,6 +14,8 @@ import {
   getNumOfTweets,
   isUserFollowing,
   getUserByID,
+  isUserBlocked,
+  isUserMuted,
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
@@ -123,13 +127,38 @@ export const getUser = catchAsync(
       },
     });
 
-    const currentUser = _req.user as User;
-    const isFollowing = currentUser
+    // const currentUser = _req.user as User;
+    const auth_header: string =
+    _req.cookies.qwitter_jwt || (_req.headers.authorization as string);
+    const token: string = auth_header.split(' ')[1];
+    const payloadData = await verify(token, process.env.JWT_SECRET as string);
+    const authUser = await prisma.user.findFirst({
+      where: {
+        id: (payloadData as JwtPayload).id,
+        deletedAt: null,
+      },
+    });
+
+    const isFollowing = authUser!=null
       ? await isUserFollowing(
-          currentUser.id,
+        authUser.id,
           (await getUserByUsername(_req.params.username))?.id || '',
         )
       : false;
+    const isBlcoked = authUser!=null
+      ? await isUserBlocked(
+        authUser.id,
+          (await getUserByUsername(_req.params.username))?.id || '',
+        )
+      : false;
+    const isMuted = authUser!=null
+      ? await isUserMuted(
+        authUser.id,
+          (await getUserByUsername(_req.params.username))?.id || '',
+        )
+      : false;
+    
+
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
       const resposeObject = {
@@ -148,6 +177,8 @@ export const getUser = catchAsync(
         email: user.email.toLowerCase(),
         tweetCount: await getNumOfTweets(user.userName),
         isFollowing,
+        isBlcoked,
+        isMuted
       };
       res.json(resposeObject).status(200);
     } else {
