@@ -168,7 +168,7 @@ export const putUserProfileReqSchema = object({
     name: string().min(1).max(50),
     description: optional(string()),
     location: optional(string()),
-    url: optional(string().url()),
+    url: optional(string()),
     birth_date: string().datetime(),
   }),
 });
