@@ -136,6 +136,40 @@ export const isUserFollowing = async (
   return !!followRelationship;
 };
 
+
+export const isUserBlocked = async (
+  userid1: string,
+  userid2: string,
+): Promise<boolean> => {
+  const blockRelationship = await prisma.block.findUnique({
+    where: {
+      blockerId_blockedId: {
+        blockerId: userid1,
+        blockedId: userid2,
+      },
+    },
+  });
+
+  return !!blockRelationship;
+};
+
+export const isUserMuted = async (
+  userid1: string,
+  userid2: string,
+): Promise<boolean> => {
+  const muteRelationship = await prisma.mute.findUnique({
+    where: {
+      muterId_mutedId: {
+        muterId: userid1,
+        mutedId: userid2,
+      },
+    },
+  });
+
+  return !!muteRelationship;
+};
+
+
 export const getUsersByName = async (
   query: string,
   skip: number,
