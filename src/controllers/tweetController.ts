@@ -142,7 +142,6 @@ export const postTweet = catchAsync(
         text: true,
         source: true,
         coordinates: true,
-        userId: false, // Exclude the 'userId' field
         replyToTweetId: true,
         replyCount: true,
         retweetedId: true,
