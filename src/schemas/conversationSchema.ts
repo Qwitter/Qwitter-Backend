@@ -124,7 +124,7 @@ import { object, string } from 'zod';
  *                 $ref: '#/components/schemas/Message'
  *               users:
  *                 $ref: '#/components/schemas/GetConversationsUsersResponse'
- *  
+ *
  *     GetConversationsUsersResponse:
  *           type: array
  *           items:
@@ -135,8 +135,8 @@ import { object, string } from 'zod';
  *               userName:
  *                 type: string
  *               profileImageUrl:
- *                 type: string              
- *               
+ *                 type: string
+ *
  *
  *     # Definition for a message object
  *     Message:
@@ -185,9 +185,6 @@ import { object, string } from 'zod';
 
 export const createConversationPayloadSchema = object({
   body: object({
-    conversation_name: string({
-      required_error: 'Conversation name is required',
-    }),
     users: string({
       required_error: 'Users to be added are required',
     }).array(),
