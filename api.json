@@ -6,7 +6,7 @@
     "description" : "For any pagination add page,limit as query parameters. Default is limit 10"
   },
   "servers" : [ {
-    "url" : "localhost:3000"
+    "url" : "qwitterback.cloudns.org:3000"
   } ],
   "components" : {
     "securitySchemes" : {
@@ -244,13 +244,25 @@
           }
         }
       },
+      "deleteConversationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "operationSuccess" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "createConversationResponse" : {
         "type" : "object",
         "properties" : {
-          "status" : {
-            "type" : "string"
+          "type" : {
+            "type" : "string",
+            "default" : "direct"
           },
           "id" : {
+            "type" : "string"
+          },
+          "name" : {
             "type" : "string"
           }
         }
@@ -323,9 +335,6 @@
       "GetUserConversationsResponse" : {
         "type" : "object",
         "properties" : {
-          "unseen" : {
-            "type" : "integer"
-          },
           "conversations" : {
             "type" : "array",
             "items" : {
@@ -337,13 +346,42 @@
                 "name" : {
                   "type" : "string"
                 },
+                "ph" : {
+                  "type" : "string"
+                },
                 "status" : {
                   "type" : "string"
                 },
+                "photo" : {
+                  "type" : "string"
+                },
+                "isGroup" : {
+                  "type" : "boolean"
+                },
                 "lastMessage" : {
                   "$ref" : "#/components/schemas/Message"
+                },
+                "users" : {
+                  "$ref" : "#/components/schemas/GetConversationsUsersResponse"
                 }
               }
+            }
+          }
+        }
+      },
+      "GetConversationsUsersResponse" : {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "userName" : {
+              "type" : "string"
+            },
+            "profileImageUrl" : {
+              "type" : "string"
             }
           }
         }
@@ -362,6 +400,9 @@
           },
           "userName" : {
             "type" : "string"
+          },
+          "isMessage" : {
+            "type" : "boolean"
           },
           "userPhoto" : {
             "type" : "string"
@@ -511,7 +552,11 @@
       "GetTrends" : {
         "type" : "object",
         "properties" : {
-          "tweets" : {
+          "status" : {
+            "type" : "string",
+            "default" : "success"
+          },
+          "trends" : {
             "type" : "array",
             "items" : {
               "type" : "object",
@@ -2034,11 +2079,17 @@
               }
             }
           },
-          "400" : {
-            "description" : "Bad request"
+          "401" : {
+            "description" : "not all users are found"
           },
-          "409" : {
-            "description" : "Conflict"
+          "402" : {
+            "description" : "can't create conversation with yourself"
+          },
+          "403" : {
+            "description" : "no users provided"
+          },
+          "404" : {
+            "description" : "Conversation already exists"
           }
         }
       },
@@ -2133,6 +2184,42 @@
         }
       }
     },
+    "/api/v1/conversation/user/" : {
+      "get" : {
+        "tags" : [ "Conversations" ],
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query"
+        } ],
+        "summary" : "Search for new users to create conversations with.",
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/conversationSearchUserToAddResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      }
+    },
     "/api/v1/conversation/{conversationId}" : {
       "get" : {
         "tags" : [ "Conversations" ],
@@ -2165,13 +2252,16 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GetUserConversationsResponse"
+                  "$ref" : "#/components/schemas/deleteConversationResponse"
                 }
               }
             }
           },
-          "400" : {
-            "description" : "Bad request"
+          "401" : {
+            "description" : "conversation not found"
+          },
+          "402" : {
+            "description" : "cannot leave individual conversations"
           },
           "409" : {
             "description" : "Conflict"
@@ -2215,8 +2305,8 @@
         }
       }
     },
-    "/api/v1/conversation/{id}/photo" : {
-      "post" : {
+    "/api/v1/conversation/{id}" : {
+      "put" : {
         "tags" : [ "Conversations" ],
         "parameters" : [ {
           "name" : "authorization",
@@ -2227,40 +2317,7 @@
             "type" : "string"
           }
         } ],
-        "summary" : "Add image for conversation",
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/createConversationResponse"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Bad request"
-          },
-          "409" : {
-            "description" : "Conflict"
-          }
-        }
-      }
-    },
-    "/api/v1/conversation/{id}/name" : {
-      "post" : {
-        "tags" : [ "Conversations" ],
-        "parameters" : [ {
-          "name" : "authorization",
-          "in" : "header",
-          "description" : "",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "summary" : "Edit Conversation Name",
+        "summary" : "Edit Conversation Name and photo",
         "requestBody" : {
           "required" : true,
           "content" : {
@@ -2991,7 +3048,7 @@
         }
       }
     },
-    "/api/v1/user/followers" : {
+    "/api/v1/user/followers/{username}" : {
       "get" : {
         "tags" : [ "User" ],
         "summary" : "get list of user objects that follow the user",
@@ -3003,38 +3060,10 @@
           "schema" : {
             "type" : "string"
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/User"
-                  }
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Bad request"
-          },
-          "409" : {
-            "description" : "Conflict"
-          }
-        }
-      }
-    },
-    "/api/v1/user/follow" : {
-      "get" : {
-        "tags" : [ "User" ],
-        "summary" : "get list of user objects that user follows",
-        "parameters" : [ {
-          "name" : "authorization",
-          "in" : "header",
-          "description" : "",
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
           "required" : true,
           "schema" : {
             "type" : "string"
@@ -3064,6 +3093,48 @@
       }
     },
     "/api/v1/user/follow/{username}" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get list of user objects that user follows",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "username",
+          "in" : "path",
+          "description" : "username of the target user",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
+          }
+        }
+      },
       "post" : {
         "tags" : [ "User" ],
         "summary" : "follow a user",
@@ -3591,39 +3662,6 @@
         }
       }
     },
-    "/api/v1/user/{username}" : {
-      "get" : {
-        "tags" : [ "User" ],
-        "summary" : "get user details",
-        "parameters" : [ {
-          "name" : "authorization",
-          "in" : "header",
-          "description" : "",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Bad request"
-          },
-          "409" : {
-            "description" : "Conflict"
-          }
-        }
-      }
-    },
     "/api/v1/user/profile" : {
       "put" : {
         "tags" : [ "User Profile" ],
@@ -3719,6 +3757,39 @@
           },
           "410" : {
             "$ref" : "#/responses/410"
+          }
+        }
+      }
+    },
+    "/api/v1/user/{username}" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "get user details",
+        "parameters" : [ {
+          "name" : "authorization",
+          "in" : "header",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "409" : {
+            "description" : "Conflict"
           }
         }
       }
