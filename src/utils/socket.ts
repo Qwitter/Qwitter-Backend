@@ -1,3 +1,4 @@
+// import { conversation } from './../types/conversations';
 import { User } from '@prisma/client';
 // import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
@@ -30,11 +31,18 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
+    console.log(socket.id + ' connected');
     socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
-      sendRoomMessage(socket, message.conversationId, message.data);
+      console.log('Received Message: ' + message.data.text);
+      socket
+        .to(message.conversationId)
+        .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
     });
     socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
       socket.join(roomId);
+    });
+    socket.on('ping', (callback) => {
+      callback();
     });
   });
 }
