@@ -37,8 +37,11 @@ function socket({ io }: { io: Server }) {
         text: 'Notification test',
         data: 'Notification data',
       });
+
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
+        console.log('Message TEXT: ' + message?.data?.text);
         console.log('Received Message: ' + message);
+        console.log(message.conversationId);
         socket
           .to(message.conversationId)
           .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
