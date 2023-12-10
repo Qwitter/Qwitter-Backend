@@ -28,6 +28,11 @@ import {
   getTweetsRepliesRetweets,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
+import { io } from '../index';
+
+// io.emit('notification', {
+//   title: 'Hamada liked your tweet',
+// });
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -668,6 +673,9 @@ export const likeTweet = catchAsync(
 
     const existingTweet = await prisma.tweet.findUnique({
       where: { id },
+      include: {
+        author: true,
+      },
     });
 
     if (existingLike || !existingTweet) {
@@ -682,6 +690,9 @@ export const likeTweet = catchAsync(
     });
     await incrementLikes(id);
 
+    io.emit('notification-' + existingTweet.author.userName, {
+      title: 'Tweet like',
+    });
     res.status(200).json({ status: 'success' });
     next();
   },

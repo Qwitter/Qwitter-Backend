@@ -31,19 +31,24 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
-    console.log(socket.id + ' connected');
-    socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
-      console.log('Received Message: ' + message.data.text);
-      socket
-        .to(message.conversationId)
-        .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
-    });
-    socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
-      socket.join(roomId);
-    });
-    socket.on('ping', (callback) => {
-      callback();
-    });
+    try {
+      console.log(socket.id + ' connected');
+      socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
+        console.log('Received Message: ' + message?.data?.text);
+        socket
+          .to(message.conversationId)
+          .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
+      });
+      socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
+        console.log(socket.id + ' Joined Room: ' + roomId);
+        socket.join(roomId);
+      });
+      socket.on('ping', (callback) => {
+        callback();
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 }
 
