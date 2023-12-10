@@ -3,17 +3,18 @@ import { User } from '@prisma/client';
 // import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
 
-const EVENTS = {
+export const EVENTS = {
   connection: 'connection',
   CLIENT: {
-    SEND_ROOM_MESSAGE: 'SEND_ROOM_MESSAGE',
-    JOIN_ROOM: 'JOIN_ROOM',
+    SEND_ROOM_MESSAGE: 'SEND_ROOM_MESSAGE', // Used for sending a message
+    JOIN_ROOM: 'JOIN_ROOM', // Joiniing a room. It can be used by joining  a conversation room or a userName room for notifications.
   },
   SERVER: {
     ROOMS: 'ROOMS',
-    JOINED_ROOM: 'JOINED_ROOM',
-    ROOM_MESSAGE: 'ROOM_MESSAGE',
-    NOTIFICATION: 'NOTIFICATION',
+    JOINED_ROOM: 'JOINED_ROOM', // Sending a message that a user joined a room
+    ROOM_MESSAGE: 'ROOM_MESSAGE', // Sending a message to the conversation room socket only
+    NOTIFICATION: 'NOTIFICATION', // Sending a message to the room of the username
+    MESSAGE: 'MESSAGE', // Sending a general message to the user on the room of the username
   },
 };
 interface CustomSocket extends Socket {
@@ -32,29 +33,21 @@ export function sendRoomMessage(
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
     try {
-      console.log(socket.id + ' connected');
-      socket.emit('notification', {
-        text: 'Notification test',
-        data: 'Notification data',
-      });
-
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
-        console.log('Message TEXT: ' + message?.data?.text);
-        console.log('Received Message: ' + message);
-        console.log(typeof message);
         let JSONMessage = message;
+        // This check is necessary because sometimes the data comes different from the clients (mobile , web)
+        // It makes sure that the data in the end is parsed JSON
         if (isValidJsonString(message)) {
           JSONMessage = JSON.parse(message);
         }
-        console.log(JSONMessage);
         socket
           .to(JSONMessage.conversationId)
           .emit(EVENTS.SERVER.ROOM_MESSAGE, JSONMessage.data);
       });
       socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
-        console.log(socket.id + ' Joined Room: ' + roomId);
         socket.join(roomId);
       });
+      // This is for the client side to calculate the time taken to connect to the socket
       socket.on('ping', (callback) => {
         callback();
       });

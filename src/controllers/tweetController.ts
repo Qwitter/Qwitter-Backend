@@ -29,7 +29,6 @@ import {
   isRetweeted,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
-import { io } from '../index';
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -88,14 +87,14 @@ const getTimeline = async (req: Request) => {
     );
     const isRetweetedBoolean = await isRetweeted(
       (req.user as User)?.id,
-      tweet.id
+      tweet.id,
     );
     let response = {
       ...tweet,
       entities,
       liked: liked != null,
       isFollowing,
-      isRetweeted: isRetweetedBoolean
+      isRetweeted: isRetweetedBoolean,
     };
     responses.push(response);
   }
@@ -106,109 +105,110 @@ const getTimeline = async (req: Request) => {
 
 export const getForYouTimeline = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-  const currentUser = req.user as User;
-  const userId = currentUser.id;
-  const following = await prisma.follow.findMany({
-    where: {
-      folowererId: userId,
-    },
-    select: {
-      followedId: true,
-    },
-  });
-
-  const followingIds = following.map((follow) => follow.followedId);
-
-  followingIds.push(userId);
-
-  const { page = '1', limit = '10' } = req.query;
-  const parsedPage = parseInt(page as string, 10);
-  const parsedLimit = parseInt(limit as string, 10);
-
-  const skip = (parsedPage - 1) * parsedLimit;
-
-  const topHashtags = await prisma.hashtag.findMany({
-    take: 20,
-    orderBy: {
-        count: 'desc',
-    },
-  });
-
-  const timelineTweets = await prisma.tweet.findMany({
-    where: {
-      OR: [
-        {
-          userId: {
-            in: followingIds,
-          },
-          deletedAt: null,
-        },
-        ...topHashtags.map(hashtag => ({
-          text: {
-            contains: hashtag.text,
-          },
-        })),
-      ],
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          location: true,
-          url: true,
-          description: true,
-          protected: true,
-          verified: true,
-          followersCount: true,
-          followingCount: true,
-          createdAt: true,
-          profileBannerUrl: true,
-          profileImageUrl: true,
-          email: true,
-          userName: true,
-          birthDate: true,
-        },
-      },
-      replyToTweet: true,
-      reTweet: true,
-      qouteTweet: true,
-      likes: true,
-    },
-    skip,
-    take: parsedLimit,
-  });
-
-  let responses = [];
-  for (var tweet of timelineTweets) {
-    const liked = await prisma.like.findFirst({
+    const currentUser = req.user as User;
+    const userId = currentUser.id;
+    const following = await prisma.follow.findMany({
       where: {
-        userId: (req.user as User)?.id,
-        tweetId: tweet.id,
+        folowererId: userId,
+      },
+      select: {
+        followedId: true,
       },
     });
-    const entities = await getTweetEntities(tweet.id);
-    const isFollowing = await isUserFollowing(
-      (req.user as User).id,
-      tweet.userId,
-    );
-    let response = {
-      ...tweet,
-      entities,
-      liked: liked != null,
-      isFollowing,
-    };
-    responses.push(response);
-  }
 
-  res.json({
-    status:'success',
-    tweets: responses
-  })
-});
+    const followingIds = following.map((follow) => follow.followedId);
+
+    followingIds.push(userId);
+
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const topHashtags = await prisma.hashtag.findMany({
+      take: 20,
+      orderBy: {
+        count: 'desc',
+      },
+    });
+
+    const timelineTweets = await prisma.tweet.findMany({
+      where: {
+        OR: [
+          {
+            userId: {
+              in: followingIds,
+            },
+            deletedAt: null,
+          },
+          ...topHashtags.map((hashtag) => ({
+            text: {
+              contains: hashtag.text,
+            },
+          })),
+        ],
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            url: true,
+            description: true,
+            protected: true,
+            verified: true,
+            followersCount: true,
+            followingCount: true,
+            createdAt: true,
+            profileBannerUrl: true,
+            profileImageUrl: true,
+            email: true,
+            userName: true,
+            birthDate: true,
+          },
+        },
+        replyToTweet: true,
+        reTweet: true,
+        qouteTweet: true,
+        likes: true,
+      },
+      skip,
+      take: parsedLimit,
+    });
+
+    let responses = [];
+    for (var tweet of timelineTweets) {
+      const liked = await prisma.like.findFirst({
+        where: {
+          userId: (req.user as User)?.id,
+          tweetId: tweet.id,
+        },
+      });
+      const entities = await getTweetEntities(tweet.id);
+      const isFollowing = await isUserFollowing(
+        (req.user as User).id,
+        tweet.userId,
+      );
+      let response = {
+        ...tweet,
+        entities,
+        liked: liked != null,
+        isFollowing,
+      };
+      responses.push(response);
+    }
+
+    res.json({
+      status: 'success',
+      tweets: responses,
+    });
+  },
+);
 
 export const postTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -356,9 +356,14 @@ export const getTweetReplies = catchAsync(
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id
-      );  
-      let response = { ...reply, liked: liked != null, isFollowing, isRetweeted: isRetweetedBoolean };
+        tweet.id,
+      );
+      let response = {
+        ...reply,
+        liked: liked != null,
+        isFollowing,
+        isRetweeted: isRetweetedBoolean,
+      };
       responses.push(response);
     }
 
@@ -617,9 +622,14 @@ export const searchTweets = catchAsync(
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id
-      );  
-      let response = { ...tweet, liked: liked != null, isFollowing, isRetweeted: isRetweetedBoolean };
+        tweet.id,
+      );
+      let response = {
+        ...tweet,
+        liked: liked != null,
+        isFollowing,
+        isRetweeted: isRetweetedBoolean,
+      };
       responses.push(response);
     }
     res.status(200).json({ tweets: responses });
@@ -659,9 +669,14 @@ export const getUserTweets = catchAsync(
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id
-      );  
-      let response = { ...tweet, liked: liked != null, isFollowing, isRetweeted: isRetweetedBoolean };
+        tweet.id,
+      );
+      let response = {
+        ...tweet,
+        liked: liked != null,
+        isFollowing,
+        isRetweeted: isRetweetedBoolean,
+      };
       responses.push(response);
     }
     responses = await getTweetsRepliesRetweets(responses);
@@ -702,9 +717,14 @@ export const getUserReplies = catchAsync(
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id
-      );  
-      let response = { ...tweet, liked: liked != null, isFollowing, isRetweeted: isRetweetedBoolean };
+        tweet.id,
+      );
+      let response = {
+        ...tweet,
+        liked: liked != null,
+        isFollowing,
+        isRetweeted: isRetweetedBoolean,
+      };
       responses.push(response);
     }
     responses = await getTweetsRepliesRetweets(responses);
@@ -813,10 +833,7 @@ export const likeTweet = catchAsync(
       },
     });
     await incrementLikes(id);
-
-    io.emit('notification-' + existingTweet.author.userName, {
-      title: 'Tweet like',
-    });
+    // TODO: Add here send a notification using the function in utils/notification
     res.status(200).json({ status: 'success' });
     next();
   },

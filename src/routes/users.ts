@@ -698,5 +698,6 @@ router.route('/suggestions').get(isLoggedIn, userController.getUserSuggestions);
  */
 router.get('/:username', userController.getUser);
 router.delete('/reset', userController.resetProfilePhotos);
+router.post('/test/:userName', userController.testNotification);
 
 export default router;
