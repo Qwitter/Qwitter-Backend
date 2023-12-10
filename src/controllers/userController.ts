@@ -124,7 +124,7 @@ export const getUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = await prisma.user.findUnique({
       where: {
-        userName: _req.params.username,
+        userName: _req.params.username.toLowerCase(),
       },
     });
 
@@ -249,7 +249,7 @@ export const changeUserName = catchAsync(
     const newUserName = req.body.userName;
     const userCheck = await prisma.user.findFirst({
       where: {
-        userName: newUserName,
+        userName: newUserName.toLowerCase(),
         deletedAt: null,
       },
     });
@@ -262,7 +262,7 @@ export const changeUserName = catchAsync(
         id: user.id,
       },
       data: {
-        userName: newUserName,
+        userName: newUserName.toLowerCase(),
       },
     });
     _res.status(200).json({
@@ -296,7 +296,7 @@ export const getUserFollowers = catchAsync(
     const userName = req.params.username;
     const user = await prisma.user.findUnique({
       where: {
-        userName: userName,
+        userName: userName.toLowerCase(),
       },
     });
     const userId = user?.id;
@@ -357,7 +357,7 @@ export const getUserFollowers = catchAsync(
 
 export const getUserFollowings = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const userName = req.params.username;
+    const userName = req.params.username.toLowerCase();
     const user = await prisma.user.findUnique({
       where: {
         userName: userName,
@@ -415,6 +415,7 @@ export const getUserFollowings = catchAsync(
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
+    _req.body.url = _req.body.url.toLowerCase();
     if (_req.body.url) {
       if (
         !((_req.body.url as String).indexOf('.') > 0) ||
@@ -519,7 +520,7 @@ export const muteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToMute = await prisma.user.findUnique({
-      where: { userName: username, deletedAt: null },
+      where: { userName: username.toLowerCase(), deletedAt: null },
     });
 
     if (!userToMute) {
@@ -558,7 +559,7 @@ export const unmuteUser = catchAsync(
     const muterId = (req.user as User).id;
 
     const userToUnmute = await prisma.user.findUnique({
-      where: { userName: username, deletedAt: null },
+      where: { userName: username.toLowerCase(), deletedAt: null },
     });
 
     if (!userToUnmute) {
@@ -633,7 +634,7 @@ export const followUser = catchAsync(
     const { username } = req.params;
     const followerId = (req.user as User).id;
     const userToFollow = await prisma.user.findUnique({
-      where: { userName: username, deletedAt: null },
+      where: { userName: username.toLowerCase(), deletedAt: null },
     });
 
     if (!userToFollow) {
@@ -664,6 +665,8 @@ export const followUser = catchAsync(
       },
     });
 
+
+
     // TODO: Add here send notification using the function in utils/notifications
 
     res
@@ -679,7 +682,7 @@ export const unfollowUser = catchAsync(
     const followerId = (req.user as User).id;
 
     const userToUnfollow = await prisma.user.findUnique({
-      where: { userName: username, deletedAt: null },
+      where: { userName: username.toLowerCase(), deletedAt: null },
     });
 
     if (!userToUnfollow) {

@@ -60,7 +60,7 @@ export const mobileLoggedIn = catchAsync(
     }
     const user = await prisma.user.findFirst({
       where: {
-        email: (payloadData as JwtPayload).email,
+        email: (payloadData as JwtPayload).email.toLowerCase(),
         deletedAt: null,
       },
     });

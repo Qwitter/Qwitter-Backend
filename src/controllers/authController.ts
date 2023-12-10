@@ -364,7 +364,7 @@ export const logInGoogle = catchAsync(
 
 export const checkExistence = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
-    const qualifier: string = req.body.userNameOrEmail;
+    const qualifier: string = req.body.userNameOrEmail.toLowerCase();
     if (isEmail(qualifier)) {
       const user = await prisma.user.findFirst({
         where: {
