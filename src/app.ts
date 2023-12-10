@@ -10,7 +10,7 @@ import conversationRouter from './routes/conversation';
 import trendsRouter from './routes/trends';
 
 import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
+// import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import cors from 'cors';
@@ -20,7 +20,7 @@ import globalErrorHandler from './controllers/errorController';
 const app = express();
 
 // Secuirty Middlewares
-app.use(helmet()); //
+// app.use(helmet()); //
 
 const limiter = rateLimit({
   max: 100, // 100 request per minute

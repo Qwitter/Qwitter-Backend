@@ -12,6 +12,7 @@ const EVENTS = {
     ROOMS: 'ROOMS',
     JOINED_ROOM: 'JOINED_ROOM',
     ROOM_MESSAGE: 'ROOM_MESSAGE',
+    NOTIFICATION: 'NOTIFICATION',
   },
 };
 interface CustomSocket extends Socket {
