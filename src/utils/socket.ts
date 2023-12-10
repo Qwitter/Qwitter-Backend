@@ -1,3 +1,4 @@
+// import { conversation } from './../types/conversations';
 import { User } from '@prisma/client';
 // import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
@@ -12,6 +13,7 @@ const EVENTS = {
     ROOMS: 'ROOMS',
     JOINED_ROOM: 'JOINED_ROOM',
     ROOM_MESSAGE: 'ROOM_MESSAGE',
+    NOTIFICATION: 'NOTIFICATION',
   },
 };
 interface CustomSocket extends Socket {
@@ -29,17 +31,46 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
-    console.log('User connected ' + socket.id);
-    socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
-      sendRoomMessage(socket, message.conversationId, message.data);
-      console.log('Received room message');
-      console.log(message);
-    });
-    socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
-      console.log('User joined room ' + roomId);
-      socket.join(roomId);
-    });
+    try {
+      console.log(socket.id + ' connected');
+      socket.emit('notification', {
+        text: 'Notification test',
+        data: 'Notification data',
+      });
+
+      socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
+        console.log('Message TEXT: ' + message?.data?.text);
+        console.log('Received Message: ' + message);
+        console.log(typeof message);
+        let JSONMessage = message;
+        if (isValidJsonString(message)) {
+          JSONMessage = JSON.parse(message);
+        }
+        console.log(JSONMessage);
+        socket
+          .to(JSONMessage.conversationId)
+          .emit(EVENTS.SERVER.ROOM_MESSAGE, JSONMessage.data);
+      });
+      socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
+        console.log(socket.id + ' Joined Room: ' + roomId);
+        socket.join(roomId);
+      });
+      socket.on('ping', (callback) => {
+        callback();
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 }
 
 export default socket;
+
+function isValidJsonString(str: any) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}

@@ -60,7 +60,7 @@ export const editConversation = catchAsync(
 export const getConversationDetails = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
   const { id } = req.params;
   const conversationId = id;
@@ -161,8 +161,7 @@ export const getConversationDetails = async (
     seen: true,
   };
 
-  res.status(200).json(formattedConversationDetails);
-  next();
+  return res.status(200).json(formattedConversationDetails);
 };
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -192,8 +191,7 @@ export const searchForMembers = catchAsync(
       req.user as User,
     );
 
-    res.status(200).json({ users: users });
-    return _next();
+    return res.status(200).json({ users: users });
   },
 );
 export const searchForMembersForNewConversation = catchAsync(
@@ -420,7 +418,7 @@ export const deleteConversation = catchAsync(
 
     if (deletedConv) res.json({ operationSuccess: true }).status(200);
     else res.json({ operationSuccess: false }).status(404);
-    next();
+    return;
   },
 );
 

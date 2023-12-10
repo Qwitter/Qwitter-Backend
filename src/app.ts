@@ -10,22 +10,22 @@ import conversationRouter from './routes/conversation';
 import trendsRouter from './routes/trends';
 
 import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
+// import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import cors from 'cors';
 import globalErrorHandler from './controllers/errorController';
-import { AppError } from './utils/appError';
+// import { AppError } from './utils/appError';
 
 const app = express();
 
 // Secuirty Middlewares
-app.use(helmet()); //
+// app.use(helmet()); //
 
 const limiter = rateLimit({
-  max: 100, // 100 request per hour
-  windowMs: 60 * 60 * 1000, // One Hour
-  message: 'Too many requests dude ! Please try again in an hour',
+  max: 100, // 100 request per minute
+  windowMs: 60 * 1000, // One Minute
+  message: 'Too many requests dude ! Please try again in 1 minute',
 });
 app.use('/api', limiter);
 app.use(cors());
@@ -52,7 +52,7 @@ app.use(cookieParser());
 configurePassport();
 
 app.get('/', (_, res) => {
-  res.sendFile(path.join(__dirname, '', 'index.html'));
+  res.send('Qwitter');
 });
 
 // Routes
@@ -66,9 +66,10 @@ app.use('/api/v1/trends', trendsRouter);
 
 // Handling Not found
 
-app.all('*', (req, _res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
+// app.all('*', (req, _res, next) => {
+//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+//   return;
+// });
 
 app.use(globalErrorHandler);
 

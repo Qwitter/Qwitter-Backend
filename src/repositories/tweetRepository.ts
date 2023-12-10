@@ -44,9 +44,12 @@ export const getTweetById = async (tweetId: string) => {
       id: tweetId,
       deletedAt: null,
     },
+    include: {
+      author: true
+    }
   });
 
-  return tweet;
+  return { tweet, author: tweet?.author };
 };
 
 export const searchTweet = async (
@@ -339,3 +342,13 @@ export const getTweetRetweet = async (tweet: any) => {
   );
   return { ...tweet, retweetedTweet };
 };
+
+export const isRetweeted = async (userId: string, tweet: any) => {
+  const retweeted = await prisma.tweet.findFirst({
+    where: {
+      retweetedId: tweet.id,
+      userId: userId
+    }
+  });
+  return retweeted != null;
+}

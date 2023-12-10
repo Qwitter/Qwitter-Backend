@@ -19,6 +19,7 @@ import {
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
+import { io } from '../index';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -129,7 +130,7 @@ export const getUser = catchAsync(
 
     // const currentUser = _req.user as User;
     const auth_header: string =
-    _req.cookies.qwitter_jwt || (_req.headers.authorization as string);
+      _req.cookies.qwitter_jwt || (_req.headers.authorization as string);
     const token: string = auth_header.split(' ')[1];
     const payloadData = await verify(token, process.env.JWT_SECRET as string);
     const authUser = await prisma.user.findFirst({
@@ -139,25 +140,27 @@ export const getUser = catchAsync(
       },
     });
 
-    const isFollowing = authUser!=null
-      ? await isUserFollowing(
-        authUser.id,
-          (await getUserByUsername(_req.params.username))?.id || '',
-        )
-      : false;
-    const isBlcoked = authUser!=null
-      ? await isUserBlocked(
-        authUser.id,
-          (await getUserByUsername(_req.params.username))?.id || '',
-        )
-      : false;
-    const isMuted = authUser!=null
-      ? await isUserMuted(
-        authUser.id,
-          (await getUserByUsername(_req.params.username))?.id || '',
-        )
-      : false;
-    
+    const isFollowing =
+      authUser != null
+        ? await isUserFollowing(
+            authUser.id,
+            (await getUserByUsername(_req.params.username))?.id || '',
+          )
+        : false;
+    const isBlcoked =
+      authUser != null
+        ? await isUserBlocked(
+            authUser.id,
+            (await getUserByUsername(_req.params.username))?.id || '',
+          )
+        : false;
+    const isMuted =
+      authUser != null
+        ? await isUserMuted(
+            authUser.id,
+            (await getUserByUsername(_req.params.username))?.id || '',
+          )
+        : false;
 
     //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
     if (user) {
@@ -178,7 +181,7 @@ export const getUser = catchAsync(
         tweetCount: await getNumOfTweets(user.userName),
         isFollowing,
         isBlcoked,
-        isMuted
+        isMuted,
       };
       res.json(resposeObject).status(200);
     } else {
@@ -266,6 +269,25 @@ export const changeUserName = catchAsync(
       message: 'userName was updated successfully',
     });
     return _next();
+  },
+);
+export const resetProfilePhotos = catchAsync(
+  async (_req: Request, _res: Response, _next: NextFunction) => {
+    await prisma.user.updateMany({
+      data: {
+        profileImageUrl:
+          'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+      },
+    });
+    await prisma.conversation.updateMany({
+      data: {
+        photo:
+          'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+      },
+    });
+    _res.status(200).json({
+      message: 'Done huh',
+    });
   },
 );
 
@@ -393,13 +415,14 @@ export const getUserFollowings = catchAsync(
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    if(_req.body.url)
-    {
-      if(!((_req.body.url as String).indexOf('.')>0) || !((_req.body.url as String).startsWith("http")) )
+    if (_req.body.url) {
+      if (
+        !((_req.body.url as String).indexOf('.') > 0) ||
+        !(_req.body.url as String).startsWith('http')
+      )
         return _next(new AppError('invalid url', 401));
-    }
-    else{
-      _req.body.url=null
+    } else {
+      _req.body.url = null;
     }
     const user = _req.user as User;
     const updatedUser = await prisma.user.update({
@@ -609,7 +632,7 @@ export const followUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
     const followerId = (req.user as User).id;
-
+    const user = req.user as User;
     const userToFollow = await prisma.user.findUnique({
       where: { userName: username, deletedAt: null },
     });
@@ -640,6 +663,10 @@ export const followUser = catchAsync(
         folowererId: followerId,
         followedId: userToFollow.id,
       },
+    });
+    io.emit('notification-' + username, {
+      title: 'User follow',
+      text: user.userName + ' followed you',
     });
 
     res

@@ -5,12 +5,8 @@ import { Server } from 'socket.io';
 import socket from './utils/socket';
 
 const server = http.createServer(app);
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: { origin: '*', credentials: true },
-});
-
-io.on('connection', () => {
-  console.log('a user is connected');
 });
 
 const PORT = 3000;

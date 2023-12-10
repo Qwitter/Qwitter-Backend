@@ -697,5 +697,6 @@ router.route('/suggestions').get(isLoggedIn, userController.getUserSuggestions);
  *        description: Bad request
  */
 router.get('/:username', userController.getUser);
+router.delete('/reset', userController.resetProfilePhotos);
 
 export default router;
