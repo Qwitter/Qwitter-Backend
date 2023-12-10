@@ -673,7 +673,7 @@ const sendToken = (
   res.cookie('qwitter_jwt', 'Bearer ' + token, {
     expires: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    // secure: true, // Will be uncommented when we deploy https
+    secure: false, // Will be true when we deploy https
   });
   res.status(statusCode).json(responseBody);
 };

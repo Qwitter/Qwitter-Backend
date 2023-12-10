@@ -23,7 +23,7 @@ const app = express();
 app.use(helmet()); //
 
 const limiter = rateLimit({
-  max: 40, // 100 request per hour
+  max: 100, // 100 request per minute
   windowMs: 60 * 1000, // One Minute
   message: 'Too many requests dude ! Please try again in 1 minute',
 });
