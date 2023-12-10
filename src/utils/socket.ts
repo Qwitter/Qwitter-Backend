@@ -42,12 +42,11 @@ function socket({ io }: { io: Server }) {
         console.log('Message TEXT: ' + message?.data?.text);
         console.log('Received Message: ' + message);
         console.log(typeof message);
-        console.log(message.conversationId);
-        let JSONMessage = JSON.parse(message);
+        let JSONMessage = message;
+        if (isValidJsonString(message)) {
+          JSONMessage = JSON.parse(message);
+        }
         console.log(JSONMessage);
-        socket
-          .to(message.conversationId)
-          .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
         socket
           .to(JSONMessage.conversationId)
           .emit(EVENTS.SERVER.ROOM_MESSAGE, JSONMessage.data);
@@ -66,3 +65,12 @@ function socket({ io }: { io: Server }) {
 }
 
 export default socket;
+
+function isValidJsonString(str: any) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
