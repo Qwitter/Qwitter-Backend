@@ -30,14 +30,10 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
-    console.log('User connected ' + socket.id);
     socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
       sendRoomMessage(socket, message.conversationId, message.data);
-      console.log('Received room message');
-      console.log(message);
     });
     socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
-      console.log('User joined room ' + roomId);
       socket.join(roomId);
     });
   });
