@@ -342,3 +342,13 @@ export const getTweetRetweet = async (tweet: any) => {
   );
   return { ...tweet, retweetedTweet };
 };
+
+export const isRetweeted = async (userId: string, tweet: any) => {
+  const retweeted = await prisma.tweet.findFirst({
+    where: {
+      retweetedId: tweet.id,
+      userId: userId
+    }
+  });
+  return retweeted != null;
+}
