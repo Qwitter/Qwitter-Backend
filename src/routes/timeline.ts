@@ -1,4 +1,6 @@
 import express from 'express';
+import { getForYouTimeline } from '../../src/controllers/tweetController';
+import { isLoggedIn } from '../../src/middlewares/authMiddlewares';
 
 const router = express.Router();
 
@@ -28,5 +30,7 @@ const router = express.Router();
  *      400:
  *        description: Bad request
  */
+
+router.get('/', isLoggedIn, getForYouTimeline);
 
 export default router;
