@@ -495,7 +495,7 @@ export const getTweet = catchAsync(
             mentions: mentions,
           },
         },
-        user: {
+        author: {
           userName: tweetingUser.userName,
           name: tweetingUser.name,
           birthDate: tweetingUser.birthDate,
