@@ -30,10 +30,6 @@ import {
 import { authorSelectOptions } from '../types/user';
 import { io } from '../index';
 
-// io.emit('notification', {
-//   title: 'Hamada liked your tweet',
-// });
-
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
   const userId = currentUser.id;
