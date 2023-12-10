@@ -80,8 +80,12 @@ export const getConversationDetails = async (
   }
 
   const { page = '1', limit = '10' } = req.query;
-  const parsedPage = parseInt(page as string, 10);
-  const parsedLimit = parseInt(limit as string, 10);
+  const parsedPage = parseInt(page as string, 10)
+    ? parseInt(page as string, 10)
+    : 1;
+  const parsedLimit = parseInt(limit as string, 10)
+    ? parseInt(limit as string, 10)
+    : 10;
   const skip = (parsedPage - 1) * parsedLimit;
 
   await prisma.userConversations.updateMany({

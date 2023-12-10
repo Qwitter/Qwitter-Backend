@@ -19,7 +19,7 @@ import {
 } from '../repositories/userRepository';
 import prisma from '../client';
 import fs from 'fs';
-import { io } from '../index';
+import { sendNotification } from '../utils/notifications';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -633,7 +633,6 @@ export const followUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
     const followerId = (req.user as User).id;
-    const user = req.user as User;
     const userToFollow = await prisma.user.findUnique({
       where: { userName: username.toLowerCase(), deletedAt: null },
     });
@@ -665,10 +664,10 @@ export const followUser = catchAsync(
         followedId: userToFollow.id,
       },
     });
-    io.emit('notification-' + username.toLowerCase(), {
-      title: 'User follow',
-      text: user.userName + ' followed you',
-    });
+
+
+
+    // TODO: Add here send notification using the function in utils/notifications
 
     res
       .status(200)
@@ -851,5 +850,14 @@ export const getUserSuggestions = catchAsync(
       }
     }
     return res.json(suggestions.slice(0, 50)).status(200);
+  },
+);
+export const testNotification = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { userName } = req.params;
+    sendNotification(userName, { text: 'Notification test' });
+    res.status(200).json({
+      message: 'Test Notification',
+    });
   },
 );

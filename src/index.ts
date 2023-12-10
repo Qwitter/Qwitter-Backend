@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import socket from './utils/socket';
 
 const server = http.createServer(app);
-export const io = new Server(server, {
+const io = new Server(server, {
   cors: { origin: '*', credentials: true },
 });
 
@@ -15,3 +15,6 @@ server.listen(PORT, () => {
   console.log('server is running on port', PORT);
   socket({ io });
 });
+
+// Exporting the socket to be used for utils like notifications
+export { io };
