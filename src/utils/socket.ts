@@ -33,8 +33,12 @@ function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
     try {
       console.log(socket.id + ' connected');
+      socket.emit('notification', {
+        text: 'Notification test',
+        data: 'Notification data',
+      });
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
-        console.log('Received Message: ' + message?.data?.text);
+        console.log('Received Message: ' + message);
         socket
           .to(message.conversationId)
           .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
