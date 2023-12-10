@@ -41,10 +41,16 @@ function socket({ io }: { io: Server }) {
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
         console.log('Message TEXT: ' + message?.data?.text);
         console.log('Received Message: ' + message);
+        console.log(typeof message);
         console.log(message.conversationId);
+        let JSONMessage = JSON.parse(message);
+        console.log(JSONMessage);
         socket
           .to(message.conversationId)
           .emit(EVENTS.SERVER.ROOM_MESSAGE, message.data);
+        socket
+          .to(JSONMessage.conversationId)
+          .emit(EVENTS.SERVER.ROOM_MESSAGE, JSONMessage.data);
       });
       socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
         console.log(socket.id + ' Joined Room: ' + roomId);
