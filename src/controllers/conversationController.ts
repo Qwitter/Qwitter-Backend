@@ -495,7 +495,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
 
   const userId = (req.user as User).id; 
 
-  const conversations = await prisma.conversation.findMany({
+  const conversationsPeopleGroups = await prisma.conversation.findMany({
     where: {
       AND: [
         {
@@ -511,16 +511,6 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
               name: {
                 contains: q as string,
                 mode: 'insensitive',
-              },
-            },
-            {
-              Message: {
-                some: {
-                  text: {
-                    contains: q as string,
-                    mode: 'insensitive',
-                  },
-                },
               },
             },
             {
@@ -595,7 +585,78 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
     take: parsedLimit
   });
 
-  const formattedConversations = conversations.map((conversation) => ({
+  const conversationsMessage = await prisma.conversation.findMany({
+    where: {
+      AND: [
+        {
+          UserConversations: {
+            some: {
+              userId,
+            },
+          },
+        },
+        {
+          OR: [
+            {
+              Message: {
+                some: {
+                  text: {
+                    contains: q as string,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      isGroup: true,
+      photo: true,
+      UserConversations: {
+        select: {
+          User: {
+            select: {
+              userName: true,
+              profileImageUrl: true,
+              name: true, 
+            },
+          },
+        },
+      },
+      Message: {
+        select: {
+          id: true,
+          text: true,
+          date: true,
+          sender: {
+            select: {
+              userName: true,
+              profileImageUrl: true,
+            },
+          },
+        },
+        where: {
+          text: {
+            contains: q as string,
+            mode: 'insensitive',
+          },
+        },
+        take: 1,
+        orderBy: {
+          date: 'desc',
+        },
+      },
+    },
+    skip,
+    take: parsedLimit
+  });
+
+
+  const groups = conversationsPeopleGroups.filter((consversation) => consversation.isGroup).map((conversation) => ({
     id: conversation.id,
     name: conversation.name,
     type: conversation?.isGroup ? 'group' : 'direct',
@@ -605,11 +666,40 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     })),
-    messages: conversation.Message
+    lastMessage: conversation.Message
+  }));
+
+  const people = conversationsPeopleGroups.filter((consversation) => !consversation.isGroup).map((conversation) => ({
+    id: conversation.id,
+    name: conversation.name,
+    type: conversation?.isGroup ? 'group' : 'direct',
+    photo: conversation.photo,
+    users: conversation.UserConversations.map((userConversation) => ({
+      userName: userConversation.User.userName,
+      name: userConversation.User.name,
+      userPhoto: userConversation.User.profileImageUrl,
+    })),
+    lastMessage: conversation.Message
+  }));
+
+
+  const messages = conversationsMessage.map((conversation) => ({
+    id: conversation.id,
+    name: conversation.name,
+    isGroup: conversation?.isGroup,
+    photo: conversation.photo,
+    users: conversation.UserConversations.map((userConversation) => ({
+      userName: userConversation.User.userName,
+      name: userConversation.User.name,
+      userPhoto: userConversation.User.profileImageUrl,
+    })),
+    lastMessage: conversation.Message
   }));
 
   res.status(200).json({
     status: 'success',
-    conversations: formattedConversations,
+    groups,
+    people,
+    messages
   });
 };
