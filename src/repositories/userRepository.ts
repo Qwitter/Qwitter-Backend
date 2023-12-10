@@ -5,7 +5,7 @@ import { getTweetEntities } from './entityRepository';
 export const getUserByUsername = async (user_name: string) => {
   return await prisma.user.findUnique({
     where: {
-      userName: user_name,
+      userName: user_name.toLowerCase(),
       deletedAt: null,
     },
   });
@@ -136,7 +136,6 @@ export const isUserFollowing = async (
   return !!followRelationship;
 };
 
-
 export const isUserBlocked = async (
   userid1: string,
   userid2: string,
@@ -168,7 +167,6 @@ export const isUserMuted = async (
 
   return !!muteRelationship;
 };
-
 
 export const getUsersByName = async (
   query: string,
@@ -232,7 +230,7 @@ export const getNumOfTweets = async (userName: string) => {
   if (!userName) return 0;
   const user = await prisma.user.findFirst({
     where: {
-      userName: userName,
+      userName: userName.toLowerCase(),
       Tweet: { some: { deletedAt: null } },
     },
     include: {
