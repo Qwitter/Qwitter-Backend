@@ -165,6 +165,42 @@ router
   .route('/:id')
   .delete(isLoggedIn, conversationController.deleteConversation);
 
+
+/**
+  @openapi
+* '/api/v1/conversation/search':
+*  get:
+*     tags:
+*     - Conversations
+*     parameters:
+*       - name: authorization
+*         in: header
+*         description: ''
+*         required: true
+*         schema:
+*           type: string
+*       - name: q
+*         in: query
+*     summary: Search for messages, users and conversations
+*     responses:
+*      200:
+*        description: Success
+*        content:
+*          application/json:
+*            schema:
+*              $ref: '#/components/schemas/createConversationResponse'
+*      409:
+*        description: Conflict
+*      400:
+*        description: Bad request
+*/
+router
+  .route('/search')
+  .get(
+    isLoggedIn,
+    conversationController.searchConversations,
+  );
+
 /**
   @openapi
 * '/api/v1/conversation/{conversationId}':
@@ -205,36 +241,6 @@ router
 */
 router.route('/:id').get(isLoggedIn, getConversationDetails);
 
-/**
-  @openapi
-* '/api/v1/conversation/search':
-*  get:
-*     tags:
-*     - Conversations
-*     parameters:
-*       - name: authorization
-*         in: header
-*         description: ''
-*         required: true
-*         schema:
-*           type: string
-*       - name: q
-*         in: query
-*     summary: Search for messages, users and conversations
-*     responses:
-*      200:
-*        description: Success
-*        content:
-*          application/json:
-*            schema:
-*              $ref: '#/components/schemas/createConversationResponse'
-*      409:
-*        description: Conflict
-*      400:
-*        description: Bad request
-
-
-*/
 
 /**
   @openapi
