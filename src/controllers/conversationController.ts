@@ -16,6 +16,7 @@ import {
   getImagePath,
   getMessageEntities,
 } from '../repositories/entityRepository';
+import { isUserFollowing } from '../repositories/userRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversation = catchAsync(
@@ -258,7 +259,12 @@ export const createConversation = catchAsync(
     let newConv;
     for (var user of users) {
       let tempUser = await prisma.user.findUnique({
-        where: { userName: user.toLowerCase(), deletedAt: null },
+        where: {
+          userName: user.toLowerCase(),
+          deletedAt: null,
+          blocked: { none: { blocker: { userName: authUser.userName } } },
+          blocker: { none: { blocked: { userName: authUser.userName } } },
+        },
         select: { id: true, name: true },
       });
       if (!tempUser) return next(new AppError('not all users are found', 401));
@@ -269,7 +275,29 @@ export const createConversation = catchAsync(
       usersIDs.push(tempUser);
     }
     if (users.length == 0) return next(new AppError('no users provided', 403));
-
+    const usersDetails: object[] = [];
+    for (const tempUser of usersIDs) {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: tempUser.id,
+        },
+        select: {
+          userName: true,
+          name: true,
+          followersCount: true,
+          followingCount: true,
+          description: true,
+          profileImageUrl: true,
+        },
+      });
+      const isFollowed = await isUserFollowing(authUser.id, tempUser.id);
+      const isFollowing = await isUserFollowing(tempUser.id, authUser.id);
+      usersDetails.push({
+        ...user,
+        isFollowing: isFollowing,
+        isFollowed: isFollowed,
+      });
+    }
     if (users.length == 1) {
       let tempConv = await prisma.conversation.findFirst({
         where: {
@@ -294,13 +322,14 @@ export const createConversation = catchAsync(
         },
       });
       if (tempConv) {
-        res.json(tempConv).status(200);
-        next();
-        return;
+        tempConv.name = usersIDs[0].name;
+        return res
+          .json({ ...tempConv, fullName: tempConv.name, users: usersDetails })
+          .status(200);
       }
       newConv = await prisma.conversation.create({
         data: {
-          name: authUser.name + ', ' + usersIDs[0].name,
+          name: null,
           isGroup: false,
           lastActivity: new Date(),
           UserConversations: {
@@ -323,7 +352,7 @@ export const createConversation = catchAsync(
     } else {
       newConv = await prisma.conversation.create({
         data: {
-          name: req.body.conversation_name,
+          name: null,
           lastActivity: new Date(),
           isGroup: true,
           UserConversations: {
@@ -340,7 +369,7 @@ export const createConversation = catchAsync(
           isMessage: false,
         },
       });
-      for (var tempUser of usersIDs)
+      for (var tempUser of usersIDs) {
         await prisma.userConversations.create({
           data: {
             conversationId: newConv.id,
@@ -348,9 +377,14 @@ export const createConversation = catchAsync(
             seen: false,
           },
         });
+      }
     }
-    res.json(newConv).status(200);
-    next();
+    newConv.name =
+      users.slice(0, 3).join(', ') +
+      `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
+    return res
+      .json({ ...newConv, fullName: users.join(', '), users: usersDetails })
+      .status(200);
   },
 );
 
@@ -391,7 +425,7 @@ export const deleteConversation = catchAsync(
 );
 
 export const getConversation = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const authUser = req.user as User;
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
@@ -412,9 +446,13 @@ export const getConversation = catchAsync(
           select: {
             User: {
               select: {
+                id: true,
                 name: true,
                 userName: true,
                 profileImageUrl: true,
+                description: true,
+                followersCount: true,
+                followingCount: true,
               },
             },
           },
@@ -480,11 +518,43 @@ export const getConversation = catchAsync(
       });
       let users = [];
       for (let i = 0; i < tempConv.UserConversations.length; i++)
-        if (tempConv.UserConversations[i].User.userName != authUser.userName)
-          users.push(tempConv.UserConversations[i].User);
+        if (tempConv.UserConversations[i].User.userName != authUser.userName) {
+          const isFollowed = await isUserFollowing(
+            authUser.id,
+            tempConv.UserConversations[i].User.id,
+          );
+          const isFollowing = await isUserFollowing(
+            tempConv.UserConversations[i].User.id,
+            authUser.id,
+          );
+          const user = {
+            name: tempConv.UserConversations[i].User.name,
+            userName: tempConv.UserConversations[i].User.userName,
+            description: tempConv.UserConversations[i].User.description,
+            followersCount: tempConv.UserConversations[i].User.followersCount,
+            followingCount: tempConv.UserConversations[i].User.followingCount,
+            profileImageUrl: tempConv.UserConversations[i].User.profileImageUrl,
+          };
+          users.push({
+            ...user,
+            isFollowing: isFollowing,
+            isFollowed: isFollowed,
+          });
+        }
+      let newName, newFullName;
+      if (tempConv.name) {
+        newName = tempConv.name;
+        newFullName = tempConv.name;
+      } else {
+        newName =
+          users.map((user) => user.name).join(', ') +
+          `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
+        newFullName = users.map((user) => user.name).join(', ');
+      }
       let tempResponse = {
         id: tempConv.id,
-        name: tempConv.name,
+        name: newName,
+        fullName: newFullName,
         lastMessage: lastMessage,
         photo: tempConv.photo,
         isGroup: tempConv.isGroup,
@@ -493,8 +563,7 @@ export const getConversation = catchAsync(
       };
       responseConvs.push(tempResponse);
     }
-    res.json(responseConvs).status(200);
-    next();
+    return res.json(responseConvs).status(200);
   },
 );
 export const postConversationUsers = catchAsync(
@@ -548,8 +617,11 @@ export const postConversationUsers = catchAsync(
   },
 );
 
-
-export const searchConversations = async (req: Request, res: Response, _: NextFunction) => {
+export const searchConversations = async (
+  req: Request,
+  res: Response,
+  _: NextFunction,
+) => {
   const { q, page = '1', limit = '10' } = req.query;
   const parsedPage = parseInt(page as string, 10);
   const parsedLimit = parseInt(limit as string, 10);
@@ -563,7 +635,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
     return;
   }
 
-  const userId = (req.user as User).id; 
+  const userId = (req.user as User).id;
 
   const conversationsPeopleGroups = await prisma.conversation.findMany({
     where: {
@@ -589,11 +661,11 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
                   User: {
                     userName: {
                       contains: q as string,
-                      mode: 'insensitive',  
-                    }
-                  }
-                }
-              }
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              },
             },
             {
               UserConversations: {
@@ -601,12 +673,12 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
                   User: {
                     name: {
                       contains: q as string,
-                      mode: 'insensitive',  
-                    }
-                  }
-                }
-              }
-            }
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              },
+            },
           ],
         },
       ],
@@ -622,7 +694,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
             select: {
               userName: true,
               profileImageUrl: true,
-              name: true, 
+              name: true,
             },
           },
         },
@@ -652,7 +724,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       },
     },
     skip,
-    take: parsedLimit
+    take: parsedLimit,
   });
 
   const conversationsMessage = await prisma.conversation.findMany({
@@ -692,7 +764,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
             select: {
               userName: true,
               profileImageUrl: true,
-              name: true, 
+              name: true,
             },
           },
         },
@@ -722,36 +794,40 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       },
     },
     skip,
-    take: parsedLimit
+    take: parsedLimit,
   });
 
+  const groups = conversationsPeopleGroups
+    .filter((consversation) => consversation.isGroup)
+    .map((conversation) => ({
+      id: conversation.id,
+      name: conversation.name,
+      type: conversation?.isGroup ? 'group' : 'direct',
+      photo: conversation.photo,
+      users: conversation.UserConversations.map((userConversation) => ({
+        userName: userConversation.User.userName,
+        name: userConversation.User.name,
+        userPhoto: userConversation.User.profileImageUrl,
+      })),
+      lastMessage:
+        conversation.Message.length > 0 ? conversation.Message[0] : null,
+    }));
 
-  const groups = conversationsPeopleGroups.filter((consversation) => consversation.isGroup).map((conversation) => ({
-    id: conversation.id,
-    name: conversation.name,
-    type: conversation?.isGroup ? 'group' : 'direct',
-    photo: conversation.photo,
-    users: conversation.UserConversations.map((userConversation) => ({
-      userName: userConversation.User.userName,
-      name: userConversation.User.name,
-      userPhoto: userConversation.User.profileImageUrl,
-    })),
-    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
-  }));
-
-  const people = conversationsPeopleGroups.filter((consversation) => !consversation.isGroup).map((conversation) => ({
-    id: conversation.id,
-    name: conversation.name,
-    type: conversation?.isGroup ? 'group' : 'direct',
-    photo: conversation.photo,
-    users: conversation.UserConversations.map((userConversation) => ({
-      userName: userConversation.User.userName,
-      name: userConversation.User.name,
-      userPhoto: userConversation.User.profileImageUrl,
-    })),
-    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
-  }));
-
+  const people = conversationsPeopleGroups
+    .filter((consversation) => !consversation.isGroup)
+    .map((conversation) => ({
+      id: conversation.id,
+      name: conversation.name,
+      type: conversation?.isGroup ? 'group' : 'direct',
+      photo: conversation.photo,
+      users: conversation.UserConversations.map((userConversation) => ({
+        userName: userConversation.User.userName,
+        name: userConversation.User.name,
+        userPhoto: userConversation.User.profileImageUrl,
+      })),
+      lastMessage:
+        conversation.Message.length > 0 ? conversation.Message[0] : null,
+    }));
 
   const messages = conversationsMessage.map((conversation) => ({
     id: conversation.id,
@@ -763,13 +839,14 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     })),
-    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
+    lastMessage:
+      conversation.Message.length > 0 ? conversation.Message[0] : null,
   }));
 
   res.status(200).json({
     status: 'success',
     groups,
     people,
-    messages
+    messages,
   });
 };
