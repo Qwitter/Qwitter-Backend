@@ -666,7 +666,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     })),
-    lastMessage: conversation.Message
+    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
   }));
 
   const people = conversationsPeopleGroups.filter((consversation) => !consversation.isGroup).map((conversation) => ({
@@ -679,7 +679,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     })),
-    lastMessage: conversation.Message
+    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
   }));
 
 
@@ -693,7 +693,7 @@ export const searchConversations = async (req: Request, res: Response, _: NextFu
       name: userConversation.User.name,
       userPhoto: userConversation.User.profileImageUrl,
     })),
-    lastMessage: conversation.Message
+    lastMessage: conversation.Message.length > 0 ? conversation.Message[0] : null
   }));
 
   res.status(200).json({
