@@ -214,7 +214,10 @@ export const getConversationDetails = async (
     newFullName = conversationDetails.name;
   } else {
     newName =
-      users.map((user) => user.name).join(', ') +
+      users
+        .slice(0, 3)
+        .map((user) => user.name)
+        .join(', ') +
       `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
     newFullName = users.map((user) => user.name).join(', ');
   }
@@ -615,7 +618,10 @@ export const getConversation = catchAsync(
         newFullName = tempConv.name;
       } else {
         newName =
-          users.map((user) => user.name).join(', ') +
+          users
+            .slice(0, 3)
+            .map((user) => user.name)
+            .join(', ') +
           `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
         newFullName = users.map((user) => user.name).join(', ');
       }
