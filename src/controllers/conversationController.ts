@@ -223,6 +223,7 @@ export const getConversationDetails = async (
     id: conversationDetails?.id,
     messages: formattedMessages,
     name: newName,
+    fullName: newFullName,
     isGroup: conversationDetails?.isGroup,
     photo: conversationDetails?.photo,
     users: users,
