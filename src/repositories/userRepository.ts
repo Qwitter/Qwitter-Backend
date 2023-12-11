@@ -35,6 +35,22 @@ export const blockUserByIDs = async (
   blockingUser: string,
   blockedUser: string,
 ) => {
+  await prisma.follow.delete({
+    where: {
+      folowererId_followedId: {
+        followedId: blockedUser,
+        folowererId: blockingUser,
+      },
+    },
+  });
+  await prisma.follow.delete({
+    where: {
+      folowererId_followedId: {
+        followedId: blockingUser,
+        folowererId: blockedUser,
+      },
+    },
+  });
   return await prisma.block.create({
     data: {
       blockedId: blockedUser,

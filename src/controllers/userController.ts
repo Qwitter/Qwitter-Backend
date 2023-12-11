@@ -231,12 +231,22 @@ export const getUsers = catchAsync(
         (req.user as User).id,
         (await getUserByUsername(user.userName))?.id || '',
       );
-      const tweetCount = await getNumOfTweets(user.userName);
-      ret.push({
-        ...user,
-        tweetCount,
-        isFollowing,
-      });
+      const isBlocked = await isUserBlocked(
+        (req.user as User).id,
+        (await getUserByUsername(user.userName))?.id || '',
+      );
+      const isBlocker = await isUserBlocked(
+        (await getUserByUsername(user.userName))?.id || '',
+        (req.user as User).id,
+      );
+      if (!isBlocked && !isBlocker) {
+        const tweetCount = await getNumOfTweets(user.userName);
+        ret.push({
+          ...user,
+          tweetCount,
+          isFollowing,
+        });
+      }
     }
     return res.status(200).json({
       users: ret,
@@ -665,8 +675,6 @@ export const followUser = catchAsync(
       },
     });
 
-
-
     // TODO: Add here send notification using the function in utils/notifications
 
     res
@@ -730,6 +738,8 @@ export const getUserSuggestions = catchAsync(
       where: {
         id: currentUser.id,
         deletedAt: null,
+        blocked: { none: { blocker: { id: currentUser.id } } },
+        blocker: { none: { blocked: { id: currentUser.id } } },
       },
       include: {
         follower: true,
@@ -775,6 +785,8 @@ export const getUserSuggestions = catchAsync(
               where: {
                 id: followersArray[j].followedId,
                 deletedAt: null,
+                blocked: { none: { blocker: { id: currentUser.id } } },
+                blocker: { none: { blocked: { id: currentUser.id } } },
               },
               select: {
                 name: true,
@@ -802,6 +814,8 @@ export const getUserSuggestions = catchAsync(
         take: 5100,
         where: {
           deletedAt: null,
+          blocked: { none: { blocker: { id: currentUser.id } } },
+          blocker: { none: { blocked: { id: currentUser.id } } },
         },
         orderBy: {
           followersCount: 'desc',
@@ -827,6 +841,8 @@ export const getUserSuggestions = catchAsync(
               where: {
                 id: popUsers[i].id,
                 deletedAt: null,
+                blocked: { none: { blocker: { id: currentUser.id } } },
+                blocker: { none: { blocked: { id: currentUser.id } } },
               },
               select: {
                 name: true,

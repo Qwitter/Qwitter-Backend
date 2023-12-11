@@ -1,6 +1,7 @@
 import { authorSelectOptions } from '../types/user';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
+import { User } from '@prisma/client';
 
 export const getTweetAndUserById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
@@ -45,8 +46,8 @@ export const getTweetById = async (tweetId: string) => {
       deletedAt: null,
     },
     include: {
-      author: true
-    }
+      author: true,
+    },
   });
 
   return { tweet, author: tweet?.author };
@@ -57,6 +58,7 @@ export const searchTweet = async (
   hashtag: string | null,
   skip: number,
   parsedLimit: number,
+  currentUser: User,
 ) => {
   let tweets;
   let words: string[];
@@ -67,6 +69,10 @@ export const searchTweet = async (
           some: { entity: { Hashtag: { text: hashtag } } },
         },
         deletedAt: null,
+        author: {
+          blocked: { none: { blocker: { id: currentUser.id } } },
+          blocker: { none: { blocked: { id: currentUser.id } } },
+        },
       },
       select: {
         createdAt: true,
@@ -347,8 +353,8 @@ export const isRetweeted = async (userId: string, tweet: any) => {
   const retweeted = await prisma.tweet.findFirst({
     where: {
       retweetedId: tweet.id,
-      userId: userId
-    }
+      userId: userId,
+    },
   });
   return retweeted != null;
-}
+};
