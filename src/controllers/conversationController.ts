@@ -16,7 +16,7 @@ import {
   getImagePath,
   getMessageEntities,
 } from '../repositories/entityRepository';
-import { isUserFollowing } from '../repositories/userRepository';
+import { isUserFollowing, isUserBlocked } from '../repositories/userRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversation = catchAsync(
@@ -553,6 +553,18 @@ export const getConversation = catchAsync(
           `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
         newFullName = users.map((user) => user.name).join(', ');
       }
+      let i = 0;
+      if (tempConv.UserConversations[i].User.userName == authUser.userName) {
+        i++;
+      }
+      const isBlocked = await isUserBlocked(
+        (req.user as User).id,
+        tempConv.UserConversations[i].User.id,
+      );
+      const isBlocker = await isUserBlocked(
+        tempConv.UserConversations[i].User.id,
+        (req.user as User).id,
+      );
       let tempResponse = {
         id: tempConv.id,
         name: newName,
@@ -562,12 +574,14 @@ export const getConversation = catchAsync(
         isGroup: tempConv.isGroup,
         users: users,
         seen: status?.seen,
+        blocked: !tempConv.isGroup && (isBlocked || isBlocker),
       };
       responseConvs.push(tempResponse);
     }
     return res.json(responseConvs).status(200);
   },
 );
+
 export const postConversationUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const conversationId = req.params.id;

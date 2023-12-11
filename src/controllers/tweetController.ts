@@ -13,6 +13,7 @@ import {
 import {
   getTweetsCreatedByUser,
   getUserByUsername,
+  isUserBlocked,
   isUserFollowing,
 } from '../repositories/userRepository';
 import {
@@ -36,6 +37,10 @@ const getTimeline = async (req: Request) => {
   const following = await prisma.follow.findMany({
     where: {
       folowererId: userId,
+      followed: {
+        blocked: { none: { blocker: { id: currentUser.id } } },
+        blocker: { none: { blocked: { id: currentUser.id } } },
+      },
     },
     select: {
       followedId: true,
@@ -110,6 +115,10 @@ export const getForYouTimeline = catchAsync(
     const following = await prisma.follow.findMany({
       where: {
         folowererId: userId,
+        followed: {
+          blocked: { none: { blocker: { id: currentUser.id } } },
+          blocker: { none: { blocked: { id: currentUser.id } } },
+        },
       },
       select: {
         followedId: true,
@@ -435,7 +444,11 @@ export const getTweet = catchAsync(
       tweetingUser = tempRetweet.tweetingUser;
       tweet = tempRetweet.tweet;
     }
-    if (!tweet) {
+    if (
+      !tweet ||
+      (await isUserBlocked((req.user as User).id, (tweetingUser as User).id)) ||
+      (await isUserBlocked((tweetingUser as User).id, (req.user as User).id))
+    ) {
       new AppError('Tweet was Not Found', 404);
     } else if (tweet.deletedAt != null) {
       new AppError('Tweet was deleted', 410);
@@ -600,9 +613,16 @@ export const searchTweets = catchAsync(
         (hashtag as string).trim(),
         skip,
         parsedLimit,
+        req.user as User,
       );
     } else if (q) {
-      tweets = await searchTweet((q as string).trim(), null, skip, parsedLimit);
+      tweets = await searchTweet(
+        (q as string).trim(),
+        null,
+        skip,
+        parsedLimit,
+        req.user as User,
+      );
     } else {
       tweets = await getTimeline(req);
     }
@@ -654,6 +674,14 @@ export const getUserTweets = catchAsync(
         message: 'User Not found',
       });
     }
+    if (
+      (await isUserBlocked((req.user as User).id, user.id)) ||
+      (await isUserBlocked(user.id, (req.user as User).id))
+    ) {
+      return res.status(403).json({
+        message: 'Blocked',
+      });
+    }
     const tweets = await getTweetsCreatedByUser(user.id, skip, parsedLimit);
     for (var tweet of tweets) {
       if (tweet.replyToTweetId != null) continue;
@@ -703,6 +731,14 @@ export const getUserReplies = catchAsync(
         message: 'User Not found',
       });
     }
+    if (
+      (await isUserBlocked((req.user as User).id, user.id)) ||
+      (await isUserBlocked(user.id, (req.user as User).id))
+    ) {
+      return res.status(403).json({
+        message: 'Blocked',
+      });
+    }
     const tweets = await getTweetsCreatedByUser(user.id, skip, parsedLimit);
     for (var tweet of tweets) {
       const liked = await prisma.like.findFirst({
@@ -742,7 +778,7 @@ export const searchHastags = catchAsync(
   },
 );
 export const getUserLikedTweets = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
 
     const { page = '1', limit = '10' } = req.query;
@@ -760,20 +796,26 @@ export const getUserLikedTweets = catchAsync(
       });
       return;
     }
-
+    if (
+      (await isUserBlocked((req.user as User).id, user.id)) ||
+      (await isUserBlocked(user.id, (req.user as User).id))
+    ) {
+      return res.status(403).json({
+        message: 'Blocked',
+      });
+    }
     const tweets = await getTweetsLikedById(
       (user as User).id as string,
       skip,
       parsedLimit,
     );
     const responses = await getTweetsRepliesRetweets(tweets);
-    res.status(200).json({ tweets: responses });
-    next();
+    return res.status(200).json({ tweets: responses });
   },
 );
 
 export const getUserMediaTweets = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
 
     const { page = '1', limit = '10' } = req.query;
@@ -791,15 +833,21 @@ export const getUserMediaTweets = catchAsync(
       });
       return;
     }
-
+    if (
+      (await isUserBlocked((req.user as User).id, user.id)) ||
+      (await isUserBlocked(user.id, (req.user as User).id))
+    ) {
+      return res.status(403).json({
+        message: 'Blocked',
+      });
+    }
     const tweets = await getTweetsMediaById(
       (user as User).id as string,
       skip,
       parsedLimit,
     );
     const responses = await getTweetsRepliesRetweets(tweets);
-    res.status(200).json({ tweets: responses });
-    next();
+    return res.status(200).json({ tweets: responses });
   },
 );
 
