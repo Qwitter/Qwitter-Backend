@@ -64,9 +64,10 @@ export const getConversationDetails = async (
 ) => {
   const { id } = req.params;
   const conversationId = id;
+  const authUser = req.user as User;
   const isUserInGroup = await prisma.userConversations.findFirst({
     where: {
-      userId: (req.user as User).id,
+      userId: authUser.id,
       conversationId,
     },
   });
@@ -91,7 +92,7 @@ export const getConversationDetails = async (
   await prisma.userConversations.updateMany({
     where: {
       conversationId,
-      userId: (req.user as User).id,
+      userId: authUser.id,
     },
     data: {
       seen: true,
@@ -128,11 +129,39 @@ export const getConversationDetails = async (
       },
       UserConversations: {
         include: {
-          User: true,
+          User: {
+            select: {
+              id: true,
+              name: true,
+              userName: true,
+              profileImageUrl: true,
+              description: true,
+              followersCount: true,
+              followingCount: true,
+            },
+          },
         },
       },
     },
   });
+
+  let isBlocked = false;
+  let isBlocker = false;
+
+  if (!conversationDetails?.isGroup) {
+    let i = 0;
+    if (conversationDetails?.UserConversations[i].User.id == authUser.id) {
+      i++;
+    }
+    isBlocked = await isUserBlocked(
+      authUser.id,
+      conversationDetails?.UserConversations[i].User.id as string,
+    );
+    isBlocker = await isUserBlocked(
+      conversationDetails?.UserConversations[i].User.id as string,
+      authUser.id,
+    );
+  }
 
   const formattedMessages = await Promise.all(
     (conversationDetails?.Message || []).map(async (message) => ({
@@ -146,23 +175,59 @@ export const getConversationDetails = async (
       isMessage: message.isMessage,
     })),
   );
-
-  const formattedUsers = conversationDetails?.UserConversations.map(
-    (userConversation) => ({
-      userName: userConversation.User.userName,
-      name: userConversation.User.name,
-      profileImageUrl: userConversation.User.profileImageUrl,
-    }),
-  );
+  const users = [];
+  if (conversationDetails)
+    for (let i = 0; i < conversationDetails.UserConversations.length; i++)
+      if (
+        conversationDetails.UserConversations[i].User.userName !=
+        authUser.userName
+      ) {
+        const isFollowed = await isUserFollowing(
+          authUser.id,
+          conversationDetails.UserConversations[i].User.id,
+        );
+        const isFollowing = await isUserFollowing(
+          conversationDetails.UserConversations[i].User.id,
+          authUser.id,
+        );
+        const user = {
+          name: conversationDetails.UserConversations[i].User.name,
+          userName: conversationDetails.UserConversations[i].User.userName,
+          description:
+            conversationDetails.UserConversations[i].User.description,
+          followersCount:
+            conversationDetails.UserConversations[i].User.followersCount,
+          followingCount:
+            conversationDetails.UserConversations[i].User.followingCount,
+          profileImageUrl:
+            conversationDetails.UserConversations[i].User.profileImageUrl,
+        };
+        users.push({
+          ...user,
+          isFollowing: isFollowing,
+          isFollowed: isFollowed,
+        });
+      }
+  let newName, newFullName;
+  if (conversationDetails?.name) {
+    newName = conversationDetails.name;
+    newFullName = conversationDetails.name;
+  } else {
+    newName =
+      users.map((user) => user.name).join(', ') +
+      `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
+    newFullName = users.map((user) => user.name).join(', ');
+  }
 
   const formattedConversationDetails = {
     id: conversationDetails?.id,
     messages: formattedMessages,
-    name: conversationDetails?.name,
+    name: newName,
     isGroup: conversationDetails?.isGroup,
     photo: conversationDetails?.photo,
-    users: formattedUsers,
+    users: users,
     seen: true,
+    blocked: isBlocked || isBlocker,
   };
 
   return res.status(200).json(formattedConversationDetails);
@@ -558,12 +623,12 @@ export const getConversation = catchAsync(
         i++;
       }
       const isBlocked = await isUserBlocked(
-        (req.user as User).id,
+        authUser.id,
         tempConv.UserConversations[i].User.id,
       );
       const isBlocker = await isUserBlocked(
         tempConv.UserConversations[i].User.id,
-        (req.user as User).id,
+        authUser.id,
       );
       let tempResponse = {
         id: tempConv.id,
