@@ -35,7 +35,7 @@ export const blockUserByIDs = async (
   blockingUser: string,
   blockedUser: string,
 ) => {
-  await prisma.follow.delete({
+  const followCheck = await prisma.follow.findUnique({
     where: {
       folowererId_followedId: {
         followedId: blockedUser,
@@ -43,7 +43,16 @@ export const blockUserByIDs = async (
       },
     },
   });
-  await prisma.follow.delete({
+  followCheck &&
+    (await prisma.follow.delete({
+      where: {
+        folowererId_followedId: {
+          followedId: blockedUser,
+          folowererId: blockingUser,
+        },
+      },
+    }));
+  const followCheck2 = await prisma.follow.findUnique({
     where: {
       folowererId_followedId: {
         followedId: blockingUser,
@@ -51,6 +60,15 @@ export const blockUserByIDs = async (
       },
     },
   });
+  followCheck2 &&
+    (await prisma.follow.delete({
+      where: {
+        folowererId_followedId: {
+          followedId: blockingUser,
+          folowererId: blockedUser,
+        },
+      },
+    }));
   return await prisma.block.create({
     data: {
       blockedId: blockedUser,
