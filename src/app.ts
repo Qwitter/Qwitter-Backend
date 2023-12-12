@@ -22,11 +22,11 @@ const app = express();
 // Secuirty Middlewares
 // app.use(helmet()); //
 
-const limiter = rateLimit({
-  max: 100, // 100 request per minute
-  windowMs: 60 * 1000, // One Minute
-  message: 'Too many requests dude ! Please try again in 1 minute',
-});
+// const limiter = rateLimit({
+//   max: 100, // 100 request per minute
+//   windowMs: 60 * 1000, // One Minute
+//   message: 'Too many requests dude ! Please try again in 1 minute',
+// });
 app.use('/api', limiter);
 app.use(cors());
 
