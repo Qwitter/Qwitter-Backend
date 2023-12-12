@@ -11,7 +11,7 @@ import trendsRouter from './routes/trends';
 
 import cookieParser from 'cookie-parser';
 // import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import path from 'path';
 import cors from 'cors';
 import globalErrorHandler from './controllers/errorController';
@@ -27,7 +27,7 @@ const app = express();
 //   windowMs: 60 * 1000, // One Minute
 //   message: 'Too many requests dude ! Please try again in 1 minute',
 // });
-app.use('/api', limiter);
+// app.use('/api', limiter);
 app.use(cors());
 
 // Body parsing middlewares
