@@ -44,36 +44,36 @@ export const getMessageEntities = async (messageId: string) => {
   let entities: any = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations = await prisma.messageEntity.findMany({
     where: { messageId },
-  });
-  for (const relation of relations) {
-    const entity = await prisma.entity.findUnique({
-      where: {
-        id: relation.entityId,
-      },
-      include: {
-        Mention: {
-          select: {
-            mentionedUser: {
-              select: {
-                userName: true,
+    include: {
+      entity: {
+        include: {
+          Mention: {
+            select: {
+              mentionedUser: {
+                select: {
+                  userName: true,
+                },
               },
             },
           },
-        },
-        Hashtag: {
-          select: {
-            text: true,
-            count: true,
+          Hashtag: {
+            select: {
+              text: true,
+              count: true,
+            },
           },
-        },
-        Url: {
-          select: {
-            text: true,
+          Url: {
+            select: {
+              text: true,
+            },
           },
+          Media: true,
         },
-        Media: true,
       },
-    });
+    },
+  });
+  for (const relation of relations) {
+    const entity = relation.entity;
     if (entity?.Mention) {
       entities.mentions.push(entity.Mention.mentionedUser.userName);
     } else if (entity?.Hashtag) {
