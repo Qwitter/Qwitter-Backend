@@ -229,13 +229,13 @@ model Message {
 
 model Notification {
   id                  String                @default(uuid())
-  text                String                @default("none")
+  objectId            String?
   deleted             Boolean               @default(false)
   seen                Boolean               @default(false)
   createdAt           DateTime              @db.Timestamp()
   sender              User                  @relation("sendNotification", fields: [senderId], references: [id])
   senderId            String
-  url                 String
+  type                String
   RecieveNotification RecieveNotification[]
 
   @@id([id])
