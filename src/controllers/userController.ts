@@ -655,6 +655,19 @@ export const followUser = catchAsync(
       return next(new AppError("Can't follow youself", 401));
     }
 
+    const isBlocked = await isUserBlocked(
+      (req.user as User).id,
+      userToFollow.id,
+    );
+    const isBlocking = await isUserBlocked(
+      userToFollow.id,
+      (req.user as User).id,
+    );
+
+    if (isBlocked || isBlocking) {
+      return next(new AppError('Blocked', 401));
+    }
+
     const existingFollow = await prisma.follow.findUnique({
       where: {
         folowererId_followedId: {
@@ -675,7 +688,43 @@ export const followUser = catchAsync(
       },
     });
 
+    const isMuted = isUserMuted(userToFollow.id, (req.user as User).id);
     // TODO: Add here send notification using the function in utils/notifications
+    if (!isMuted) {
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          type: 'follow',
+        },
+      });
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: userToFollow.id,
+        },
+      });
+      const notificationObject = {
+        type: 'follow',
+        createdAt: new Date(),
+        follower: {
+          username: (req.user as User).userName,
+          name: (req.user as User).name,
+          url: (req.user as User).url,
+          description: (req.user as User).description,
+          followersCount: (req.user as User).followersCount,
+          followingCount: (req.user as User).followingCount,
+          profileImageUrl: (req.user as User).profileImageUrl,
+          isFollowing: await isUserFollowing(
+            userToFollow.id,
+            (req.user as User).id,
+          ),
+          isBlocked: isBlocked || isBlocking,
+          isMuted: false,
+        },
+      };
+      sendNotification(username, notificationObject);
+    }
 
     res
       .status(200)
