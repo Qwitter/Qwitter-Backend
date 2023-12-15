@@ -444,89 +444,96 @@ export const getTweet = catchAsync(
       tweetingUser = tempRetweet.tweetingUser;
       tweet = tempRetweet.tweet;
     }
-    if (
-      !tweet ||
-      (await isUserBlocked((req.user as User).id, (tweetingUser as User).id)) ||
-      (await isUserBlocked((tweetingUser as User).id, (req.user as User).id))
-    ) {
-      new AppError('Tweet was Not Found', 404);
-    } else if (tweet.deletedAt != null) {
-      new AppError('Tweet was deleted', 410);
-    } else if (!tweetingUser) {
-      new AppError('user account was deleted', 404);
-    } else {
-      const tweetEntities = tweet?.TweetEntity;
-      for (var entity of tweetEntities) {
-        let tempEnitity = await prisma.entity.findFirst({
-          where: { id: entity.entityId },
-        });
-        if (tempEnitity?.type == 'hashtag') {
-          let hashtag = await prisma.hashtag.findFirst({
-            where: { entityId: entity.entityId },
-          });
-          hashtags.push({ value: hashtag?.text });
-        } else if (tempEnitity?.type == 'media') {
-          let media = await prisma.media.findFirst({
-            where: { entityId: entity.entityId },
-          });
-          medias.push({ value: media?.url, type: media?.type });
-        } else {
-          let mention = await prisma.mention.findFirst({
-            where: { entityId: entity.entityId },
-          });
-          let user = await prisma.user.findFirst({
-            where: { id: mention?.userId, deletedAt: null },
-          });
-          mentions.push({ mentionedUsername: user?.userName });
-        }
-      }
-      const liked = await prisma.like.findFirst({
-        where: {
-          userId: (req.user as User)?.id,
-          tweetId: req.params.id,
-        },
-      });
-
-      const responseBody = {
-        status: 'success',
-        tweet: {
-          createdAt: tweet.createdAt,
-          id: tweet.id,
-          userName: originalTweeter,
-          replyCount: tweet.replyCount,
-          retweetCount: tweet.retweetCount,
-          likesCount: tweet.likesCount,
-          text: tweet.text,
-          source: tweet.source,
-          coordinates: tweet.coordinates,
-          replyToTweetId: tweet.replyToTweetId,
-          retweetedID: retweetedTweetID,
-          liked: liked != null,
-          entities: {
-            hashtags: hashtags,
-            media: medias,
-            mentions: mentions,
-          },
-        },
-        user: {
-          userName: tweetingUser.userName,
-          name: tweetingUser.name,
-          birthDate: tweetingUser.birthDate,
-          url: tweetingUser.url,
-          description: tweetingUser.description,
-          protected: tweetingUser.protected,
-          verified: tweetingUser.verified,
-          followersCount: tweetingUser.followersCount,
-          followingCount: tweetingUser.followingCount,
-          createdAt: tweetingUser.createdAt,
-          profileBannerUrl: tweetingUser.profileBannerUrl,
-          profileImageUrl: tweetingUser.profileImageUrl,
-          email: tweetingUser.email.toLowerCase(),
-        },
-      };
-      res.status(200).json(responseBody);
+    let isBlocking = false;
+    let isBlocked = false;
+    if (req.user && tweetingUser) {
+      console.log('test2');
+      isBlocking = await isUserBlocked(
+        (req.user as User).id,
+        (tweetingUser as User).id,
+      );
+      isBlocked = await isUserBlocked(
+        (tweetingUser as User).id,
+        (req.user as User).id,
+      );
     }
-    next();
+    if (!tweet || isBlocked || isBlocking) {
+      return next(new AppError('Tweet was Not Found', 404));
+    } else if (tweet.deletedAt != null) {
+      return next(new AppError('Tweet was deleted', 410));
+    } else if (!tweetingUser) {
+      return next(new AppError('user account was deleted', 404));
+    }
+    const tweetEntities = tweet?.TweetEntity;
+    for (var entity of tweetEntities) {
+      let tempEnitity = await prisma.entity.findFirst({
+        where: { id: entity.entityId },
+      });
+      if (tempEnitity?.type == 'hashtag') {
+        let hashtag = await prisma.hashtag.findFirst({
+          where: { entityId: entity.entityId },
+        });
+        hashtags.push({ value: hashtag?.text });
+      } else if (tempEnitity?.type == 'media') {
+        let media = await prisma.media.findFirst({
+          where: { entityId: entity.entityId },
+        });
+        medias.push({ value: media?.url, type: media?.type });
+      } else {
+        let mention = await prisma.mention.findFirst({
+          where: { entityId: entity.entityId },
+        });
+        let user = await prisma.user.findFirst({
+          where: { id: mention?.userId, deletedAt: null },
+        });
+        mentions.push({ mentionedUsername: user?.userName });
+      }
+    }
+    const liked = await prisma.like.findFirst({
+      where: {
+        userId: (req.user as User)?.id,
+        tweetId: req.params.id,
+      },
+    });
+
+    const responseBody = {
+      status: 'success',
+      tweet: {
+        createdAt: tweet.createdAt,
+        id: tweet.id,
+        userName: originalTweeter,
+        replyCount: tweet.replyCount,
+        retweetCount: tweet.retweetCount,
+        likesCount: tweet.likesCount,
+        text: tweet.text,
+        source: tweet.source,
+        coordinates: tweet.coordinates,
+        replyToTweetId: tweet.replyToTweetId,
+        retweetedID: retweetedTweetID,
+        liked: liked != null,
+        entities: {
+          hashtags: hashtags,
+          media: medias,
+          mentions: mentions,
+        },
+      },
+      user: {
+        userName: tweetingUser.userName,
+        name: tweetingUser.name,
+        birthDate: tweetingUser.birthDate,
+        url: tweetingUser.url,
+        description: tweetingUser.description,
+        protected: tweetingUser.protected,
+        verified: tweetingUser.verified,
+        followersCount: tweetingUser.followersCount,
+        followingCount: tweetingUser.followingCount,
+        createdAt: tweetingUser.createdAt,
+        profileBannerUrl: tweetingUser.profileBannerUrl,
+        profileImageUrl: tweetingUser.profileImageUrl,
+        email: tweetingUser.email.toLowerCase(),
+      },
+    };
+    return res.status(200).json(responseBody);
   },
 );
 
