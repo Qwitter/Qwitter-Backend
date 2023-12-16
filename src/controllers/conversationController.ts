@@ -575,16 +575,18 @@ export const getConversation = catchAsync(
       let lastMessage = {};
       if (tempConv) {
         entities = await getMessageEntities(tempConv.id);
+        let mediaText=tempConv.sender.userName+"sent "+entities.media[0]?.type
         lastMessage = {
           isMessage: tempConv.isMessage,
           id: tempConv.id,
           date: tempConv.date,
-          text: tempConv.text,
+          text: entities.media.length!=0? mediaText:tempConv.text,
           replyToMessage: {},
           userName: tempConv.sender.userName,
           profileImageUrl: tempConv.sender.profileImageUrl,
           entities: entities,
         };
+
       }
       let status = await prisma.userConversations.findUnique({
         where: {

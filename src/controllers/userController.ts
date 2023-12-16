@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
-import { JwtPayload, verify } from 'jsonwebtoken';
 
 import {
   getUserByUsername,
@@ -129,16 +128,7 @@ export const getUser = catchAsync(
     });
 
     // const currentUser = _req.user as User;
-    const auth_header: string =
-      _req.cookies.qwitter_jwt || (_req.headers.authorization as string);
-    const token: string = auth_header.split(' ')[1];
-    const payloadData = await verify(token, process.env.JWT_SECRET as string);
-    const authUser = await prisma.user.findFirst({
-      where: {
-        id: (payloadData as JwtPayload).id,
-        deletedAt: null,
-      },
-    });
+    const authUser=_req.user as User
 
     const isFollowing =
       authUser != null
