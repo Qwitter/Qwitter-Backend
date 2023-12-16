@@ -4,7 +4,7 @@
   "description": "Qwitter Backend",
   "main": "index.ts",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --coverage --forceExit",
     "start": "node dist/src/index.js",
     "serve": "ts-node-dev --respawn --transpile-only --exit-child --watch src src/index.ts",
     "build": "rimraf dist && npx tsc",
