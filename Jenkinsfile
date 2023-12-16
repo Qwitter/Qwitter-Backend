@@ -26,6 +26,7 @@ pipeline {
             echo 'This will run only if successful'  
         }  
         failure {  
+            echo 'Failure'
             //mail bcc: '', body: "<b>Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br>", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "ahmed.osama1982002@gmail.com";  
         }  
         changed {  
