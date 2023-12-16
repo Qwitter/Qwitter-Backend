@@ -6,11 +6,7 @@ pipeline {
         stage('Install Dependencies') {  
             steps {  
                 sh 'npm install'
-            }
-        }  
-        stage('Build') {  
-            steps {  
-                sh 'npm run build'
+                sh 'cp /home/fares/.env /var/lib/jenkins/workspace/Qwitter_Back_pipeline_production'
             }
         }  
         stage('Test') {  
@@ -18,6 +14,11 @@ pipeline {
                 sh 'npm run test'
             }
         }
+        stage('Build') {  
+            steps {  
+                sh 'npm run build'
+            }
+        }  
     }  
        
     post {   
@@ -25,7 +26,8 @@ pipeline {
             echo 'This will run only if successful'  
         }  
         failure {  
-            mail bcc: '', body: "<b>Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br>", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "ahmed.osama1982002@gmail.com";  
+            echo 'Failure'
+            //mail bcc: '', body: "<b>Failure</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br>", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "ahmed.osama1982002@gmail.com";  
         }  
         changed {  
             script{
