@@ -278,7 +278,6 @@ export const changeUserName = catchAsync(
     _res.status(200).json({
       message: 'userName was updated successfully',
     });
-    return _next();
   },
 );
 export const resetProfilePhotos = catchAsync(
@@ -510,7 +509,6 @@ export const blockUser = catchAsync(
         res.json({ status: 'success' }).status(404);
       }
     }
-    _next();
   },
 );
 
@@ -532,7 +530,6 @@ export const unblockUser = catchAsync(
         res.json({ status: 'failute' }).status(404);
       }
     }
-    _next();
   },
 );
 
@@ -571,7 +568,6 @@ export const muteUser = catchAsync(
     res
       .status(200)
       .json({ status: 'success', message: 'User muted successfully' });
-    next();
   },
 );
 
@@ -607,7 +603,6 @@ export const unmuteUser = catchAsync(
     res
       .status(200)
       .json({ status: 'success', message: 'User unmuted successfully' });
-    next();
   },
 );
 
@@ -741,7 +736,6 @@ export const followUser = catchAsync(
     res
       .status(200)
       .json({ status: 'success', message: 'User followed successfully' });
-    next();
   },
 );
 
@@ -787,7 +781,6 @@ export const unfollowUser = catchAsync(
     res
       .status(200)
       .json({ status: 'success', message: 'User unfollowed successfully' });
-    next();
   },
 );
 

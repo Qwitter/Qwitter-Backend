@@ -313,7 +313,7 @@ export const postTweet = catchAsync(
 // }
 
 export const getTweetReplies = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const tweetId = req.params.id;
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
@@ -380,13 +380,11 @@ export const getTweetReplies = catchAsync(
       status: 'success',
       replies: responses,
     });
-
-    next();
   },
 );
 
 export const getTweetRetweets = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const tweetId = req.params.id;
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
@@ -424,8 +422,6 @@ export const getTweetRetweets = catchAsync(
       status: 'success',
       retweeters: retweeters?.map((retweet) => retweet.author as User),
     });
-
-    next();
   },
 );
 
@@ -546,7 +542,7 @@ export const deleteTweet = catchAsync(
 );
 
 export const getTweetLikers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
@@ -562,7 +558,6 @@ export const getTweetLikers = catchAsync(
       res.status(404).json({
         message: 'Tweet is not Found',
       });
-      return next();
     }
 
     const tweetLikers = await prisma.like.findMany({
@@ -600,13 +595,11 @@ export const getTweetLikers = catchAsync(
       status: 'success',
       likers,
     });
-
-    next();
   },
 );
 
 export const searchTweets = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const { q, hashtag, page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
@@ -659,7 +652,6 @@ export const searchTweets = catchAsync(
       responses.push(response);
     }
     res.status(200).json({ tweets: responses });
-    next();
   },
 );
 export const getUserTweets = catchAsync(
@@ -889,7 +881,6 @@ export const likeTweet = catchAsync(
     await incrementLikes(id);
     // TODO: Add here send a notification using the function in utils/notification
     res.status(200).json({ status: 'success' });
-    next();
   },
 );
 
@@ -921,6 +912,5 @@ export const unlikeTweet = catchAsync(
     });
 
     res.status(200).json({ status: 'success' });
-    next();
   },
 );

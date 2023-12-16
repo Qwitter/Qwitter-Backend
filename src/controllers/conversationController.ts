@@ -52,8 +52,7 @@ export const editConversation = catchAsync(
     if (!updatedConversation)
       return res.status(404).json({ message: 'Not Found' });
 
-    res.status(200).json({ status: 'success', id: conversationId });
-    return _next();
+    return res.status(200).json({ status: 'success', id: conversationId });
   },
 );
 

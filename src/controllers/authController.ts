@@ -398,7 +398,6 @@ export const checkExistence = catchAsync(
         });
       }
     }
-    _next();
   },
 );
 
@@ -533,7 +532,6 @@ export const verifyEmail = catchAsync(
         });
       }
     }
-    _next();
   },
 );
 
@@ -582,12 +580,11 @@ export const userNameSuggestions = catchAsync(
     _res.status(200).json({
       suggestions: uniqueUserName,
     });
-    _next();
   },
 );
 
 export const checkPassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, _next: NextFunction) => {
     const { password } = req.body;
 
     const user = req.user as User;
@@ -597,8 +594,6 @@ export const checkPassword = catchAsync(
     res.status(200).json({
       correct: isPasswordCorrect,
     });
-
-    next();
   },
 );
 
@@ -653,7 +648,6 @@ export const changeEmail = catchAsync(
         })
         .status(200);
     }
-    next();
   },
 );
 
