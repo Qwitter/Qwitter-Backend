@@ -11,6 +11,7 @@ pipeline {
         }  
         stage('Test') {  
             steps {  
+                sh 'npm run prisma:generate'
                 sh 'npm run test'
             }
         }
