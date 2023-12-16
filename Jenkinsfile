@@ -6,12 +6,7 @@ pipeline {
         stage('Install Dependencies') {  
             steps {  
                 sh 'npm install'
-                sh 'pwd'
-            }
-        }  
-        stage('Build') {  
-            steps {  
-                sh 'npm run build'
+                sh 'cp /home/fares/.env /var/lib/jenkins/workspace/Qwitter_Back_pipeline_production'
             }
         }  
         stage('Test') {  
@@ -19,6 +14,11 @@ pipeline {
                 sh 'npm run test'
             }
         }
+        stage('Build') {  
+            steps {  
+                sh 'npm run build'
+            }
+        }  
     }  
        
     post {   
