@@ -3,7 +3,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { version } from '../../package.json';
 
-const options: swaggerJsdoc.Options = {
+export const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -68,7 +68,7 @@ const options: swaggerJsdoc.Options = {
   apis: ['./src/routes/*.ts', './src/schemas/*.ts'],
 };
 
-const swaggerSpec = swaggerJsdoc(options);
+export const swaggerSpec = swaggerJsdoc(options);
 
 function swaggerDocs(app: Express, port: number) {
   // Swagger page

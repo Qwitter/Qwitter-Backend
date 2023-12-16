@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import passport from 'passport';
 import session from 'express-session';
 import { configurePassport } from './utils/passport';
@@ -15,7 +15,12 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
 import globalErrorHandler from './controllers/errorController';
-// import { AppError } from './utils/appError';
+import { AppError } from './utils/appError';
+
+//Swagger
+
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './utils/swagger';
 
 const app = express();
 
@@ -64,12 +69,18 @@ app.use('/api/v1/tweets', tweetsRouter);
 app.use('/api/v1/conversation', conversationRouter);
 app.use('/api/v1/trends', trendsRouter);
 
-// Handling Not found
+// Swagger
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Docs in JSON format
+app.get('/docs.json', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
-// app.all('*', (req, _res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-//   return;
-// });
+app.all('*', (req, _res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  return;
+});
 
 app.use(globalErrorHandler);
 
