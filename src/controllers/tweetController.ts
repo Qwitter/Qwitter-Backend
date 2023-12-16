@@ -40,7 +40,9 @@ const getTimeline = async (req: Request) => {
       followed: {
         blocked: { none: { blocker: { id: currentUser.id } } },
         blocker: { none: { blocked: { id: currentUser.id } } },
+        muted: { none: { muter: { id: currentUser.id } } },
       },
+      
     },
     select: {
       followedId: true,
@@ -62,6 +64,7 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
+      
       deletedAt: null,
     },
     orderBy: {

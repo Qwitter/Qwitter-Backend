@@ -94,6 +94,7 @@ model Tweet {
   coordinates String?
   author      User     @relation(fields: [userId], references: [id])
   userId      String
+  readCount   Int     @default(0)
 
   replyToTweet   Tweet?  @relation("replyTo", fields: [replyToTweetId], references: [id])
   replies        Tweet[] @relation("replyTo")
@@ -202,7 +203,6 @@ model Conversation {
   id                String              @default(uuid())
   name              String?
   isGroup           Boolean             @default(false)
-  lastActivity      DateTime            @default(now())
   photo             String?
   Message           Message[]
   UserConversations UserConversations[]
@@ -256,6 +256,7 @@ model UserConversations {
   Conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
   seen           Boolean
+  dateJoined     DateTime     @default(now())
 
   @@id([userId, conversationId])
 }

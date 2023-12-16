@@ -128,7 +128,7 @@ export const getConversationDetails = async (
         },
       },
       UserConversations: {
-        include: {
+        select: {
           User: {
             select: {
               id: true,
@@ -140,6 +140,7 @@ export const getConversationDetails = async (
               followingCount: true,
             },
           },
+          dateJoined:true
         },
       },
     },
@@ -175,6 +176,7 @@ export const getConversationDetails = async (
       isMessage: message.isMessage,
     })),
   );
+  let lastActivity=formattedMessages[0].date
   const users = [];
   if (conversationDetails)
     for (let i = 0; i < conversationDetails.UserConversations.length; i++)
@@ -230,6 +232,8 @@ export const getConversationDetails = async (
     isGroup: conversationDetails?.isGroup,
     photo: conversationDetails?.photo,
     users: users,
+    dateJoined:conversationDetails?.isGroup? conversationDetails?.UserConversations.find(u=>u.User.userName==(req.user as User).userName)?.dateJoined:"",
+    lastActivity:lastActivity,
     seen: true,
     blocked: isBlocked || isBlocker,
   };
@@ -402,7 +406,6 @@ export const createConversation = catchAsync(
         data: {
           name: null,
           isGroup: false,
-          lastActivity: new Date(),
           UserConversations: {
             create: [
               { userId: authUser.id, seen: true },
@@ -413,7 +416,7 @@ export const createConversation = catchAsync(
       });
       await prisma.message.create({
         data: {
-          text: authUser.userName + ' created this group',
+          text: "",
           userId: authUser.id,
           date: new Date(),
           conversationId: newConv.id,
@@ -424,10 +427,9 @@ export const createConversation = catchAsync(
       newConv = await prisma.conversation.create({
         data: {
           name: null,
-          lastActivity: new Date(),
           isGroup: true,
           UserConversations: {
-            create: [{ userId: authUser.id, seen: true }],
+            create: [{ userId: authUser.id, seen: true ,dateJoined:new Date()}],
           },
         },
       });
@@ -450,11 +452,15 @@ export const createConversation = catchAsync(
         });
       }
     }
+    let now=new Date()
     newConv.name =
       users.slice(0, 3).join(', ') +
       `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
     return res
-      .json({ ...newConv, fullName: users.join(', '), users: usersDetails })
+      .json({ ...newConv, fullName: users.join(', '),
+      
+      dateJoined:newConv.isGroup?  now:"",
+      users: usersDetails })
       .status(200);
   },
 );
@@ -502,77 +508,81 @@ export const getConversation = catchAsync(
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
     const skip = (parsedPage - 1) * parsedLimit;
-    let convs = await prisma.conversation.findMany({
-      where: {
-        UserConversations: {
-          some: {
-            userId: authUser.id,
-          },
-        },
-      },
-      select: {
-        id: true,
-        photo: true,
-        UserConversations: {
-          select: {
-            User: {
-              select: {
-                id: true,
-                name: true,
-                userName: true,
-                profileImageUrl: true,
-                description: true,
-                followersCount: true,
-                followingCount: true,
-              },
-            },
-          },
-        },
-        Message: {
-          orderBy: {
-            date: 'desc',
-          },
-          take: 1,
-
-          select: {
-            id: true,
-            text: true,
-            date: true,
-            isMessage: true,
-
-            sender: {
-              select: {
-                userName: true,
-                profileImageUrl: true,
-              },
-            },
-          },
-        },
-        name: true,
-        lastActivity: true,
-        isGroup: true,
-      },
-      orderBy: {
-        lastActivity: 'desc',
+    
+    let convs=await prisma.message.findMany({
+      distinct:['conversationId'],
+      orderBy:{
+        date:'desc'
       },
       skip: skip,
       take: parsedLimit,
-    });
+      where:{
+        Conversation:{
+          UserConversations:{
+            some:{
+              userId:authUser.id
+            }
+          }
+        }
+      },
+      select:{
+        id: true,
+        text: true,
+        date: true,
+        isMessage: true,
+        sender:{
+          select:{
+          id: true,
+          name: true,
+          userName: true,
+          profileImageUrl: true,
+          description: true,
+          followersCount: true,
+          followingCount: true,},
+        },
+        Conversation:{
+          select:{
+            UserConversations:{
+              select:{
+                User: {
+                  select: {
+                    id: true,
+                    name: true,
+                    userName: true,
+                    profileImageUrl: true,
+                    description: true,
+                    followersCount: true,
+                    followingCount: true,
+                  },
+                },
+                dateJoined:true
+              }
+            },
+            id: true,
+            photo: true,
+            name: true,
+            isGroup: true,    
+
+          }
+        }
+      }
+    })
+    
     let responseConvs = [];
 
     for (var tempConv of convs) {
       let entities;
       let lastMessage = {};
-      if (tempConv.Message.length != 0) {
-        entities = await getMessageEntities(tempConv.Message[0].id);
+      if (tempConv) {
+        entities = await getMessageEntities(tempConv.id);
         lastMessage = {
-          isMessage: tempConv.Message[0].isMessage,
-          id: tempConv.Message[0].id,
-          date: tempConv.Message[0].date,
-          text: tempConv.Message[0].text,
+          isMessage: tempConv.isMessage,
+          id: tempConv.id,
+          date: tempConv.date,
+          text: tempConv.text,
           replyToMessage: {},
-          userName: tempConv.Message[0].sender.userName,
-          profileImageUrl: tempConv.Message[0].sender.profileImageUrl,
+          userName: tempConv.sender.userName,
+          profileImageUrl: tempConv.sender.profileImageUrl,
           entities: entities,
         };
       }
@@ -588,23 +598,23 @@ export const getConversation = catchAsync(
         },
       });
       let users = [];
-      for (let i = 0; i < tempConv.UserConversations.length; i++)
-        if (tempConv.UserConversations[i].User.userName != authUser.userName) {
+      for (let i = 0; i < tempConv.Conversation.UserConversations.length; i++)
+        if (tempConv.Conversation.UserConversations[i].User.userName != authUser.userName) {
           const isFollowed = await isUserFollowing(
             authUser.id,
-            tempConv.UserConversations[i].User.id,
+            tempConv.Conversation.UserConversations[i].User.id,
           );
           const isFollowing = await isUserFollowing(
-            tempConv.UserConversations[i].User.id,
+            tempConv.Conversation.UserConversations[i].User.id,
             authUser.id,
           );
           const user = {
-            name: tempConv.UserConversations[i].User.name,
-            userName: tempConv.UserConversations[i].User.userName,
-            description: tempConv.UserConversations[i].User.description,
-            followersCount: tempConv.UserConversations[i].User.followersCount,
-            followingCount: tempConv.UserConversations[i].User.followingCount,
-            profileImageUrl: tempConv.UserConversations[i].User.profileImageUrl,
+            name: tempConv.Conversation.UserConversations[i].User.name,
+            userName: tempConv.Conversation.UserConversations[i].User.userName,
+            description: tempConv.Conversation.UserConversations[i].User.description,
+            followersCount: tempConv.Conversation.UserConversations[i].User.followersCount,
+            followingCount: tempConv.Conversation.UserConversations[i].User.followingCount,
+            profileImageUrl: tempConv.Conversation.UserConversations[i].User.profileImageUrl,
           };
           users.push({
             ...user,
@@ -613,9 +623,9 @@ export const getConversation = catchAsync(
           });
         }
       let newName, newFullName;
-      if (tempConv.name) {
-        newName = tempConv.name;
-        newFullName = tempConv.name;
+      if (tempConv.Conversation.name) {
+        newName = tempConv.Conversation.name;
+        newFullName = tempConv.Conversation.name;
       } else {
         newName =
           users
@@ -626,15 +636,15 @@ export const getConversation = catchAsync(
         newFullName = users.map((user) => user.name).join(', ');
       }
       let i = 0;
-      if (tempConv.UserConversations[i].User.userName == authUser.userName) {
+      if (tempConv.Conversation.UserConversations[i].User.userName == authUser.userName) {
         i++;
       }
       const isBlocked = await isUserBlocked(
         authUser.id,
-        tempConv.UserConversations[i].User.id,
+        tempConv.Conversation.UserConversations[i].User.id,
       );
       const isBlocker = await isUserBlocked(
-        tempConv.UserConversations[i].User.id,
+        tempConv.Conversation.UserConversations[i].User.id,
         authUser.id,
       );
       let tempResponse = {
@@ -642,11 +652,12 @@ export const getConversation = catchAsync(
         name: newName,
         fullName: newFullName,
         lastMessage: lastMessage,
-        photo: tempConv.photo,
-        isGroup: tempConv.isGroup,
+        photo: tempConv.Conversation.photo,
+        isGroup: tempConv.Conversation.isGroup,
+        dateJoined:tempConv.Conversation.isGroup? tempConv.Conversation.UserConversations.find(u=>u.User.userName==(req.user as User).userName)?.dateJoined:"",
         users: users,
         seen: status?.seen,
-        blocked: !tempConv.isGroup && (isBlocked || isBlocker),
+        blocked: !tempConv.Conversation.isGroup && (isBlocked || isBlocker),
       };
       responseConvs.push(tempResponse);
     }
@@ -701,6 +712,7 @@ export const postConversationUsers = catchAsync(
     if (userExists) return next(new AppError('User already exists', 401));
 
     await addPeopleToConversation(conversationId, usersData);
+
     return res.status(201).json({ message: 'Users added successfully' });
   },
 );
@@ -785,7 +797,9 @@ export const searchConversations = async (
               name: true,
             },
           },
+          dateJoined:true
         },
+        
       },
       Message: {
         select: {
@@ -855,6 +869,7 @@ export const searchConversations = async (
               name: true,
             },
           },
+          dateJoined:true
         },
       },
       Message: {
@@ -884,7 +899,6 @@ export const searchConversations = async (
     skip,
     take: parsedLimit,
   });
-
   const groups = conversationsPeopleGroups
     .filter((consversation) => consversation.isGroup)
     .map((conversation) => ({
@@ -892,10 +906,12 @@ export const searchConversations = async (
       name: conversation.name,
       type: conversation?.isGroup ? 'group' : 'direct',
       photo: conversation.photo,
+      dateJoined:conversation?.isGroup ?conversation.UserConversations.find(u=>u.User.userName==(req.user as User).userName)?.dateJoined:"",
       users: conversation.UserConversations.map((userConversation) => ({
         userName: userConversation.User.userName,
         name: userConversation.User.name,
         userPhoto: userConversation.User.profileImageUrl,
+        
       })),
       lastMessage:
         conversation.Message.length > 0 ? conversation.Message[0] : null,
@@ -908,6 +924,7 @@ export const searchConversations = async (
       name: conversation.name,
       type: conversation?.isGroup ? 'group' : 'direct',
       photo: conversation.photo,
+      dateJoined:"",
       users: conversation.UserConversations.map((userConversation) => ({
         userName: userConversation.User.userName,
         name: userConversation.User.name,
@@ -922,6 +939,7 @@ export const searchConversations = async (
     name: conversation.name,
     isGroup: conversation?.isGroup,
     photo: conversation.photo,
+    dateJoined:conversation?.isGroup ?conversation.UserConversations.find(u=>u.User.userName==(req.user as User).userName)?.dateJoined:"",
     users: conversation.UserConversations.map((userConversation) => ({
       userName: userConversation.User.userName,
       name: userConversation.User.name,
