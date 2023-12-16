@@ -32,6 +32,7 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
+    console.log('Hamada connected');
     try {
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
         let JSONMessage = message;
