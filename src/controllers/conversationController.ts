@@ -57,185 +57,183 @@ export const editConversation = catchAsync(
   },
 );
 
-export const getConversationDetails = async (
-  req: Request,
-  res: Response,
-  _next: NextFunction,
-) => {
-  const { id } = req.params;
-  const conversationId = id;
-  const authUser = req.user as User;
-  const isUserInGroup = await prisma.userConversations.findFirst({
-    where: {
-      userId: authUser.id,
-      conversationId,
-    },
-  });
-
-  if (!isUserInGroup) {
-    res.status(401).json({
-      status: 'error',
-      message: 'User is not a member of the group.',
+export const getConversationDetails = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { id } = req.params;
+    const conversationId = id;
+    const authUser = req.user as User;
+    const isUserInGroup = await prisma.userConversations.findFirst({
+      where: {
+        userId: authUser.id,
+        conversationId,
+      },
     });
-    return;
-  }
 
-  const { page = '1', limit = '10' } = req.query;
-  const parsedPage = parseInt(page as string, 10)
-    ? parseInt(page as string, 10)
-    : 1;
-  const parsedLimit = parseInt(limit as string, 10)
-    ? parseInt(limit as string, 10)
-    : 10;
-  const skip = (parsedPage - 1) * parsedLimit;
+    if (!isUserInGroup) {
+      res.status(401).json({
+        status: 'error',
+        message: 'User is not a member of the group.',
+      });
+      return;
+    }
 
-  await prisma.userConversations.updateMany({
-    where: {
-      conversationId,
-      userId: authUser.id,
-    },
-    data: {
-      seen: true,
-    },
-  });
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10)
+      ? parseInt(page as string, 10)
+      : 1;
+    const parsedLimit = parseInt(limit as string, 10)
+      ? parseInt(limit as string, 10)
+      : 10;
+    const skip = (parsedPage - 1) * parsedLimit;
 
-  const conversationDetails = await prisma.conversation.findUnique({
-    where: {
-      id: conversationId,
-    },
-    include: {
-      Message: {
-        skip,
-        take: parsedLimit,
-        orderBy: {
-          date: 'desc',
-        },
-        include: {
-          sender: true,
-          reply: true,
-          messageEntity: {
-            select: {
-              entity: {
-                include: {
-                  Url: true,
-                  Media: true,
-                  Mention: true,
-                  Hashtag: true,
+    await prisma.userConversations.updateMany({
+      where: {
+        conversationId,
+        userId: authUser.id,
+      },
+      data: {
+        seen: true,
+      },
+    });
+
+    const conversationDetails = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+      },
+      include: {
+        Message: {
+          skip,
+          take: parsedLimit,
+          orderBy: {
+            date: 'desc',
+          },
+          include: {
+            sender: true,
+            reply: true,
+            messageEntity: {
+              select: {
+                entity: {
+                  include: {
+                    Url: true,
+                    Media: true,
+                    Mention: true,
+                    Hashtag: true,
+                  },
                 },
               },
             },
           },
         },
-      },
-      UserConversations: {
-        include: {
-          User: {
-            select: {
-              id: true,
-              name: true,
-              userName: true,
-              profileImageUrl: true,
-              description: true,
-              followersCount: true,
-              followingCount: true,
+        UserConversations: {
+          include: {
+            User: {
+              select: {
+                id: true,
+                name: true,
+                userName: true,
+                profileImageUrl: true,
+                description: true,
+                followersCount: true,
+                followingCount: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  let isBlocked = false;
-  let isBlocker = false;
+    let isBlocked = false;
+    let isBlocker = false;
 
-  if (!conversationDetails?.isGroup) {
-    let i = 0;
-    if (conversationDetails?.UserConversations[i].User.id == authUser.id) {
-      i++;
-    }
-    isBlocked = await isUserBlocked(
-      authUser.id,
-      conversationDetails?.UserConversations[i].User.id as string,
-    );
-    isBlocker = await isUserBlocked(
-      conversationDetails?.UserConversations[i].User.id as string,
-      authUser.id,
-    );
-  }
-
-  const formattedMessages = await Promise.all(
-    (conversationDetails?.Message || []).map(async (message) => ({
-      id: message.id,
-      date: message.date.toISOString(),
-      text: message.text,
-      replyToMessage: message.reply,
-      userName: message.sender.userName,
-      profileImageUrl: message.sender.profileImageUrl,
-      entities: await getMessageEntities(message.id),
-      isMessage: message.isMessage,
-    })),
-  );
-  const users = [];
-  if (conversationDetails)
-    for (let i = 0; i < conversationDetails.UserConversations.length; i++)
-      if (
-        conversationDetails.UserConversations[i].User.userName !=
-        authUser.userName
-      ) {
-        const isFollowed = await isUserFollowing(
-          authUser.id,
-          conversationDetails.UserConversations[i].User.id,
-        );
-        const isFollowing = await isUserFollowing(
-          conversationDetails.UserConversations[i].User.id,
-          authUser.id,
-        );
-        const user = {
-          name: conversationDetails.UserConversations[i].User.name,
-          userName: conversationDetails.UserConversations[i].User.userName,
-          description:
-            conversationDetails.UserConversations[i].User.description,
-          followersCount:
-            conversationDetails.UserConversations[i].User.followersCount,
-          followingCount:
-            conversationDetails.UserConversations[i].User.followingCount,
-          profileImageUrl:
-            conversationDetails.UserConversations[i].User.profileImageUrl,
-        };
-        users.push({
-          ...user,
-          isFollowing: isFollowing,
-          isFollowed: isFollowed,
-        });
+    if (!conversationDetails?.isGroup) {
+      let i = 0;
+      if (conversationDetails?.UserConversations[i].User.id == authUser.id) {
+        i++;
       }
-  let newName, newFullName;
-  if (conversationDetails?.name) {
-    newName = conversationDetails.name;
-    newFullName = conversationDetails.name;
-  } else {
-    newName =
-      users
-        .slice(0, 3)
-        .map((user) => user.name)
-        .join(', ') +
-      `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
-    newFullName = users.map((user) => user.name).join(', ');
-  }
+      isBlocked = await isUserBlocked(
+        authUser.id,
+        conversationDetails?.UserConversations[i].User.id as string,
+      );
+      isBlocker = await isUserBlocked(
+        conversationDetails?.UserConversations[i].User.id as string,
+        authUser.id,
+      );
+    }
 
-  const formattedConversationDetails = {
-    id: conversationDetails?.id,
-    messages: formattedMessages,
-    name: newName,
-    fullName: newFullName,
-    isGroup: conversationDetails?.isGroup,
-    photo: conversationDetails?.photo,
-    users: users,
-    seen: true,
-    blocked: isBlocked || isBlocker,
-  };
+    const formattedMessages = await Promise.all(
+      (conversationDetails?.Message || []).map(async (message) => ({
+        id: message.id,
+        date: message.date.toISOString(),
+        text: message.text,
+        replyToMessage: message.reply,
+        userName: message.sender.userName,
+        profileImageUrl: message.sender.profileImageUrl,
+        entities: await getMessageEntities(message.id),
+        isMessage: message.isMessage,
+      })),
+    );
+    const users = [];
+    if (conversationDetails)
+      for (let i = 0; i < conversationDetails.UserConversations.length; i++)
+        if (
+          conversationDetails.UserConversations[i].User.userName !=
+          authUser.userName
+        ) {
+          const isFollowed = await isUserFollowing(
+            authUser.id,
+            conversationDetails.UserConversations[i].User.id,
+          );
+          const isFollowing = await isUserFollowing(
+            conversationDetails.UserConversations[i].User.id,
+            authUser.id,
+          );
+          const user = {
+            name: conversationDetails.UserConversations[i].User.name,
+            userName: conversationDetails.UserConversations[i].User.userName,
+            description:
+              conversationDetails.UserConversations[i].User.description,
+            followersCount:
+              conversationDetails.UserConversations[i].User.followersCount,
+            followingCount:
+              conversationDetails.UserConversations[i].User.followingCount,
+            profileImageUrl:
+              conversationDetails.UserConversations[i].User.profileImageUrl,
+          };
+          users.push({
+            ...user,
+            isFollowing: isFollowing,
+            isFollowed: isFollowed,
+          });
+        }
+    let newName, newFullName;
+    if (conversationDetails?.name) {
+      newName = conversationDetails.name;
+      newFullName = conversationDetails.name;
+    } else {
+      newName =
+        users
+          .slice(0, 3)
+          .map((user) => user.name)
+          .join(', ') +
+        `${users.length - 3 > 0 ? ` and ${users.length - 3} more` : ''}`;
+      newFullName = users.map((user) => user.name).join(', ');
+    }
 
-  return res.status(200).json(formattedConversationDetails);
-};
+    const formattedConversationDetails = {
+      id: conversationDetails?.id,
+      messages: formattedMessages,
+      name: newName,
+      fullName: newFullName,
+      isGroup: conversationDetails?.isGroup,
+      photo: conversationDetails?.photo,
+      users: users,
+      seen: true,
+      blocked: isBlocked || isBlocker,
+    };
+
+    return res.status(200).json(formattedConversationDetails);
+  },
+);
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
@@ -705,192 +703,219 @@ export const postConversationUsers = catchAsync(
   },
 );
 
-export const searchConversations = async (
-  req: Request,
-  res: Response,
-  _: NextFunction,
-) => {
-  const { q, page = '1', limit = '10' } = req.query;
-  const parsedPage = parseInt(page as string, 10);
-  const parsedLimit = parseInt(limit as string, 10);
-  const skip = (parsedPage - 1) * parsedLimit;
+export const searchConversations = catchAsync(
+  async (req: Request, res: Response, _: NextFunction) => {
+    const { q, page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+    const skip = (parsedPage - 1) * parsedLimit;
 
-  if (!q) {
-    res.status(400).json({
-      status: 'error',
-      message: 'Query parameter "q" is required.',
+    if (!q) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Query parameter "q" is required.',
+      });
+      return;
+    }
+
+    const userId = (req.user as User).id;
+
+    const conversationsPeopleGroups = await prisma.conversation.findMany({
+      where: {
+        AND: [
+          {
+            UserConversations: {
+              some: {
+                userId,
+              },
+            },
+          },
+          {
+            OR: [
+              {
+                name: {
+                  contains: q as string,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                UserConversations: {
+                  some: {
+                    User: {
+                      userName: {
+                        contains: q as string,
+                        mode: 'insensitive',
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                UserConversations: {
+                  some: {
+                    User: {
+                      name: {
+                        contains: q as string,
+                        mode: 'insensitive',
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        isGroup: true,
+        photo: true,
+        UserConversations: {
+          select: {
+            User: {
+              select: {
+                userName: true,
+                profileImageUrl: true,
+                name: true,
+              },
+            },
+          },
+        },
+        Message: {
+          select: {
+            id: true,
+            text: true,
+            date: true,
+            sender: {
+              select: {
+                userName: true,
+                profileImageUrl: true,
+              },
+            },
+          },
+          where: {
+            text: {
+              contains: q as string,
+              mode: 'insensitive',
+            },
+          },
+          take: 1,
+          orderBy: {
+            date: 'desc',
+          },
+        },
+      },
+      skip,
+      take: parsedLimit,
     });
-    return;
-  }
 
-  const userId = (req.user as User).id;
-
-  const conversationsPeopleGroups = await prisma.conversation.findMany({
-    where: {
-      AND: [
-        {
-          UserConversations: {
-            some: {
-              userId,
-            },
-          },
-        },
-        {
-          OR: [
-            {
-              name: {
-                contains: q as string,
-                mode: 'insensitive',
+    const conversationsMessage = await prisma.conversation.findMany({
+      where: {
+        AND: [
+          {
+            UserConversations: {
+              some: {
+                userId,
               },
             },
-            {
-              UserConversations: {
-                some: {
-                  User: {
-                    userName: {
+          },
+          {
+            OR: [
+              {
+                Message: {
+                  some: {
+                    text: {
                       contains: q as string,
                       mode: 'insensitive',
                     },
                   },
                 },
               },
-            },
-            {
-              UserConversations: {
-                some: {
-                  User: {
-                    name: {
-                      contains: q as string,
-                      mode: 'insensitive',
-                    },
-                  },
-                },
+            ],
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        isGroup: true,
+        photo: true,
+        UserConversations: {
+          select: {
+            User: {
+              select: {
+                userName: true,
+                profileImageUrl: true,
+                name: true,
               },
             },
-          ],
-        },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      isGroup: true,
-      photo: true,
-      UserConversations: {
-        select: {
-          User: {
-            select: {
-              userName: true,
-              profileImageUrl: true,
-              name: true,
-            },
           },
         },
-      },
-      Message: {
-        select: {
-          id: true,
-          text: true,
-          date: true,
-          sender: {
-            select: {
-              userName: true,
-              profileImageUrl: true,
-            },
-          },
-        },
-        where: {
-          text: {
-            contains: q as string,
-            mode: 'insensitive',
-          },
-        },
-        take: 1,
-        orderBy: {
-          date: 'desc',
-        },
-      },
-    },
-    skip,
-    take: parsedLimit,
-  });
-
-  const conversationsMessage = await prisma.conversation.findMany({
-    where: {
-      AND: [
-        {
-          UserConversations: {
-            some: {
-              userId,
-            },
-          },
-        },
-        {
-          OR: [
-            {
-              Message: {
-                some: {
-                  text: {
-                    contains: q as string,
-                    mode: 'insensitive',
-                  },
-                },
+        Message: {
+          select: {
+            id: true,
+            text: true,
+            date: true,
+            sender: {
+              select: {
+                userName: true,
+                profileImageUrl: true,
               },
             },
-          ],
-        },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      isGroup: true,
-      photo: true,
-      UserConversations: {
-        select: {
-          User: {
-            select: {
-              userName: true,
-              profileImageUrl: true,
-              name: true,
+          },
+          where: {
+            text: {
+              contains: q as string,
+              mode: 'insensitive',
             },
+          },
+          take: 1,
+          orderBy: {
+            date: 'desc',
           },
         },
       },
-      Message: {
-        select: {
-          id: true,
-          text: true,
-          date: true,
-          sender: {
-            select: {
-              userName: true,
-              profileImageUrl: true,
-            },
-          },
-        },
-        where: {
-          text: {
-            contains: q as string,
-            mode: 'insensitive',
-          },
-        },
-        take: 1,
-        orderBy: {
-          date: 'desc',
-        },
-      },
-    },
-    skip,
-    take: parsedLimit,
-  });
+      skip,
+      take: parsedLimit,
+    });
 
-  const groups = conversationsPeopleGroups
-    .filter((consversation) => consversation.isGroup)
-    .map((conversation) => ({
+    const groups = conversationsPeopleGroups
+      .filter((consversation) => consversation.isGroup)
+      .map((conversation) => ({
+        id: conversation.id,
+        name: conversation.name,
+        type: conversation?.isGroup ? 'group' : 'direct',
+        photo: conversation.photo,
+        users: conversation.UserConversations.map((userConversation) => ({
+          userName: userConversation.User.userName,
+          name: userConversation.User.name,
+          userPhoto: userConversation.User.profileImageUrl,
+        })),
+        lastMessage:
+          conversation.Message.length > 0 ? conversation.Message[0] : null,
+      }));
+
+    const people = conversationsPeopleGroups
+      .filter((consversation) => !consversation.isGroup)
+      .map((conversation) => ({
+        id: conversation.id,
+        name: conversation.name,
+        type: conversation?.isGroup ? 'group' : 'direct',
+        photo: conversation.photo,
+        users: conversation.UserConversations.map((userConversation) => ({
+          userName: userConversation.User.userName,
+          name: userConversation.User.name,
+          userPhoto: userConversation.User.profileImageUrl,
+        })),
+        lastMessage:
+          conversation.Message.length > 0 ? conversation.Message[0] : null,
+      }));
+
+    const messages = conversationsMessage.map((conversation) => ({
       id: conversation.id,
       name: conversation.name,
-      type: conversation?.isGroup ? 'group' : 'direct',
+      isGroup: conversation?.isGroup,
       photo: conversation.photo,
       users: conversation.UserConversations.map((userConversation) => ({
         userName: userConversation.User.userName,
@@ -901,40 +926,11 @@ export const searchConversations = async (
         conversation.Message.length > 0 ? conversation.Message[0] : null,
     }));
 
-  const people = conversationsPeopleGroups
-    .filter((consversation) => !consversation.isGroup)
-    .map((conversation) => ({
-      id: conversation.id,
-      name: conversation.name,
-      type: conversation?.isGroup ? 'group' : 'direct',
-      photo: conversation.photo,
-      users: conversation.UserConversations.map((userConversation) => ({
-        userName: userConversation.User.userName,
-        name: userConversation.User.name,
-        userPhoto: userConversation.User.profileImageUrl,
-      })),
-      lastMessage:
-        conversation.Message.length > 0 ? conversation.Message[0] : null,
-    }));
-
-  const messages = conversationsMessage.map((conversation) => ({
-    id: conversation.id,
-    name: conversation.name,
-    isGroup: conversation?.isGroup,
-    photo: conversation.photo,
-    users: conversation.UserConversations.map((userConversation) => ({
-      userName: userConversation.User.userName,
-      name: userConversation.User.name,
-      userPhoto: userConversation.User.profileImageUrl,
-    })),
-    lastMessage:
-      conversation.Message.length > 0 ? conversation.Message[0] : null,
-  }));
-
-  res.status(200).json({
-    status: 'success',
-    groups,
-    people,
-    messages,
-  });
-};
+    res.status(200).json({
+      status: 'success',
+      groups,
+      people,
+      messages,
+    });
+  },
+);
