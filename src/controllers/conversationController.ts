@@ -509,6 +509,23 @@ export const deleteConversation = catchAsync(
   },
 );
 
+export const deleteMessage = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.body.message_id;
+    const message = await prisma.message.findFirst({ where: { id } });
+    if (!message) {
+      next(new AppError('Message not found', 404));
+    } else {
+      await prisma.message.delete({
+        where: {
+          id,
+        },
+      });
+      res.json({ operationSuccess: true }).status(200);
+    }
+  },
+);
+
 export const getConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const authUser = req.user as User;

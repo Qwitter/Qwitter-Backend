@@ -46,11 +46,13 @@ export const getTweetById = async (tweetId: string) => {
       deletedAt: null,
     },
     include: {
-      author: true,
+      author: {
+        select: authorSelectOptions,
+      },
     },
   });
 
-  return { tweet, author: tweet?.author };
+  return { ...tweet, author: tweet?.author };
 };
 
 export const searchTweet = async (

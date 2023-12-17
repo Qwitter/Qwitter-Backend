@@ -19,6 +19,7 @@ import {
 import prisma from '../client';
 import fs from 'fs';
 import { sendNotification } from '../utils/notifications';
+import { uploadImage } from '../middlewares/uploadMiddleware';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -28,16 +29,17 @@ export const uploadProfilePicture = catchAsync(
         new AppError('An error occurred while uploading profile picture', 500),
       );
     }
+    const url = await uploadImage(
+      'public/imgs/user/profile_picture/',
+      photoName,
+    );
     const user = _req.user as User;
-    const url = process.env.url?.startsWith('http')
-      ? process.env.URL
-      : 'http://' + process.env.URL;
     const updatedUser = await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        profileImageUrl: `${url}/imgs/user${_req.url}/${photoName}`,
+        profileImageUrl: url,
       },
     });
     return res.status(200).json({
@@ -55,12 +57,16 @@ export const uploadProfileBanner = catchAsync(
       );
     }
     const user = _req.user as User;
+    const url = await uploadImage(
+      'public/imgs/user/profile_banner/',
+      photoName,
+    );
     const updatedUser = await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        profileBannerUrl: `${process.env.URL}/imgs/user${_req.url}/${photoName}`,
+        profileBannerUrl: `${url}/imgs/user${_req.url}/${photoName}`,
       },
     });
     return res.status(200).json({
@@ -128,7 +134,7 @@ export const getUser = catchAsync(
     });
 
     // const currentUser = _req.user as User;
-    const authUser=_req.user as User
+    const authUser = _req.user as User;
 
     const isFollowing =
       authUser != null
@@ -685,21 +691,21 @@ export const followUser = catchAsync(
       },
     });
     await prisma.user.update({
-      where:{
-        id:(req.user as User).id
+      where: {
+        id: (req.user as User).id,
       },
-      data:{
-        followingCount:(req.user as User).followingCount+1
-      }
-    })
+      data: {
+        followingCount: (req.user as User).followingCount + 1,
+      },
+    });
     await prisma.user.update({
-      where:{
-        id:userToFollow.id,
+      where: {
+        id: userToFollow.id,
       },
-      data:{
-        followersCount:userToFollow.followersCount+1
-      }
-    })
+      data: {
+        followersCount: userToFollow.followersCount + 1,
+      },
+    });
 
     const isMuted = isUserMuted(userToFollow.id, (req.user as User).id);
     // TODO: Add here send notification using the function in utils/notifications
@@ -784,21 +790,21 @@ export const unfollowUser = catchAsync(
       },
     });
     await prisma.user.update({
-      where:{
-        id:(req.user as User).id
+      where: {
+        id: (req.user as User).id,
       },
-      data:{
-        followingCount:(req.user as User).followingCount-1
-      }
-    })
+      data: {
+        followingCount: (req.user as User).followingCount - 1,
+      },
+    });
     await prisma.user.update({
-      where:{
-        id:userToUnfollow.id,
+      where: {
+        id: userToUnfollow.id,
       },
-      data:{
-        followersCount:userToUnfollow.followersCount-1
-      }
-    })
+      data: {
+        followersCount: userToUnfollow.followersCount - 1,
+      },
+    });
     res
       .status(200)
       .json({ status: 'success', message: 'User unfollowed successfully' });
