@@ -1142,6 +1142,7 @@ describe('Like a Tweet Function', () => {
                 qouteTweetedId: null,
                 qouteCount: 0,
                 likesCount: 0,
+                readCount:0,
                 sensitive: false,
                 deletedAt: new Date(),
               };
@@ -1210,6 +1211,7 @@ describe('Like a Tweet Function', () => {
                 retweetedId: null,
                 retweetCount: 0,
                 qouteTweetedId: null,
+                readCount:0,
                 qouteCount: 0,
                 likesCount: 0,
                 sensitive: false,
@@ -1391,6 +1393,7 @@ describe('Dislike a Tweet Function', () => {
                 qouteCount: 0,
                 likesCount: 0,
                 sensitive: false,
+                readCount:0,
                 deletedAt: new Date(),
               };
               jest.mock('bcrypt');
@@ -1456,6 +1459,7 @@ describe('Dislike a Tweet Function', () => {
                 qouteTweetedId: null,
                 qouteCount: 0,
                 likesCount: 0,
+                readCount:0,
                 sensitive: false,
                 deletedAt: new Date(),
               };

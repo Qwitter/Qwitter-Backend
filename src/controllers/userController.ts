@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
-import { JwtPayload, verify } from 'jsonwebtoken';
 
 import {
   getUserByUsername,
@@ -129,16 +128,7 @@ export const getUser = catchAsync(
     });
 
     // const currentUser = _req.user as User;
-    const auth_header: string =
-      _req.cookies.qwitter_jwt || (_req.headers.authorization as string);
-    const token: string = auth_header.split(' ')[1];
-    const payloadData = await verify(token, process.env.JWT_SECRET as string);
-    const authUser = await prisma.user.findFirst({
-      where: {
-        id: (payloadData as JwtPayload).id,
-        deletedAt: null,
-      },
-    });
+    const authUser=_req.user as User
 
     const isFollowing =
       authUser != null
@@ -147,7 +137,7 @@ export const getUser = catchAsync(
             (await getUserByUsername(_req.params.username))?.id || '',
           )
         : false;
-    const isBlcoked =
+    const isBlocked =
       authUser != null
         ? await isUserBlocked(
             authUser.id,
@@ -180,7 +170,7 @@ export const getUser = catchAsync(
         email: user.email.toLowerCase(),
         tweetCount: await getNumOfTweets(user.userName),
         isFollowing,
-        isBlcoked,
+        isBlocked,
         isMuted,
       };
       res.json(resposeObject).status(200);
@@ -694,6 +684,22 @@ export const followUser = catchAsync(
         followedId: userToFollow.id,
       },
     });
+    await prisma.user.update({
+      where:{
+        id:(req.user as User).id
+      },
+      data:{
+        followingCount:(req.user as User).followingCount+1
+      }
+    })
+    await prisma.user.update({
+      where:{
+        id:userToFollow.id,
+      },
+      data:{
+        followersCount:userToFollow.followersCount+1
+      }
+    })
 
     const isMuted = isUserMuted(userToFollow.id, (req.user as User).id);
     // TODO: Add here send notification using the function in utils/notifications
@@ -777,7 +783,22 @@ export const unfollowUser = catchAsync(
         },
       },
     });
-
+    await prisma.user.update({
+      where:{
+        id:(req.user as User).id
+      },
+      data:{
+        followingCount:(req.user as User).followingCount-1
+      }
+    })
+    await prisma.user.update({
+      where:{
+        id:userToUnfollow.id,
+      },
+      data:{
+        followersCount:userToUnfollow.followersCount-1
+      }
+    })
     res
       .status(200)
       .json({ status: 'success', message: 'User unfollowed successfully' });

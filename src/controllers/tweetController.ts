@@ -40,7 +40,9 @@ const getTimeline = async (req: Request) => {
       followed: {
         blocked: { none: { blocker: { id: currentUser.id } } },
         blocker: { none: { blocked: { id: currentUser.id } } },
+        muted: { none: { muter: { id: currentUser.id } } },
       },
+      
     },
     select: {
       followedId: true,
@@ -50,6 +52,8 @@ const getTimeline = async (req: Request) => {
   const followingIds = following.map((follow) => follow.followedId);
 
   followingIds.push(userId);
+
+
 
   const { page = '1', limit = '10' } = req.query;
   const parsedPage = parseInt(page as string, 10);
@@ -62,6 +66,7 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
+      
       deletedAt: null,
     },
     orderBy: {
@@ -296,9 +301,26 @@ export const postTweet = catchAsync(
       userName: currentUser.userName,
       entities,
     };
+      let user= {
+        userName: currentUser.userName,
+        name: currentUser.name,
+        birthDate: currentUser.birthDate,
+        url: currentUser.url,
+        description: currentUser.description,
+        protected: currentUser.protected,
+        verified: currentUser.verified,
+        followersCount: currentUser.followersCount,
+        followingCount: currentUser.followingCount,
+        createdAt: currentUser.createdAt,
+        profileBannerUrl: currentUser.profileBannerUrl,
+        profileImageUrl: currentUser.profileImageUrl,
+        email: currentUser.email.toLowerCase(),
+      }
+    
     return res.status(201).json({
       status: 'success',
-      tweet: returnedTweet,
+      tweet:returnedTweet,
+      user
     });
   },
 );
