@@ -2,6 +2,7 @@ import multer from 'multer';
 import { Request } from 'express';
 import { AppError } from '../utils/appError';
 import { UserRequest } from 'request-types';
+import { BlobServiceClient } from '@azure/storage-blob';
 
 export const multerStorage = multer.diskStorage({
   destination: function (
@@ -108,3 +109,22 @@ export const messageMedia = multer({
 export const uploadImageMiddleware = upload.single('photo');
 export const uploadTweetMediaMiddleware = uploadMedia.array('media[]', 5);
 export const uploadMediaMessageMiddleware = messageMedia.single('media');
+
+// Set your connection string and container name
+
+// Function to upload an image to Azure Blob Storage
+export async function uploadImage(localFilePath: string, blobName: string) {
+  const connectionString = process.env.AZURE_BUCKET_URL as string;
+  const containerName = process.env.AZURE_CONTAINER as string;
+  const blobServiceClient =
+    BlobServiceClient.fromConnectionString(connectionString);
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  try {
+    await blockBlobClient.uploadFile(localFilePath + blobName);
+    return blockBlobClient.url;
+  } catch (error) {
+    console.error(`Error uploading file "${blobName}":`, error.message);
+    return '';
+  }
+}

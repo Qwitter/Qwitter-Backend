@@ -28,6 +28,7 @@ import {
   incrementLikes,
   getTweetsRepliesRetweets,
   isRetweeted,
+  getTweetAndEntitiesById,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
 
@@ -40,6 +41,7 @@ const getTimeline = async (req: Request) => {
       followed: {
         blocked: { none: { blocker: { id: currentUser.id } } },
         blocker: { none: { blocked: { id: currentUser.id } } },
+        muted: { none: { muter: { id: currentUser.id } } },
       },
     },
     select: {
@@ -62,6 +64,7 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
+
       deletedAt: null,
     },
     orderBy: {
@@ -227,7 +230,6 @@ export const postTweet = catchAsync(
     if (req.body.replyToTweetId && req.body.retweetedId) {
       return next(new AppError('Can not retweet and reply together', 401));
     }
-
     // Check for replyToTweetId
     if (req.body.replyToTweetId) {
       const tweet = await getTweetById(req.body.replyToTweetId);
@@ -273,6 +275,9 @@ export const postTweet = catchAsync(
         likesCount: true,
         sensitive: true,
         deletedAt: true,
+        author: {
+          select: authorSelectOptions,
+        },
       },
     });
 
@@ -284,21 +289,25 @@ export const postTweet = catchAsync(
       const createdMedia = await createMedia(fileName, 'tweet');
       entitiesId.push(createdMedia.entityId);
     }
-
     // Linking Entities with Tweets
     for (const id of entitiesId) {
       await createEntityTweet(createdTweet.id, id);
     }
-
     const entities = await getTweetEntities(createdTweet.id);
     const returnedTweet = {
       ...createdTweet,
-      userName: currentUser.userName,
       entities,
+    };
+    const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+    const structuredTweet = {
+      ...structuredTweets[0],
+      liked: false,
+      isRetweeted: false,
+      isFollowing: false,
     };
     return res.status(201).json({
       status: 'success',
-      tweet: returnedTweet,
+      tweet: structuredTweet,
     });
   },
 );
@@ -427,19 +436,12 @@ export const getTweetRetweets = catchAsync(
 
 export const getTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    let medias = [];
-    let hashtags = [];
-    let mentions = [];
-    let retweetedTweetID = null;
-    let originalTweeter = null;
-    let { tweet, tweetingUser } = await getTweetAndUserById(req.params.id);
-    originalTweeter = tweetingUser?.userName;
-    if (tweet?.retweetedId != null) {
-      retweetedTweetID = tweet.retweetedId;
-      let tempRetweet = await getTweetAndUserById(retweetedTweetID);
-      tweetingUser = tempRetweet.tweetingUser;
-      tweet = tempRetweet.tweet;
-    }
+    let { tweetingUser } = await getTweetAndUserById(req.params.id);
+
+    const tweet = await getTweetAndEntitiesById(req.params.id);
+    const structuredTweets = await getTweetsRepliesRetweets([tweet]);
+    const structuredTweet = structuredTweets[0];
+
     let isBlocking = false;
     let isBlocked = false;
     if (req.user && tweetingUser) {
@@ -459,31 +461,7 @@ export const getTweet = catchAsync(
     } else if (!tweetingUser) {
       return next(new AppError('user account was deleted', 404));
     }
-    const tweetEntities = tweet?.TweetEntity;
-    for (var entity of tweetEntities) {
-      let tempEnitity = await prisma.entity.findFirst({
-        where: { id: entity.entityId },
-      });
-      if (tempEnitity?.type == 'hashtag') {
-        let hashtag = await prisma.hashtag.findFirst({
-          where: { entityId: entity.entityId },
-        });
-        hashtags.push({ value: hashtag?.text });
-      } else if (tempEnitity?.type == 'media') {
-        let media = await prisma.media.findFirst({
-          where: { entityId: entity.entityId },
-        });
-        medias.push({ value: media?.url, type: media?.type });
-      } else {
-        let mention = await prisma.mention.findFirst({
-          where: { entityId: entity.entityId },
-        });
-        let user = await prisma.user.findFirst({
-          where: { id: mention?.userId, deletedAt: null },
-        });
-        mentions.push({ mentionedUsername: user?.userName });
-      }
-    }
+
     const liked = await prisma.like.findFirst({
       where: {
         userId: (req.user as User)?.id,
@@ -493,40 +471,7 @@ export const getTweet = catchAsync(
 
     const responseBody = {
       status: 'success',
-      tweet: {
-        createdAt: tweet.createdAt,
-        id: tweet.id,
-        userName: originalTweeter,
-        replyCount: tweet.replyCount,
-        retweetCount: tweet.retweetCount,
-        likesCount: tweet.likesCount,
-        text: tweet.text,
-        source: tweet.source,
-        coordinates: tweet.coordinates,
-        replyToTweetId: tweet.replyToTweetId,
-        retweetedID: retweetedTweetID,
-        liked: liked != null,
-        entities: {
-          hashtags: hashtags,
-          media: medias,
-          mentions: mentions,
-        },
-      },
-      user: {
-        userName: tweetingUser.userName,
-        name: tweetingUser.name,
-        birthDate: tweetingUser.birthDate,
-        url: tweetingUser.url,
-        description: tweetingUser.description,
-        protected: tweetingUser.protected,
-        verified: tweetingUser.verified,
-        followersCount: tweetingUser.followersCount,
-        followingCount: tweetingUser.followingCount,
-        createdAt: tweetingUser.createdAt,
-        profileBannerUrl: tweetingUser.profileBannerUrl,
-        profileImageUrl: tweetingUser.profileImageUrl,
-        email: tweetingUser.email.toLowerCase(),
-      },
+      tweet: { ...structuredTweet, liked },
     };
     return res.status(200).json(responseBody);
   },

@@ -300,7 +300,7 @@ router.delete('/:id', tweetExists, deleteTweet);
  *        description: Unauthorized
  */
 
-router.get('/:id', getTweet);
+router.get('/:id',isLoggedIn, getTweet);
 
 /**
  * @openapi

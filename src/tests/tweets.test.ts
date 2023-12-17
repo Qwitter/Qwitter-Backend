@@ -53,6 +53,7 @@ describe('GET /user', () => {
       qouteCount: 0,
       likesCount: 4,
       sensitive: false,
+      readCount:0,
       userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       deletedAt: null,
       entities: {
@@ -117,6 +118,7 @@ describe('GET /user', () => {
       sensitive: false,
       userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       deletedAt: null,
+      readCount:0,
       entities: {
         hashtags: [],
         media: [],
@@ -199,6 +201,7 @@ describe('get likes of a Tweet Function', () => {
               qouteTweetedId: null,
               qouteCount: 0,
               likesCount: 0,
+              readCount:0,
               sensitive: false,
               deletedAt: new Date(),
             };

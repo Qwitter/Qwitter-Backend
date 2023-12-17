@@ -15,6 +15,7 @@ import { userInConversation } from '../middlewares/conversationMiddleware';
 import { uploadMediaMessageMiddleware } from '../middlewares/uploadMiddleware';
 import * as conversationController from '../controllers/conversationController';
 import { createConversationPayloadSchema } from '../schemas/conversationSchema';
+import { deleteMessageSchema } from '../schemas/messagesSchema';
 const router = express.Router();
 
 conversationController;
@@ -165,7 +166,6 @@ router
   .route('/:id')
   .delete(isLoggedIn, conversationController.deleteConversation);
 
-
 /**
   @openapi
 * '/api/v1/conversation/search':
@@ -196,10 +196,7 @@ router
 */
 router
   .route('/search')
-  .get(
-    isLoggedIn,
-    conversationController.searchConversations,
-  );
+  .get(isLoggedIn, conversationController.searchConversations);
 
 /**
   @openapi
@@ -240,7 +237,6 @@ router
 *      
 */
 router.route('/:id').get(isLoggedIn, getConversationDetails);
-
 
 /**
   @openapi
@@ -341,5 +337,11 @@ router
     uploadMediaMessageMiddleware,
     validate(messsageSchema),
     conversationController.postMessage,
+  )
+  .delete(
+    isLoggedIn,
+    userInConversation,
+    validate(deleteMessageSchema),
+    conversationController.deleteMessage,
   );
 export default router;
