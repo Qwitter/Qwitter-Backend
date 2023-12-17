@@ -740,6 +740,7 @@ export const followUser = catchAsync(
           ),
           isBlocked: isBlocked || isBlocking,
           isMuted: false,
+          tweetCount: await getNumOfTweets((req.user as User).userName),
         },
       };
       sendNotification(username, notificationObject);
