@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.449.0",
+    "@azure/storage-blob": "^12.17.0",
     "@prisma/client": "^5.6.0",
     "@types/file-type": "^10.9.1",
     "bcrypt": "^5.1.1",

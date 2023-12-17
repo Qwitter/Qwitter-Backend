@@ -1,3 +1,4 @@
+import { uploadImage } from '../middlewares/uploadMiddleware';
 import prisma from '../client';
 import { Entities } from '../types/entities';
 import { getUserByUsername } from './userRepository';
@@ -142,11 +143,10 @@ export const createMention = async (userId: string) => {
 };
 export const createMedia = async (mediaName: string, folder: string) => {
   const createdEntity = await createEntity('media');
-
-  const imagePath = getImagePath(mediaName, folder);
+  const url = await uploadImage('public/imgs/' + folder, mediaName);
   const createdMedia = await prisma.media.create({
     data: {
-      url: imagePath,
+      url: url,
       entityId: createdEntity.id,
       type: getFileTypeByExtension(mediaName),
     },

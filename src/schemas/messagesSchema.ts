@@ -66,6 +66,17 @@ const deleteMessagePayload = {
   }),
 };
 
+const deleteMessageBody = {
+  body: object({
+    message_id: string({
+      required_error: 'Message To Remove ID is required',
+    }),
+  }),
+};
+export const deleteMessageSchema = object({
+  ...deleteMessageBody,
+});
+
 export const addUserToConversationSchema = object({
   ...createMessagePayload,
   ...deleteMessagePayload,
