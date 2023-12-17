@@ -15,6 +15,7 @@ import {
   getUserByUsername,
   isUserBlocked,
   isUserFollowing,
+  isUserMuted,
 } from '../repositories/userRepository';
 import {
   deleteTweetById,
@@ -118,9 +119,14 @@ export const getForYouTimeline = catchAsync(
     const following = await prisma.follow.findMany({
       where: {
         folowererId: userId,
+        follower: {
+          muter: {
+            none: { muted: { followed: { some: { folowererId: userId } } } },
+          },
+        },
         followed: {
-          blocked: { none: { blocker: { id: currentUser.id } } },
-          blocker: { none: { blocked: { id: currentUser.id } } },
+          blocked: { none: { blocker: { id: userId } } },
+          blocker: { none: { blocked: { id: userId } } },
         },
       },
       select: {
@@ -372,6 +378,7 @@ export const getTweetReplies = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
         tweet.id,
@@ -380,6 +387,7 @@ export const getTweetReplies = catchAsync(
         ...reply,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
       };
       responses.push(response);
@@ -491,7 +499,7 @@ export const getTweetLikers = catchAsync(
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
-
+    const authUser = req.user as User;
     const skip = (parsedPage - 1) * parsedLimit;
     const { id } = req.params;
 
@@ -513,6 +521,7 @@ export const getTweetLikers = catchAsync(
       include: {
         liker: {
           select: {
+            id: true,
             name: true,
             location: true,
             url: true,
@@ -535,10 +544,23 @@ export const getTweetLikers = catchAsync(
     });
 
     const likers = tweetLikers.map((like) => like.liker);
+    const ret: object[] = [];
+    for (let liker of likers) {
+      const isFollowed = await isUserFollowing(authUser.id, liker.id);
+      const isBlocked = await isUserBlocked(authUser.id, liker.id);
+      const isMuted = await isUserMuted(authUser.id, liker.id);
+      const { id, ...temp } = liker;
+      ret.push({
+        ...temp,
+        isFollowed: isFollowed,
+        isBlocked: isBlocked,
+        isMuted: isMuted,
+      });
+    }
 
     res.status(200).json({
       status: 'success',
-      likers,
+      ret,
     });
   },
 );
@@ -638,6 +660,7 @@ export const getUserTweets = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
         tweet.id,
@@ -646,6 +669,7 @@ export const getUserTweets = catchAsync(
         ...tweet,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
       };
       responses.push(response);
@@ -694,6 +718,7 @@ export const getUserReplies = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
         tweet.id,
@@ -702,6 +727,7 @@ export const getUserReplies = catchAsync(
         ...tweet,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
       };
       responses.push(response);

@@ -237,10 +237,15 @@ export const getUsers = catchAsync(
       );
       if (!isBlocked && !isBlocker) {
         const tweetCount = await getNumOfTweets(user.userName);
+        const isMuted = await isUserMuted(
+          (req.user as User).id,
+          ((await getUserByUsername(user.userName)) as User).id,
+        );
         ret.push({
           ...user,
           tweetCount,
           isFollowing,
+          isMuted,
         });
       }
     }
@@ -360,10 +365,12 @@ export const getUserFollowers = catchAsync(
         (req.user as User).id,
         followerId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, followerId);
       const resultObject = {
         ...el.follower,
         tweetCount: await getNumOfTweets(el.follower.userName),
         isFollowing,
+        isMuted,
       };
 
       resultArray.push(resultObject);
@@ -419,10 +426,15 @@ export const getUserFollowings = catchAsync(
       await Promise.all(
         followings.map(async (el) => {
           const isFollowing = true;
+          const isMuted = await isUserMuted(
+            (req.user as User).id,
+            el.followedId,
+          );
           return {
             ...el.followed,
             tweetCount: await getNumOfTweets(el.followed.userName),
             isFollowing,
+            isMuted,
           };
         }),
       ),
@@ -916,6 +928,10 @@ export const getUserSuggestions = catchAsync(
             (req.user as User).id,
             popUsers[i].id,
           );
+          const isMuted = await isUserMuted(
+            (req.user as User).id,
+            popUsers[i].id,
+          );
 
           suggestions.push({
             ...(await prisma.user.findFirst({
@@ -942,6 +958,7 @@ export const getUserSuggestions = catchAsync(
               },
             })),
             isFollowing,
+            isMuted,
           });
         }
       }
