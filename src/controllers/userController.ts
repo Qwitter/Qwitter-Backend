@@ -860,9 +860,13 @@ export const getUserSuggestions = catchAsync(
           !suggestionsIDs.has(followersArray[j].followedId) &&
           followersArray[j].followedId != currentUser.id
         ) {
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            followersArray[j].followedId,
+          );
           suggestionsIDs.add(followersArray[j].followedId);
-          suggestions.push(
-            await prisma.user.findUnique({
+          suggestions.push({
+            ...(await prisma.user.findUnique({
               where: {
                 id: followersArray[j].followedId,
                 deletedAt: null,
@@ -884,8 +888,9 @@ export const getUserSuggestions = catchAsync(
                 email: true,
                 userName: true,
               },
-            }),
-          );
+            })),
+            isFollowing,
+          });        
         }
       }
       followedIDs.splice(randomIndex, 1);
