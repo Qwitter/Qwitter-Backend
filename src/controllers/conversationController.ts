@@ -888,8 +888,8 @@ export const searchConversations = catchAsync(
                 name: true,
               },
             },
+            dateJoined: true,
           },
-          dateJoined: true,
         },
         Message: {
           select: {
