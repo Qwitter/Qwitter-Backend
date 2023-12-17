@@ -623,7 +623,7 @@ export const getConversation = catchAsync(
         where: {
           userId_conversationId: {
             userId: authUser.id,
-            conversationId: tempConv.id,
+            conversationId: tempConv.Conversation.id,
           },
         },
         select: {
@@ -691,7 +691,7 @@ export const getConversation = catchAsync(
         authUser.id,
       );
       let tempResponse = {
-        id: tempConv.id,
+        id: tempConv.Conversation.id,
         name: newName,
         fullName: newFullName,
         lastMessage: lastMessage,
@@ -703,7 +703,7 @@ export const getConversation = catchAsync(
             )?.dateJoined
           : '',
         users: users,
-        seen: status?.seen,
+        seen: status?.seen || false,
         blocked: !tempConv.Conversation.isGroup && (isBlocked || isBlocker),
       };
       responseConvs.push(tempResponse);
