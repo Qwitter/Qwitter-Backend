@@ -1,8 +1,21 @@
-import prisma from '../client';
+// import prisma from '../client';
 
-prisma.$use(async (params,next)=>{
-    if((params.action=="findMany" ||params.action=="findUnique" || params.action=="findFirst")&& params.model=="Tweet"){
-      console.log(params)
-    }
-    next(params)
-  })
+// prisma.$on('query',async (e)=>{
+//   console.log("sdf")
+//   if(e.model=='tweet' && e.action.startsWith('find'))
+//   {
+
+//     const tweetID=e.args?.where?.id
+//     if(tweetID)
+//     {
+//       await prisma.tweet.update({
+//         where:{
+//           id:tweetID
+//         },
+//         data:{
+//           readCount:{increment:1}
+//         }
+//       })
+//     }
+//   }
+// })

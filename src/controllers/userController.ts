@@ -844,6 +844,7 @@ export const getUserSuggestions = catchAsync(
       let followersArray = await prisma.follow.findMany({
         take: 10,
         where: {
+          followedId: {not: currentUser.id},
           folowererId: followedIDs[randomIndex].followedId,
           follower: {
             deletedAt: null,
@@ -892,11 +893,13 @@ export const getUserSuggestions = catchAsync(
     }
     if (suggestions.length < 50) {
       let popUsers = await prisma.user.findMany({
-        take: 5100,
+        take: 50,
         where: {
+
           deletedAt: null,
           blocked: { none: { blocker: { id: currentUser.id } } },
           blocker: { none: { blocked: { id: currentUser.id } } },
+          followed: {none:{folowererId:currentUser.id}},
         },
         orderBy: {
           followersCount: 'desc',
