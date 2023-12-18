@@ -16,7 +16,13 @@ import {
   getImagePath,
   getMessageEntities,
 } from '../repositories/entityRepository';
-import { isUserFollowing, isUserBlocked, getUserByID } from '../repositories/userRepository';
+import {
+  isUserFollowing,
+  isUserBlocked,
+  isUserMuted,
+  getUserByID
+} from '../repositories/userRepository';
+
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversation = catchAsync(
@@ -194,6 +200,14 @@ export const getConversationDetails = async (
           conversationDetails.UserConversations[i].User.id,
           authUser.id,
         );
+        const isBlocked = await isUserBlocked(
+          authUser.id,
+          conversationDetails.UserConversations[i].User.id,
+        );
+        const isMuted = await isUserMuted(
+          authUser.id,
+          conversationDetails.UserConversations[i].User.id,
+        );
         const user = {
           name: conversationDetails.UserConversations[i].User.name,
           userName: conversationDetails.UserConversations[i].User.userName,
@@ -210,6 +224,8 @@ export const getConversationDetails = async (
           ...user,
           isFollowing: isFollowing,
           isFollowed: isFollowed,
+          isBlocked: isBlocked,
+          isMuted: isMuted,
         });
       }
   let newName, newFullName;
@@ -644,6 +660,14 @@ export const getConversation = catchAsync(
             tempConv.Conversation.UserConversations[i].User.id,
             authUser.id,
           );
+          const isBlocked = await isUserBlocked(
+            authUser.id,
+            tempConv.Conversation.UserConversations[i].User.id,
+          );
+          const isMuted = await isUserMuted(
+            authUser.id,
+            tempConv.Conversation.UserConversations[i].User.id,
+          );
           const user = {
             name: tempConv.Conversation.UserConversations[i].User.name,
             userName: tempConv.Conversation.UserConversations[i].User.userName,
@@ -660,6 +684,8 @@ export const getConversation = catchAsync(
             ...user,
             isFollowing: isFollowing,
             isFollowed: isFollowed,
+            isBlocked: isBlocked,
+            isMuted: isMuted,
           });
         }
       let newName, newFullName;
@@ -734,6 +760,7 @@ export const postConversationUsers = catchAsync(
         userName: {
           in: users,
         },
+        deletedAt: null,
       },
       select: { id: true },
     });
