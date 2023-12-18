@@ -11,6 +11,7 @@ import {
   searchHastagsByWord,
 } from '../repositories/entityRepository';
 import {
+  getNumOfTweets,
   getTweetsCreatedByUser,
   getUserByUsername,
   isUserBlocked,
@@ -103,6 +104,7 @@ const getTimeline = async (req: Request) => {
       liked: liked != null,
       isFollowing,
       isRetweeted: isRetweetedBoolean,
+      tweetCount: await getNumOfTweets(tweet.author.userName),
     };
     responses.push(response);
   }
@@ -211,6 +213,7 @@ export const getForYouTimeline = catchAsync(
         entities,
         liked: liked != null,
         isFollowing,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -370,17 +373,18 @@ export const getTweetReplies = catchAsync(
       });
       const isFollowing = await isUserFollowing(
         (req.user as User).id,
-        tweet.userId,
+        reply.userId,
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id,
+        reply.id,
       );
       let response = {
         ...reply,
         liked: liked != null,
         isFollowing,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(reply.author.userName),
       };
       responses.push(response);
     }
@@ -593,6 +597,7 @@ export const searchTweets = catchAsync(
         liked: liked != null,
         isFollowing,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -647,6 +652,7 @@ export const getUserTweets = catchAsync(
         liked: liked != null,
         isFollowing,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -703,6 +709,7 @@ export const getUserReplies = catchAsync(
         liked: liked != null,
         isFollowing,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }

@@ -16,7 +16,7 @@ import {
   getImagePath,
   getMessageEntities,
 } from '../repositories/entityRepository';
-import { isUserFollowing, isUserBlocked } from '../repositories/userRepository';
+import { isUserFollowing, isUserBlocked, getUserByID } from '../repositories/userRepository';
 // export const sendMessage = (req: Request, res: Response) => {};
 
 export const editConversation = catchAsync(
@@ -168,7 +168,10 @@ export const getConversationDetails = async (
       id: message.id,
       date: message.date.toISOString(),
       text: message.text,
-      replyToMessage: message.reply,
+      replyToMessage: {
+        ...message.reply,
+        userName: (await getUserByID(message.reply?.userId || ""))?.userName
+      },
       userName: message.sender.userName,
       profileImageUrl: message.sender.profileImageUrl,
       entities: await getMessageEntities(message.id),
@@ -315,7 +318,10 @@ export const postMessage = catchAsync(
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
-      replyToMessage: createdMessage.reply,
+      replyToMessage: {
+        ... createdMessage.reply,
+        userName: (await getUserByID(createdMessage.reply?.userId || ""))?.userName
+      },
       id: createdMessage.id,
       entities: createdMessage.entities,
       text: createdMessage.text,
@@ -617,7 +623,7 @@ export const getConversation = catchAsync(
         where: {
           userId_conversationId: {
             userId: authUser.id,
-            conversationId: tempConv.id,
+            conversationId: tempConv.Conversation.id,
           },
         },
         select: {
@@ -685,7 +691,7 @@ export const getConversation = catchAsync(
         authUser.id,
       );
       let tempResponse = {
-        id: tempConv.id,
+        id: tempConv.Conversation.id,
         name: newName,
         fullName: newFullName,
         lastMessage: lastMessage,
@@ -697,7 +703,7 @@ export const getConversation = catchAsync(
             )?.dateJoined
           : '',
         users: users,
-        seen: status?.seen,
+        seen: status?.seen || false,
         blocked: !tempConv.Conversation.isGroup && (isBlocked || isBlocker),
       };
       responseConvs.push(tempResponse);
