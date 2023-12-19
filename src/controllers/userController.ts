@@ -82,11 +82,11 @@ export const deleteProfileBanner = catchAsync(
     const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
     await fs.unlink('./public/' + trimmedString, (err) => {
       if (err) {
-        res.status(404).send({
+        return res.status(404).send({
           message: 'File not found',
         });
       }
-      res.status(200).send({
+      return res.status(200).send({
         message: 'File is deleted.',
       });
     });
@@ -107,11 +107,11 @@ export const deleteProfilePicture = catchAsync(
     const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
     await fs.unlink('./public/' + trimmedString, (err) => {
       if (err) {
-        res.status(404).send({
+        return res.status(404).send({
           message: 'File not found',
         });
       }
-      res.status(200).send({
+      return res.status(200).send({
         message: 'File is deleted.',
       });
     });
@@ -887,7 +887,7 @@ export const getUserSuggestions = catchAsync(
               },
             })),
             isFollowing,
-          });        
+          });
         }
       }
       followedIDs.splice(randomIndex, 1);
