@@ -829,8 +829,8 @@ export const getUserReplies = catchAsync(
 
 export const searchHastags = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { q } = req.params;
-    const hashtags = await searchHastagsByWord(q);
+    const { q } = req.query;
+    const hashtags = await searchHastagsByWord(q as string | null);
     return res.status(200).json(hashtags);
   },
 );
