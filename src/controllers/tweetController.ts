@@ -449,8 +449,10 @@ export const getTweetReplies = catchAsync(
         (req.user as User)?.id,
         reply.id,
       );
+      const entities = await getTweetEntities(reply.id);
       let response = {
         ...reply,
+        entities,
         liked: liked != null,
         isFollowing,
         isMuted,
@@ -631,13 +633,13 @@ export const getTweetLikers = catchAsync(
     const likers = tweetLikers.map((like) => like.liker);
     const ret: object[] = [];
     for (let liker of likers) {
-      const isFollowed = await isUserFollowing(authUser.id, liker.id);
+      const isFollowing = await isUserFollowing(authUser.id, liker.id);
       const isBlocked = await isUserBlocked(authUser.id, liker.id);
       const isMuted = await isUserMuted(authUser.id, liker.id);
       const { id, ...temp } = liker;
       ret.push({
         ...temp,
-        isFollowed: isFollowed,
+        isFollowing,
         isBlocked: isBlocked,
         isMuted: isMuted,
       });
