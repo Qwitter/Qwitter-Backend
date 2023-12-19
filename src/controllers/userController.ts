@@ -65,7 +65,7 @@ export const uploadProfileBanner = catchAsync(
         id: user.id,
       },
       data: {
-        profileBannerUrl: `${url}/imgs/user${_req.url}/${photoName}`,
+        profileBannerUrl: url,
       },
     });
     return res.status(200).json({
