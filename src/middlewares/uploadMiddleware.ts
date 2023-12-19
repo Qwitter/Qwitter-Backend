@@ -113,9 +113,9 @@ export const uploadMediaMessageMiddleware = messageMedia.single('media');
 // Set your connection string and container name
 
 // Function to upload an image to Azure Blob Storage
+const connectionString = process.env.AZURE_BUCKET_URL as string;
+const containerName = process.env.AZURE_CONTAINER as string;
 export async function uploadImage(localFilePath: string, blobName: string) {
-  const connectionString = process.env.AZURE_BUCKET_URL as string;
-  const containerName = process.env.AZURE_CONTAINER as string;
   const blobServiceClient =
     BlobServiceClient.fromConnectionString(connectionString);
   const containerClient = blobServiceClient.getContainerClient(containerName);
@@ -123,8 +123,37 @@ export async function uploadImage(localFilePath: string, blobName: string) {
   try {
     await blockBlobClient.uploadFile(localFilePath + blobName);
     return blockBlobClient.url;
+    // const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
+    // await fs.unlink('./public/' + trimmedString, (err) => {
+    //   if (err) {
+    //     console.log(error);
+    //   }
+    // });
   } catch (error) {
     console.error(`Error uploading file "${blobName}":`, error.message);
     return '';
   }
+}
+export async function deleteImage(blobName: string) {
+  const blobServiceClient =
+    BlobServiceClient.fromConnectionString(connectionString);
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const blockBlobClient = containerClient.getBlockBlobClient(
+    getLastPartOfUrl(blobName),
+  );
+
+  try {
+    await blockBlobClient.delete();
+    console.log(`Blob "${blobName}" deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting blob:', error.message);
+  }
+}
+function getLastPartOfUrl(urlString: string) {
+  const url = new URL(urlString);
+  const path = url.pathname;
+  const sanitizedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+  const pathSegments = sanitizedPath.split('/');
+  const lastSegment = pathSegments[pathSegments.length - 1];
+  return lastSegment;
 }

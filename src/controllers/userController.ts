@@ -17,9 +17,8 @@ import {
   isUserMuted,
 } from '../repositories/userRepository';
 import prisma from '../client';
-import fs from 'fs';
 import { sendNotification } from '../utils/notifications';
-import { uploadImage } from '../middlewares/uploadMiddleware';
+import { deleteImage, uploadImage } from '../middlewares/uploadMiddleware';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -79,17 +78,7 @@ export const deleteProfileBanner = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
     const imageUrl = user.profileBannerUrl as string;
-    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
-    await fs.unlink('./public/' + trimmedString, (err) => {
-      if (err) {
-        return res.status(404).send({
-          message: 'File not found',
-        });
-      }
-      return res.status(200).send({
-        message: 'File is deleted.',
-      });
-    });
+    await deleteImage(imageUrl);
     await prisma.user.update({
       where: {
         id: user.id,
@@ -98,23 +87,16 @@ export const deleteProfileBanner = catchAsync(
         profileBannerUrl: '',
       },
     });
+    return res.status(200).json({
+      message: 'Profile banner deleted',
+    });
   },
 );
 export const deleteProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
     const imageUrl = user.profileImageUrl as string;
-    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
-    await fs.unlink('./public/' + trimmedString, (err) => {
-      if (err) {
-        return res.status(404).send({
-          message: 'File not found',
-        });
-      }
-      return res.status(200).send({
-        message: 'File is deleted.',
-      });
-    });
+    await deleteImage(imageUrl);
     await prisma.user.update({
       where: {
         id: user.id,
@@ -122,6 +104,9 @@ export const deleteProfilePicture = catchAsync(
       data: {
         profileImageUrl: '',
       },
+    });
+    return res.status(200).json({
+      message: 'Profile picture deleted',
     });
   },
 );
