@@ -126,63 +126,47 @@ export const deleteProfilePicture = catchAsync(
   },
 );
 export const getUser = catchAsync(
-  async (_req: Request, res: Response, _next: NextFunction) => {
-    const user = await prisma.user.findUnique({
+  async (_req: Request, res: Response, next: NextFunction) => {
+    const user = (await prisma.user.findUnique({
       where: {
         userName: _req.params.username.toLowerCase(),
       },
-    });
+    })) as User;
 
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
     // const currentUser = _req.user as User;
     const authUser = _req.user as User;
 
-    const isFollowing =
-      authUser != null
-        ? await isUserFollowing(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
-    const isBlocked =
-      authUser != null
-        ? await isUserBlocked(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
-    const isMuted =
-      authUser != null
-        ? await isUserMuted(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
+    const isFollowing = authUser
+      ? await isUserFollowing(authUser.id, user.id)
+      : false;
+    const isBlocked = authUser
+      ? await isUserBlocked(authUser.id, user.id)
+      : false;
+    const isMuted = authUser ? await isUserMuted(authUser.id, user.id) : false;
 
-    //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
-    if (user) {
-      const resposeObject = {
-        userName: user.userName,
-        name: user.name,
-        birthDate: user.birthDate,
-        url: user.url,
-        description: user.description,
-        protected: user.protected,
-        verified: user.verified,
-        followersCount: user.followersCount,
-        followingCount: user.followingCount,
-        createdAt: user.createdAt,
-        profileBannerUrl: user.profileBannerUrl,
-        profileImageUrl: user.profileImageUrl,
-        email: user.email.toLowerCase(),
-        tweetCount: await getNumOfTweets(user.userName),
-        isFollowing,
-        isBlocked,
-        isMuted,
-      };
-      res.json(resposeObject).status(200);
-    } else {
-      return _next(new AppError('User not found', 404));
-    }
+    const resposeObject = {
+      userName: user.userName,
+      name: user.name,
+      birthDate: user.birthDate,
+      url: user.url,
+      description: user.description,
+      protected: user.protected,
+      verified: user.verified,
+      followersCount: user.followersCount,
+      followingCount: user.followingCount,
+      createdAt: user.createdAt,
+      profileBannerUrl: user.profileBannerUrl,
+      profileImageUrl: user.profileImageUrl,
+      email: user.email.toLowerCase(),
+      tweetCount: await getNumOfTweets(user.userName),
+      isFollowing,
+      isBlocked,
+      isMuted,
+    };
+    res.json(resposeObject).status(200);
   },
 );
 
