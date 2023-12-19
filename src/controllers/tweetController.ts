@@ -593,7 +593,7 @@ export const getTweetLikers = catchAsync(
     });
 
     if (!tweet) {
-      res.status(404).json({
+      return res.status(404).json({
         message: 'Tweet is not Found',
       });
     }
@@ -643,7 +643,7 @@ export const getTweetLikers = catchAsync(
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       ret,
     });

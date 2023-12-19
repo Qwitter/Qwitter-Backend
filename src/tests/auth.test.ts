@@ -6,7 +6,14 @@ import app from '../app';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { sendNotification } from '../utils/notifications';
 
+jest.mock('../utils/notifications'); // this happens automatically with automocking
+jest.mocked(sendNotification).mockImplementation(() => {
+  return {
+    method: {},
+  };
+});
 //mocking sendEmail
 const sendMailMock = jest.fn(); // this will return undefined if .sendMail() is called
 
@@ -186,6 +193,25 @@ describe('POST /auth/login', () => {
       google_id: null,
     };
     prismaMock.user.findUnique.mockResolvedValue(user);
+    // Mocking creating notification
+    const tempNotification = {
+      id: '1',
+      deleted: false,
+      seen: false,
+      senderId: '1',
+      type: 'type',
+      createdAt: new Date(),
+      objectId: '1',
+    };
+    const tempReceiveNotification = {
+      recieverId: '1',
+      notificationId: '1',
+    };
+    prismaMock.notification.create.mockResolvedValue(tempNotification);
+    prismaMock.recieveNotification.create.mockResolvedValue(
+      tempReceiveNotification,
+    );
+
     const response = await request(app).post('/api/v1/auth/login').send({
       email_or_username: 'jhondoe',
       password: '123456',
