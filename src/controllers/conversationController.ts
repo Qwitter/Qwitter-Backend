@@ -20,7 +20,7 @@ import {
   isUserFollowing,
   isUserBlocked,
   isUserMuted,
-  getUserByID
+  getUserByID,
 } from '../repositories/userRepository';
 
 // export const sendMessage = (req: Request, res: Response) => {};
@@ -117,7 +117,17 @@ export const getConversationDetails = async (
         },
         include: {
           sender: true,
-          reply: true,
+          reply: {
+            select: {
+              id: true,
+              text: true,
+              date: true,
+              sender: true,
+              conversationId: true,
+              isMessage: true,
+              replyToMessageId: true,
+            },
+          },
           messageEntity: {
             select: {
               entity: {
@@ -175,8 +185,13 @@ export const getConversationDetails = async (
       date: message.date.toISOString(),
       text: message.text,
       replyToMessage: {
-        ...message.reply,
-        userName: (await getUserByID(message.reply?.userId || ""))?.userName
+        conversationId: message.reply?.conversationId,
+        date: message.reply?.date,
+        id: message.reply?.id,
+        isMessage: message.reply?.isMessage,
+        replyToMessageId: message.reply?.replyToMessageId,
+        text: message.reply?.text,
+        userName: message.reply?.sender.userName,
       },
       userName: message.sender.userName,
       profileImageUrl: message.sender.profileImageUrl,
@@ -335,8 +350,9 @@ export const postMessage = catchAsync(
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
       replyToMessage: {
-        ... createdMessage.reply,
-        userName: (await getUserByID(createdMessage.reply?.userId || ""))?.userName
+        ...createdMessage.reply,
+        userName: (await getUserByID(createdMessage.reply?.userId || ''))
+          ?.userName,
       },
       id: createdMessage.id,
       entities: createdMessage.entities,
