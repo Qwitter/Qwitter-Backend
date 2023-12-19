@@ -184,15 +184,17 @@ export const getConversationDetails = async (
       id: message.id,
       date: message.date.toISOString(),
       text: message.text,
-      replyToMessage: {
-        conversationId: message.reply?.conversationId,
-        date: message.reply?.date,
-        id: message.reply?.id,
-        isMessage: message.reply?.isMessage,
-        replyToMessageId: message.reply?.replyToMessageId,
-        text: message.reply?.text,
-        userName: message.reply?.sender.userName,
-      },
+      replyToMessage: message.reply
+        ? {
+            conversationId: message.reply?.conversationId,
+            date: message.reply?.date,
+            id: message.reply?.id,
+            isMessage: message.reply?.isMessage,
+            replyToMessageId: message.reply?.replyToMessageId,
+            text: message.reply?.text,
+            userName: message.reply?.sender.userName,
+          }
+        : null,
       userName: message.sender.userName,
       profileImageUrl: message.sender.profileImageUrl,
       entities: await getMessageEntities(message.id),
