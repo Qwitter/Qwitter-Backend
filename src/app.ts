@@ -8,6 +8,7 @@ import timelineRouter from './routes/timeline';
 import tweetsRouter from './routes/tweets';
 import conversationRouter from './routes/conversation';
 import trendsRouter from './routes/trends';
+import notificationRouter from './routes/notifications';
 
 import cookieParser from 'cookie-parser';
 // import helmet from 'helmet';
@@ -68,6 +69,7 @@ app.use('/api/v1/timeline', timelineRouter);
 app.use('/api/v1/tweets', tweetsRouter);
 app.use('/api/v1/conversation', conversationRouter);
 app.use('/api/v1/trends', trendsRouter);
+app.use('/api/v1/notifications', notificationRouter);
 
 // Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

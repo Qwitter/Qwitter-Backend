@@ -1,4 +1,6 @@
 import express from 'express';
+import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { getNotification } from '../controllers/notificationController';
 const router = express.Router();
 /**
  * @openapi
@@ -45,4 +47,5 @@ const router = express.Router();
  *         $ref: '#/responses/410'
  */
 
-router.route('/:userID').get();
+router.route('/').get(isLoggedIn, getNotification);
+export default router;
