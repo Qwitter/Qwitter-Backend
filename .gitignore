@@ -22,3 +22,4 @@ prisma/migrations/*
 /public/imgs/user/**.jpeg
 
 Jenkinsfile
+
