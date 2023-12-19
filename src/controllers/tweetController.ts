@@ -33,6 +33,7 @@ import {
   getTweetAndEntitiesById,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
+import { sendNotification } from '../utils/notifications';
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -314,6 +315,68 @@ export const postTweet = catchAsync(
       isRetweeted: false,
       isFollowing: false,
     };
+    //TODO: add reply notification
+    if (
+      req.body.replyToTweetId &&
+      structuredTweet.replyToTweet.author.userName != currentUser.userName
+    ) {
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          objectId: structuredTweet.id,
+          type: 'reply',
+        },
+      });
+      const tempUser = await prisma.user.findUnique({
+        where: {
+          userName: structuredTweet.replyToTweet.author.userName,
+        },
+      });
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: (tempUser as User).id,
+        },
+      });
+      const notificationObject = {
+        type: 'reply',
+        createdAt: new Date(),
+        reply: structuredTweet,
+      };
+      sendNotification((tempUser as User).userName, notificationObject);
+    }
+    //TODO: add retweet notification
+    if (
+      req.body.retweetedId &&
+      structuredTweet.retweetedTweet.author.userName != currentUser.userName
+    ) {
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          objectId: structuredTweet.id,
+          type: 'retweet',
+        },
+      });
+      const tempUser = await prisma.user.findUnique({
+        where: {
+          userName: structuredTweet.retweetedTweet.author.userName,
+        },
+      });
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: (tempUser as User).id,
+        },
+      });
+      const notificationObject = {
+        type: 'retweet',
+        createdAt: new Date(),
+        retweet: structuredTweet,
+      };
+      sendNotification((tempUser as User).userName, notificationObject);
+    }
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
@@ -480,10 +543,28 @@ export const getTweet = catchAsync(
         tweetId: req.params.id,
       },
     });
+    const tempUser = await prisma.user.findUnique({
+      where: {
+        userName: structuredTweet.author.userName,
+      },
+    });
+    const isFollowing = await isUserFollowing(
+      (req.user as User)?.id,
+      (tempUser as User).id,
+    );
+    const IsRetweeted = await isRetweeted(
+      (req.user as User)?.id,
+      structuredTweet.id,
+    );
 
     const responseBody = {
       status: 'success',
-      tweet: { ...structuredTweet, liked },
+      tweet: {
+        ...structuredTweet,
+        liked: liked ? true : false,
+        isFollowing,
+        isRetweeted: IsRetweeted,
+      },
     };
     return res.status(200).json(responseBody);
   },

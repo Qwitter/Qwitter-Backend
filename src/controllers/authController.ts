@@ -10,6 +10,7 @@ import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { User } from '.prisma/client';
 import moment from 'moment-timezone';
 import { getNumOfTweets } from '../repositories/userRepository';
+import { sendNotification } from '../utils/notifications';
 
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -49,6 +50,25 @@ export const login = catchAsync(
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
+    //TODO: add login notification
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: user.id,
+        type: 'login',
+      },
+    });
+    await prisma.recieveNotification.create({
+      data: {
+        notificationId: notification.id,
+        recieverId: user.id,
+      },
+    });
+    const notificationObject = {
+      type: 'login',
+      createdAt: new Date(),
+    };
+    sendNotification(user.userName, notificationObject);
     sendToken(
       token,
       200,
@@ -355,6 +375,25 @@ export const logInGoogle = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const user = req.user as User;
     const token = signJWT(user.id);
+    //TODO: add login notification
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: user.id,
+        type: 'login',
+      },
+    });
+    await prisma.recieveNotification.create({
+      data: {
+        notificationId: notification.id,
+        recieverId: user.id,
+      },
+    });
+    const notificationObject = {
+      type: 'login',
+      createdAt: new Date(),
+    };
+    sendNotification(user.userName, notificationObject);
     _res.status(200).json({
       token,
       user: { ...user, tweetCount: getNumOfTweets(user.userName) },
