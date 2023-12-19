@@ -120,8 +120,11 @@ export async function uploadImage(localFilePath: string, blobName: string) {
     BlobServiceClient.fromConnectionString(connectionString);
   const containerClient = blobServiceClient.getContainerClient(containerName);
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
   try {
     await blockBlobClient.uploadFile(localFilePath + blobName);
+    const options = { blobHTTPHeaders: { blobContentType: 'image' } };
+    await blockBlobClient.setHTTPHeaders(options.blobHTTPHeaders);
     return blockBlobClient.url;
     // const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
     // await fs.unlink('./public/' + trimmedString, (err) => {
