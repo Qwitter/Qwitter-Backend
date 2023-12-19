@@ -116,9 +116,6 @@ export const uploadMediaMessageMiddleware = messageMedia.single('media');
 export async function uploadImage(localFilePath: string, blobName: string) {
   const connectionString = process.env.AZURE_BUCKET_URL as string;
   const containerName = process.env.AZURE_CONTAINER as string;
-  console.log(connectionString);
-  console.log(containerName);
-  console.log(localFilePath);
   const blobServiceClient =
     BlobServiceClient.fromConnectionString(connectionString);
   const containerClient = blobServiceClient.getContainerClient(containerName);

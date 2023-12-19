@@ -157,7 +157,7 @@ export const createMessage = async (
   //Extract the entities
   const entitiesId: string[] = await extractEntities(text);
   if (mediaUrl) {
-    const createdMedia = await createMedia(mediaUrl, 'message');
+    const createdMedia = await createMedia(mediaUrl, 'message/');
     entitiesId.push(createdMedia.entityId);
   }
 

@@ -296,7 +296,7 @@ export const postTweet = catchAsync(
     const files = (req.files as Express.Multer.File[]) || [];
     const fileNames = files?.map((file: { filename: string }) => file.filename);
     for (const fileName of fileNames) {
-      const createdMedia = await createMedia(fileName, 'tweet');
+      const createdMedia = await createMedia(fileName, 'tweet/');
       entitiesId.push(createdMedia.entityId);
     }
     // Linking Entities with Tweets
