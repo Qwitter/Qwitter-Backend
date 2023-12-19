@@ -20,3 +20,6 @@ prisma/migrations/*
 /public/imgs/tweet/**.jpeg
 /public/imgs/message/**.jpeg
 /public/imgs/user/**.jpeg
+
+Jenkinsfile
+
