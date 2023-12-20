@@ -223,6 +223,8 @@ model Message {
   Message          Message[]       @relation("reply")
   replyToMessageId String?
   messageEntity    messageEntity[] @relation("hasEntity")
+  deletedAt            DateTime?             @db.Timestamp()
+
 
   @@id([id])
 }
