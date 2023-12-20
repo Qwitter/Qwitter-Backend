@@ -1,6 +1,6 @@
 import express from 'express';
 import { uploadImageMiddleware } from '../middlewares/uploadMiddleware';
-import { isLoggedIn } from '../middlewares/authMiddlewares';
+import { authenticate, isLoggedIn } from '../middlewares/authMiddlewares';
 import { validate } from '../utils/validator';
 import {
   putUserProfileReqSchema,
@@ -609,8 +609,6 @@ router.put(
   userController.putUserProfile,
 );
 
-router.get('/username', userController.getUser);
-
 /**
  * @openapi
  * '/api/v1/user/username':
@@ -696,7 +694,7 @@ router.route('/suggestions').get(isLoggedIn, userController.getUserSuggestions);
  *      400:
  *        description: Bad request
  */
-router.get('/:username', userController.getUser);
+router.get('/:username', authenticate, userController.getUser);
 router.delete('/reset', userController.resetProfilePhotos);
 router.post('/test/:userName', userController.testNotification);
 

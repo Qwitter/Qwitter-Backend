@@ -187,7 +187,7 @@ export const incrementHashtagCount = async (text: string) => {
   });
 };
 
-export const searchHastagsByWord = async (text: string) => {
+export const searchHastagsByWord = async (text: string | null) => {
   if (!text) {
     return await prisma.hashtag.findMany();
   }

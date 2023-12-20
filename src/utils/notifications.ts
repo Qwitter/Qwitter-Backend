@@ -2,7 +2,10 @@ import { io } from '../socketServer';
 
 import { EVENTS } from './socket';
 
-export const sendNotification = (userName: string, notification: object) => {
+export const sendNotification = (
+  userName: string,
+  notification: object,
+): void => {
   io.to(userName).emit(EVENTS.SERVER.NOTIFICATION, notification);
 };
 // export const sendMessage = (

@@ -24,6 +24,7 @@ export const searchMember = async (
         ],
       })),
       deletedAt: null,
+      blocker: { none: { blockedId: requester.id } },
     },
     select: {
       name: true,
@@ -32,6 +33,8 @@ export const searchMember = async (
       follower: { where: { followedId: requester.id } },
       followed: { where: { folowererId: requester.id } },
       UserConversations: { where: { conversationId: conversationId } },
+      blocked: { where: { blockerId: requester.id } },
+      muted: { where: { muterId: requester.id } },
     },
     skip,
     take: parsedLimit,
@@ -63,6 +66,8 @@ export const searchMember = async (
       isFollowed: rest.follower && rest.follower.length ? true : false,
       inConversation:
         rest.UserConversations && rest.UserConversations.length ? true : false,
+      isBlocked: rest.blocked && rest.blocked.length ? true : false,
+      isMuted: rest.muted && rest.muted.length ? true : false,
     };
     return user;
   });
@@ -84,6 +89,7 @@ export const searchMemberForNewConversation = async (
         ],
       })),
       deletedAt: null,
+      blocker: { none: { blockedId: requester.id } },
     },
     select: {
       name: true,
@@ -91,6 +97,8 @@ export const searchMemberForNewConversation = async (
       profileImageUrl: true,
       follower: { where: { followedId: requester.id } },
       followed: { where: { folowererId: requester.id } },
+      blocked: { where: { blockerId: requester.id } },
+      muted: { where: { muterId: requester.id } },
     },
     skip,
     take: parsedLimit,
@@ -120,6 +128,8 @@ export const searchMemberForNewConversation = async (
       profileImageUrl: rest.profileImageUrl,
       isFollowing: rest.followed && rest.followed.length ? true : false,
       isFollowed: rest.follower && rest.follower.length ? true : false,
+      isBlocked: rest.blocked && rest.blocked.length ? true : false,
+      isMuted: rest.muted && rest.muted.length ? true : false,
     };
     return user;
   });
@@ -147,7 +157,7 @@ export const createMessage = async (
   //Extract the entities
   const entitiesId: string[] = await extractEntities(text);
   if (mediaUrl) {
-    const createdMedia = await createMedia(mediaUrl, 'message');
+    const createdMedia = await createMedia(mediaUrl, 'message/');
     entitiesId.push(createdMedia.entityId);
   }
 

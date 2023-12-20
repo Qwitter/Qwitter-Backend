@@ -11,10 +11,12 @@ import {
   searchHastagsByWord,
 } from '../repositories/entityRepository';
 import {
+  getNumOfTweets,
   getTweetsCreatedByUser,
   getUserByUsername,
   isUserBlocked,
   isUserFollowing,
+  isUserMuted,
 } from '../repositories/userRepository';
 import {
   deleteTweetById,
@@ -31,6 +33,7 @@ import {
   getTweetAndEntitiesById,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
+import { sendNotification } from '../utils/notifications';
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -106,6 +109,7 @@ const getTimeline = async (req: Request) => {
       liked: liked != null,
       isFollowing,
       isRetweeted: isRetweetedBoolean,
+      tweetCount: await getNumOfTweets(tweet.author.userName),
     };
     responses.push(response);
   }
@@ -125,9 +129,14 @@ export const getForYouTimeline = catchAsync(
     const following = await prisma.follow.findMany({
       where: {
         folowererId: userId,
+        follower: {
+          muter: {
+            none: { muted: { followed: { some: { folowererId: userId } } } },
+          },
+        },
         followed: {
-          blocked: { none: { blocker: { id: currentUser.id } } },
-          blocker: { none: { blocked: { id: currentUser.id } } },
+          blocked: { none: { blocker: { id: userId } } },
+          blocker: { none: { blocked: { id: userId } } },
         },
       },
       select: {
@@ -221,6 +230,7 @@ export const getForYouTimeline = catchAsync(
         entities,
         liked: liked != null,
         isFollowing,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -296,7 +306,7 @@ export const postTweet = catchAsync(
     const files = (req.files as Express.Multer.File[]) || [];
     const fileNames = files?.map((file: { filename: string }) => file.filename);
     for (const fileName of fileNames) {
-      const createdMedia = await createMedia(fileName, 'tweet');
+      const createdMedia = await createMedia(fileName, 'tweet/');
       entitiesId.push(createdMedia.entityId);
     }
     // Linking Entities with Tweets
@@ -315,6 +325,68 @@ export const postTweet = catchAsync(
       isRetweeted: false,
       isFollowing: false,
     };
+    //TODO: add reply notification
+    if (
+      req.body.replyToTweetId &&
+      structuredTweet.replyToTweet.author.userName != currentUser.userName
+    ) {
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          objectId: structuredTweet.id,
+          type: 'reply',
+        },
+      });
+      const tempUser = await prisma.user.findUnique({
+        where: {
+          userName: structuredTweet.replyToTweet.author.userName,
+        },
+      });
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: (tempUser as User).id,
+        },
+      });
+      const notificationObject = {
+        type: 'reply',
+        createdAt: new Date(),
+        reply: structuredTweet,
+      };
+      sendNotification((tempUser as User).userName, notificationObject);
+    }
+    //TODO: add retweet notification
+    if (
+      req.body.retweetedId &&
+      structuredTweet.retweetedTweet.author.userName != currentUser.userName
+    ) {
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          objectId: structuredTweet.id,
+          type: 'retweet',
+        },
+      });
+      const tempUser = await prisma.user.findUnique({
+        where: {
+          userName: structuredTweet.retweetedTweet.author.userName,
+        },
+      });
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: (tempUser as User).id,
+        },
+      });
+      const notificationObject = {
+        type: 'retweet',
+        createdAt: new Date(),
+        retweet: structuredTweet,
+      };
+      sendNotification((tempUser as User).userName, notificationObject);
+    }
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
@@ -380,17 +452,22 @@ export const getTweetReplies = catchAsync(
       });
       const isFollowing = await isUserFollowing(
         (req.user as User).id,
-        tweet.userId,
+        reply.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id,
+        reply.id,
       );
+      const entities = await getTweetEntities(reply.id);
       let response = {
         ...reply,
+        entities,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(reply.author.userName),
       };
       responses.push(response);
     }
@@ -486,10 +563,28 @@ export const getTweet = catchAsync(
         tweetId: req.params.id,
       },
     });
+    const tempUser = await prisma.user.findUnique({
+      where: {
+        userName: structuredTweet.author.userName,
+      },
+    });
+    const isFollowing = await isUserFollowing(
+      (req.user as User)?.id,
+      (tempUser as User).id,
+    );
+    const IsRetweeted = await isRetweeted(
+      (req.user as User)?.id,
+      structuredTweet.id,
+    );
 
     const responseBody = {
       status: 'success',
-      tweet: { ...structuredTweet, liked },
+      tweet: {
+        ...structuredTweet,
+        liked: liked ? true : false,
+        isFollowing,
+        isRetweeted: IsRetweeted,
+      },
     };
     return res.status(200).json(responseBody);
   },
@@ -509,7 +604,7 @@ export const getTweetLikers = catchAsync(
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
-
+    const authUser = req.user as User;
     const skip = (parsedPage - 1) * parsedLimit;
     const { id } = req.params;
 
@@ -518,7 +613,7 @@ export const getTweetLikers = catchAsync(
     });
 
     if (!tweet) {
-      res.status(404).json({
+      return res.status(404).json({
         message: 'Tweet is not Found',
       });
     }
@@ -531,6 +626,7 @@ export const getTweetLikers = catchAsync(
       include: {
         liker: {
           select: {
+            id: true,
             name: true,
             location: true,
             url: true,
@@ -556,17 +652,23 @@ export const getTweetLikers = catchAsync(
     const authUser=req.user as User
 
     const likers = tweetLikers.map((like) => like.liker);
-    let likersPromises=await likers?.map( async(liker) => {
-      let likerUser= await getUserByUsername(liker.userName)
-      let isFollowing=  await isUserFollowing(authUser.id as string,likerUser?.id as string)
-      return{liker,isFollowing:isFollowing}
-    })
-    
-    let likersRes=await Promise.all(likersPromises)
+    const ret: object[] = [];
+    for (let liker of likers) {
+      const isFollowing = await isUserFollowing(authUser.id, liker.id);
+      const isBlocked = await isUserBlocked(authUser.id, liker.id);
+      const isMuted = await isUserMuted(authUser.id, liker.id);
+      const { id, ...temp } = liker;
+      ret.push({
+        ...temp,
+        isFollowing,
+        isBlocked: isBlocked,
+        isMuted: isMuted,
+      });
+    }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
-      likersRes,
+      ret,
     });
   },
 );
@@ -621,6 +723,7 @@ export const searchTweets = catchAsync(
         liked: liked != null,
         isFollowing,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -666,6 +769,7 @@ export const getUserTweets = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
         tweet.id,
@@ -674,7 +778,9 @@ export const getUserTweets = catchAsync(
         ...tweet,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -722,6 +828,7 @@ export const getUserReplies = catchAsync(
         (req.user as User).id,
         tweet.userId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
         tweet.id,
@@ -730,7 +837,9 @@ export const getUserReplies = catchAsync(
         ...tweet,
         liked: liked != null,
         isFollowing,
+        isMuted,
         isRetweeted: isRetweetedBoolean,
+        tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
@@ -743,8 +852,8 @@ export const getUserReplies = catchAsync(
 
 export const searchHastags = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { q } = req.params;
-    const hashtags = await searchHastagsByWord(q);
+    const { q } = req.query;
+    const hashtags = await searchHastagsByWord(q as string | null);
     return res.status(200).json(hashtags);
   },
 );

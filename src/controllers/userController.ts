@@ -17,9 +17,8 @@ import {
   isUserMuted,
 } from '../repositories/userRepository';
 import prisma from '../client';
-import fs from 'fs';
 import { sendNotification } from '../utils/notifications';
-import { uploadImage } from '../middlewares/uploadMiddleware';
+import { deleteImage, uploadImage } from '../middlewares/uploadMiddleware';
 
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
@@ -66,7 +65,7 @@ export const uploadProfileBanner = catchAsync(
         id: user.id,
       },
       data: {
-        profileBannerUrl: `${url}/imgs/user${_req.url}/${photoName}`,
+        profileBannerUrl: url,
       },
     });
     return res.status(200).json({
@@ -79,17 +78,7 @@ export const deleteProfileBanner = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
     const imageUrl = user.profileBannerUrl as string;
-    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
-    await fs.unlink('./public/' + trimmedString, (err) => {
-      if (err) {
-        res.status(404).send({
-          message: 'File not found',
-        });
-      }
-      res.status(200).send({
-        message: 'File is deleted.',
-      });
-    });
+    await deleteImage(imageUrl);
     await prisma.user.update({
       where: {
         id: user.id,
@@ -98,23 +87,16 @@ export const deleteProfileBanner = catchAsync(
         profileBannerUrl: '',
       },
     });
+    return res.status(200).json({
+      message: 'Profile banner deleted',
+    });
   },
 );
 export const deleteProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
     const imageUrl = user.profileImageUrl as string;
-    const trimmedString = imageUrl.substring(imageUrl.indexOf('/')); // Trims the server path
-    await fs.unlink('./public/' + trimmedString, (err) => {
-      if (err) {
-        res.status(404).send({
-          message: 'File not found',
-        });
-      }
-      res.status(200).send({
-        message: 'File is deleted.',
-      });
-    });
+    await deleteImage(imageUrl);
     await prisma.user.update({
       where: {
         id: user.id,
@@ -123,66 +105,53 @@ export const deleteProfilePicture = catchAsync(
         profileImageUrl: '',
       },
     });
+    return res.status(200).json({
+      message: 'Profile picture deleted',
+    });
   },
 );
 export const getUser = catchAsync(
-  async (_req: Request, res: Response, _next: NextFunction) => {
-    const user = await prisma.user.findUnique({
+  async (_req: Request, res: Response, next: NextFunction) => {
+    const user = (await prisma.user.findUnique({
       where: {
         userName: _req.params.username.toLowerCase(),
       },
-    });
+    })) as User;
 
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
     // const currentUser = _req.user as User;
     const authUser = _req.user as User;
 
-    const isFollowing =
-      authUser != null
-        ? await isUserFollowing(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
-    const isBlocked =
-      authUser != null
-        ? await isUserBlocked(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
-    const isMuted =
-      authUser != null
-        ? await isUserMuted(
-            authUser.id,
-            (await getUserByUsername(_req.params.username))?.id || '',
-          )
-        : false;
+    const isFollowing = authUser
+      ? await isUserFollowing(authUser.id, user.id)
+      : false;
+    const isBlocked = authUser
+      ? await isUserBlocked(authUser.id, user.id)
+      : false;
+    const isMuted = authUser ? await isUserMuted(authUser.id, user.id) : false;
 
-    //const { id,google_id,password,passwordChangedAt,passwordResetToken,passwordResetExpires,deletedAt, ...resposeObject } = user;
-    if (user) {
-      const resposeObject = {
-        userName: user.userName,
-        name: user.name,
-        birthDate: user.birthDate,
-        url: user.url,
-        description: user.description,
-        protected: user.protected,
-        verified: user.verified,
-        followersCount: user.followersCount,
-        followingCount: user.followingCount,
-        createdAt: user.createdAt,
-        profileBannerUrl: user.profileBannerUrl,
-        profileImageUrl: user.profileImageUrl,
-        email: user.email.toLowerCase(),
-        tweetCount: await getNumOfTweets(user.userName),
-        isFollowing,
-        isBlocked,
-        isMuted,
-      };
-      res.json(resposeObject).status(200);
-    } else {
-      return _next(new AppError('User not found', 404));
-    }
+    const resposeObject = {
+      userName: user.userName,
+      name: user.name,
+      birthDate: user.birthDate,
+      url: user.url,
+      description: user.description,
+      protected: user.protected,
+      verified: user.verified,
+      followersCount: user.followersCount,
+      followingCount: user.followingCount,
+      createdAt: user.createdAt,
+      profileBannerUrl: user.profileBannerUrl,
+      profileImageUrl: user.profileImageUrl,
+      email: user.email.toLowerCase(),
+      tweetCount: await getNumOfTweets(user.userName),
+      isFollowing,
+      isBlocked,
+      isMuted,
+    };
+    res.json(resposeObject).status(200);
   },
 );
 
@@ -237,10 +206,15 @@ export const getUsers = catchAsync(
       );
       if (!isBlocked && !isBlocker) {
         const tweetCount = await getNumOfTweets(user.userName);
+        const isMuted = await isUserMuted(
+          (req.user as User).id,
+          ((await getUserByUsername(user.userName)) as User).id,
+        );
         ret.push({
           ...user,
           tweetCount,
           isFollowing,
+          isMuted,
         });
       }
     }
@@ -360,10 +334,12 @@ export const getUserFollowers = catchAsync(
         (req.user as User).id,
         followerId,
       );
+      const isMuted = await isUserMuted((req.user as User).id, followerId);
       const resultObject = {
         ...el.follower,
         tweetCount: await getNumOfTweets(el.follower.userName),
         isFollowing,
+        isMuted,
       };
 
       resultArray.push(resultObject);
@@ -419,10 +395,15 @@ export const getUserFollowings = catchAsync(
       await Promise.all(
         followings.map(async (el) => {
           const isFollowing = true;
+          const isMuted = await isUserMuted(
+            (req.user as User).id,
+            el.followedId,
+          );
           return {
             ...el.followed,
             tweetCount: await getNumOfTweets(el.followed.userName),
             isFollowing,
+            isMuted,
           };
         }),
       ),
@@ -740,6 +721,7 @@ export const followUser = catchAsync(
           ),
           isBlocked: isBlocked || isBlocking,
           isMuted: false,
+          tweetCount: await getNumOfTweets((req.user as User).userName),
         },
       };
       sendNotification(username, notificationObject);
@@ -861,9 +843,13 @@ export const getUserSuggestions = catchAsync(
           !suggestionsIDs.has(followersArray[j].followedId) &&
           followersArray[j].followedId != currentUser.id
         ) {
+          const isFollowing = await isUserFollowing(
+            (req.user as User).id,
+            followersArray[j].followedId,
+          );
           suggestionsIDs.add(followersArray[j].followedId);
-          suggestions.push(
-            await prisma.user.findUnique({
+          suggestions.push({
+            ...(await prisma.user.findUnique({
               where: {
                 id: followersArray[j].followedId,
                 deletedAt: null,
@@ -885,8 +871,9 @@ export const getUserSuggestions = catchAsync(
                 email: true,
                 userName: true,
               },
-            }),
-          );
+            })),
+            isFollowing,
+          });
         }
       }
       followedIDs.splice(randomIndex, 1);
@@ -919,6 +906,10 @@ export const getUserSuggestions = catchAsync(
             (req.user as User).id,
             popUsers[i].id,
           );
+          const isMuted = await isUserMuted(
+            (req.user as User).id,
+            popUsers[i].id,
+          );
 
           suggestions.push({
             ...(await prisma.user.findFirst({
@@ -945,6 +936,7 @@ export const getUserSuggestions = catchAsync(
               },
             })),
             isFollowing,
+            isMuted,
           });
         }
       }
