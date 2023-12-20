@@ -209,11 +209,11 @@ export const getConversationDetails = catchAsync(
           conversationDetails.UserConversations[i].User.userName !=
           authUser.userName
         ) {
-          const isFollowed = await isUserFollowing(
+          const isFollowing = await isUserFollowing(
             authUser.id,
             conversationDetails.UserConversations[i].User.id,
           );
-          const isFollowing = await isUserFollowing(
+          const isFollowed = await isUserFollowing(
             conversationDetails.UserConversations[i].User.id,
             authUser.id,
           );
