@@ -52,6 +52,7 @@ const getTimeline = async (req: Request) => {
     },
   });
 
+  
   const followingIds = following.map((follow) => follow.followedId);
 
   followingIds.push(userId);
@@ -67,7 +68,9 @@ const getTimeline = async (req: Request) => {
       userId: {
         in: followingIds,
       },
-
+      author:{
+        muted:{none:{muterId:currentUser.id}}
+      },
       deletedAt: null,
     },
     orderBy: {
@@ -114,6 +117,10 @@ const getTimeline = async (req: Request) => {
   // return responses;
   return getTweetsRepliesRetweets(responses);
 };
+
+
+
+
 
 export const getForYouTimeline = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -162,6 +169,9 @@ export const getForYouTimeline = catchAsync(
               in: followingIds,
             },
             deletedAt: null,
+            author:{
+              muted:{none: {muterId:currentUser.id}}
+            }
           },
           ...topHashtags.map((hashtag) => ({
             text: {
@@ -491,6 +501,7 @@ export const getTweetRetweets = catchAsync(
       });
       return;
     }
+    const authUser=req.user as User
 
     const retweeters = await prisma.tweet.findMany({
       where: {
@@ -503,10 +514,17 @@ export const getTweetRetweets = catchAsync(
       skip,
       take: parsedLimit,
     });
-
+    let retweetersMapped=retweeters?.map((retweet) => retweet.author as User)
+    let retweetersPromises=await retweetersMapped?.map( async(retweeter) => {
+      let retweetUser= await getUserByUsername(retweeter.userName)
+      let isFollowing=  await isUserFollowing(authUser.id as string,retweetUser?.id as string)
+      return{retweeter,isFollowing:isFollowing}
+    })
+    
+    let retweetersRes=await Promise.all(retweetersPromises)
     res.status(200).json({
       status: 'success',
-      retweeters: retweeters?.map((retweet) => retweet.author as User),
+      retweeters: retweetersRes,
     });
   },
 );
@@ -629,6 +647,9 @@ export const getTweetLikers = catchAsync(
       skip,
       take: parsedLimit,
     });
+    
+
+    const authUser=req.user as User
 
     const likers = tweetLikers.map((like) => like.liker);
     const ret: object[] = [];
