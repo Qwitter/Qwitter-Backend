@@ -187,6 +187,15 @@ export const deleteTweetById = async (tweetId: string) => {
       deletedAt: new Date(),
     },
   });
+  prisma.tweet.updateMany({
+    where: {
+      retweetedId: tweetId,
+      deletedAt: null,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
   if (tweet.replyToTweetId) {
     await incrementReplies(tweet.replyToTweetId, -1);
   }
