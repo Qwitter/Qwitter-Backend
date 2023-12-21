@@ -1,5 +1,4 @@
 import { io } from '../socketServer';
-
 import { EVENTS } from './socket';
 
 export const sendNotification = (

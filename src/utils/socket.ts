@@ -2,6 +2,7 @@
 import { User } from '@prisma/client';
 // import { Message } from '../types/conversations';
 import { Server, Socket } from 'socket.io';
+import { io } from '../socketServer';
 
 export const EVENTS = {
   connection: 'connection',
@@ -57,6 +58,9 @@ function socket({ io }: { io: Server }) {
       console.log(err);
     }
   });
+}
+export function runSocket() {
+  socket({ io });
 }
 
 export default socket;
