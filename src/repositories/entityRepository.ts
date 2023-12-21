@@ -15,7 +15,7 @@ export const getTweetEntities = async (tweetId: string) => {
     where: {
       tweetId: tweetId,
     },
-  });
+  }) || [];
   for (const relation of relations) {
     const entity = await prisma.entity.findUnique({
       where: {
