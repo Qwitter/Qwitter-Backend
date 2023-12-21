@@ -146,6 +146,7 @@ export const getUser = catchAsync(
       profileBannerUrl: user.profileBannerUrl,
       profileImageUrl: user.profileImageUrl,
       email: user.email.toLowerCase(),
+      location: user.location,
       tweetCount: await getNumOfTweets(user.userName),
       isFollowing,
       isBlocked,
@@ -172,6 +173,7 @@ export const getRequestingUser = catchAsync(
       profileBannerUrl: user.profileBannerUrl,
       profileImageUrl: user.profileImageUrl,
       email: user.email.toLowerCase(),
+      location: user.location,
       tweetCount: await getNumOfTweets(user.userName),
     };
     return res.status(200).json(resposeObject);
@@ -413,8 +415,8 @@ export const getUserFollowings = catchAsync(
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    _req.body.url = _req.body.url.toLowerCase();
     if (_req.body.url) {
+      _req.body.url = _req.body.url.toLowerCase();
       if (
         !((_req.body.url as String).indexOf('.') > 0) ||
         !(_req.body.url as String).startsWith('http')
@@ -483,7 +485,7 @@ export const blockUser = catchAsync(
       if (block) {
         res.json({ status: 'success' }).status(200);
       } else {
-        res.json({ status: 'success' }).status(404);
+        res.json({ status: 'failure' }).status(404);
       }
     }
   },
@@ -501,11 +503,8 @@ export const unblockUser = catchAsync(
       return _next(new AppError('user not blocked', 404));
     } else {
       const block = await unblockUserByIDs(blockingUser.id, blockedUser.id);
-      if (block) {
-        res.json({ status: 'success' }).status(200);
-      } else {
-        res.json({ status: 'failute' }).status(404);
-      }
+      block?res.json({ status: 'success' }).status(200):res.json({ status: 'failure' }).status(404);
+
     }
   },
 );
@@ -643,6 +642,7 @@ export const followUser = catchAsync(
       (req.user as User).id,
       userToFollow.id,
     );
+
     const isBlocking = await isUserBlocked(
       userToFollow.id,
       (req.user as User).id,
@@ -688,7 +688,7 @@ export const followUser = catchAsync(
       },
     });
 
-    const isMuted = isUserMuted(userToFollow.id, (req.user as User).id);
+    const isMuted = await isUserMuted(userToFollow.id, (req.user as User).id);
     // TODO: Add here send notification using the function in utils/notifications
     if (!isMuted) {
       const notification = await prisma.notification.create({
@@ -808,7 +808,6 @@ export const getUserSuggestions = catchAsync(
         follower: true,
       },
     });
-
     let followedIDs = tempUser?.follower;
     let followedSetIDs = new Set();
     let suggestions = [];
@@ -826,6 +825,7 @@ export const getUserSuggestions = catchAsync(
       let followersArray = await prisma.follow.findMany({
         take: 10,
         where: {
+          followedId: { not: currentUser.id },
           folowererId: followedIDs[randomIndex].followedId,
           follower: {
             deletedAt: null,
@@ -879,11 +879,12 @@ export const getUserSuggestions = catchAsync(
     }
     if (suggestions.length < 50) {
       let popUsers = await prisma.user.findMany({
-        take: 5100,
+        take: 50,
         where: {
           deletedAt: null,
           blocked: { none: { blocker: { id: currentUser.id } } },
           blocker: { none: { blocked: { id: currentUser.id } } },
+          followed: { none: { folowererId: currentUser.id } },
         },
         orderBy: {
           followersCount: 'desc',
@@ -939,14 +940,5 @@ export const getUserSuggestions = catchAsync(
       }
     }
     return res.json(suggestions.slice(0, 50)).status(200);
-  },
-);
-export const testNotification = catchAsync(
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const { userName } = req.params;
-    sendNotification(userName, { text: 'Notification test' });
-    res.status(200).json({
-      message: 'Test Notification',
-    });
   },
 );
