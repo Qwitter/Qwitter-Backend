@@ -47,7 +47,6 @@ export const getNotification = async (
         where: { id: notification.Notification.objectId as string },
         include: { author: { select: authorSelectOptions } },
       });
-      console.log(createdTweet);
       const entities = await getTweetEntities((createdTweet as Tweet).id);
       const returnedTweet = {
         ...createdTweet,
@@ -144,7 +143,7 @@ export const getNotification = async (
         type: notification.Notification.type,
         createdAt: notification.Notification.createdAt,
         follower: {
-          username: (follower as User).userName,
+          userName: (follower as User).userName,
           name: (follower as User).name,
           url: (follower as User).url,
           description: (follower as User).description,

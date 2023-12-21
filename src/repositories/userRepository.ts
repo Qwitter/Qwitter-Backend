@@ -52,6 +52,17 @@ export const blockUserByIDs = async (
         },
       },
     }));
+  followCheck &&
+    (await prisma.user.update({
+      where: { id: blockingUser },
+      data: { followingCount: { decrement: 1 } },
+    }));
+  followCheck &&
+    (await prisma.user.update({
+      where: { id: blockedUser },
+      data: { followersCount: { decrement: 1 } },
+    }));
+
   const followCheck2 = await prisma.follow.findUnique({
     where: {
       folowererId_followedId: {
@@ -69,6 +80,17 @@ export const blockUserByIDs = async (
         },
       },
     }));
+  followCheck2 &&
+    (await prisma.user.update({
+      where: { id: blockingUser },
+      data: { followersCount: { decrement: 1 } },
+    }));
+  followCheck2 &&
+    (await prisma.user.update({
+      where: { id: blockedUser },
+      data: { followingCount: { decrement: 1 } },
+    }));
+
   return await prisma.block.create({
     data: {
       blockedId: blockedUser,

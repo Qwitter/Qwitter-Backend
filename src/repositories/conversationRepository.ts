@@ -166,6 +166,14 @@ export const createMessage = async (
     await createEntityMessage(createdMessage.id, id);
   }
   const entities = await getMessageEntities(createdMessage.id);
+
+  // update seen status when message is sent
+
+  await prisma.userConversations.updateMany({
+    where: { conversationId: conversationId, NOT: { userId: userId } },
+    data: { seen: false },
+  });
+
   return { ...createdMessage, entities };
 };
 
