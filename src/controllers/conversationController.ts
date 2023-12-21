@@ -352,11 +352,13 @@ export const postMessage = catchAsync(
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
-      replyToMessage: {
-        ...createdMessage.reply,
-        userName: (await getUserByID(createdMessage.reply?.userId || ''))
-          ?.userName,
-      },
+      replyToMessage: req.body.replyId
+        ? {
+            ...createdMessage.reply,
+            userName: (await getUserByID(createdMessage.reply?.userId || ''))
+              ?.userName,
+          }
+        : null,
       id: createdMessage.id,
       entities: createdMessage.entities,
       text: createdMessage.text,

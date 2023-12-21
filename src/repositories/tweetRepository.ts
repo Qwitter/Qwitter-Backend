@@ -251,7 +251,7 @@ export const getTweetsLikedById = async (
 
   for (const tweet of tweets) {
     const entities = await getTweetEntities(tweet.liked.id);
-    const temp = { ...tweet.liked, entities: entities };
+    const temp = { ...tweet.liked, entities: entities, liked: true };
     likedTweets.push(temp);
   }
 
@@ -262,6 +262,7 @@ export const getTweetsMediaById = async (
   Id: string,
   skip: number,
   parsedLimit: number,
+  currentUser: User,
 ) => {
   const tweets = await prisma.tweet.findMany({
     where: {
@@ -297,8 +298,14 @@ export const getTweetsMediaById = async (
   const mediaTweets = [];
 
   for (const tweet of tweets) {
+    const liked = await prisma.like.findFirst({
+      where: {
+        userId: currentUser.id,
+        tweetId: tweet.id,
+      },
+    });
     const entities = await getTweetEntities(tweet.id);
-    const temp = { ...tweet, entities: entities };
+    const temp = { ...tweet, entities: entities, liked: liked != null };
     mediaTweets.push(temp);
   }
 
