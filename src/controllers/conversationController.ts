@@ -350,7 +350,7 @@ export const postMessage = catchAsync(
       req.body.replyId,
       photoName,
     );
-    sendConversationUpdate(id);
+    sendConversationUpdate(createMessage, id);
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,

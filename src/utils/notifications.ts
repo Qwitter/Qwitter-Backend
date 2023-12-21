@@ -10,7 +10,10 @@ export const sendNotification = (
 };
 
 // Sends update to all the people in the conversation in the page of the conversations
-export const sendConversationUpdate = async (conversationId: string) => {
+export const sendConversationUpdate = async (
+  lastMessage: any,
+  conversationId: string,
+) => {
   const conversation = await prisma.conversation.findFirst({
     where: {
       id: conversationId,
@@ -30,7 +33,10 @@ export const sendConversationUpdate = async (conversationId: string) => {
   if (conversation) {
     for (const user of conversation.UserConversations) {
       const currentUsername = user.User.userName;
-      io.to(currentUsername).emit(EVENTS.SERVER.CONVERSATION, conversationId);
+      io.to(currentUsername).emit(EVENTS.SERVER.CONVERSATION, {
+        ...conversation,
+        lastMessage,
+      });
     }
   }
 };
