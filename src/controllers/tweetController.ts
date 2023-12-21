@@ -152,6 +152,7 @@ export const getForYouTimeline = catchAsync(
         likesCount: true,
         sensitive: true,
         author: { select: authorSelectOptions },
+        likes: true,
       },
       skip,
       take: parsedLimit,
@@ -159,6 +160,7 @@ export const getForYouTimeline = catchAsync(
     const ret = [];
     for (const tweet of tweets) {
       let { tweetingUser } = await getTweetAndUserById(tweet.id);
+      const entities = await getTweetEntities(tweet.id);
       let structuredTweet = await getTweetAndEntitiesById(tweet.id);
       const structuredTweets = await getTweetsRepliesRetweets([tweet]);
       structuredTweet = structuredTweets[0];
@@ -172,9 +174,11 @@ export const getForYouTimeline = catchAsync(
         currentUser.id,
         (tweetingUser as User).id,
       );
+      console.log(structuredTweet);
       const IsRetweeted = await isRetweeted(currentUser.id, structuredTweet.id);
       ret.push({
         ...structuredTweet,
+        entities,
         liked: liked ? true : false,
         isFollowing,
         isRetweeted: IsRetweeted,
