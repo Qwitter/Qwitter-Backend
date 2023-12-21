@@ -120,120 +120,78 @@ const getTimeline = async (req: Request) => {
 export const getForYouTimeline = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const currentUser = req.user as User;
-    const userId = currentUser.id;
-    const following = await prisma.follow.findMany({
-      where: {
-        folowererId: userId,
-        follower: {
-          muter: {
-            none: { muted: { followed: { some: { folowererId: userId } } } },
-          },
-        },
-        followed: {
-          blocked: { none: { blocker: { id: userId } } },
-          blocker: { none: { blocked: { id: userId } } },
-        },
-      },
-      select: {
-        followedId: true,
-      },
-    });
-
-    const followingIds = following.map((follow) => follow.followedId);
-
-    followingIds.push(userId);
-
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
     const parsedLimit = parseInt(limit as string, 10);
-
     const skip = (parsedPage - 1) * parsedLimit;
-
-    const topHashtags = await prisma.hashtag.findMany({
-      take: 20,
-      orderBy: {
-        count: 'desc',
-      },
-    });
-
-    const timelineTweets = await prisma.tweet.findMany({
+    const tweets = await prisma.tweet.findMany({
       where: {
-        OR: [
-          {
-            userId: {
-              in: followingIds,
-            },
-            deletedAt: null,
-            author: {
-              muted: { none: { muterId: currentUser.id } },
-            },
-          },
-          ...topHashtags.map((hashtag) => ({
-            text: {
-              contains: hashtag.text,
-            },
-          })),
-        ],
+        deletedAt: null,
+        author: {
+          blocked: { none: { blocker: { id: currentUser.id } } },
+          blocker: { none: { blocked: { id: currentUser.id } } },
+          muted: { none: { muter: { id: currentUser.id } } },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            location: true,
-            url: true,
-            description: true,
-            protected: true,
-            verified: true,
-            followersCount: true,
-            followingCount: true,
-            createdAt: true,
-            profileBannerUrl: true,
-            profileImageUrl: true,
-            email: true,
-            userName: true,
-            birthDate: true,
-          },
-        },
-        replyToTweet: true,
-        reTweet: true,
-        qouteTweet: true,
-        likes: true,
+      select: {
+        createdAt: true,
+        id: true,
+        text: true,
+        source: true,
+        coordinates: true,
+        readCount: true,
+        replyToTweetId: true,
+        replyCount: true,
+        retweetedId: true,
+        retweetCount: true,
+        qouteTweetedId: true,
+        qouteCount: true,
+        likesCount: true,
+        sensitive: true,
+        author: { select: authorSelectOptions },
       },
       skip,
       take: parsedLimit,
     });
-
-    let responses = [];
-    for (var tweet of timelineTweets) {
+    const ret = [];
+    for (const tweet of tweets) {
+      let { tweetingUser } = await getTweetAndUserById(tweet.id);
+      let structuredTweet = await getTweetAndEntitiesById(tweet.id);
+      const structuredTweets = await getTweetsRepliesRetweets([tweet]);
+      structuredTweet = structuredTweets[0];
       const liked = await prisma.like.findFirst({
         where: {
           userId: (req.user as User)?.id,
-          tweetId: tweet.id,
+          tweetId: req.params.id,
         },
       });
-      const entities = await getTweetEntities(tweet.id);
       const isFollowing = await isUserFollowing(
-        (req.user as User).id,
-        tweet.userId,
+        (req.user as User)?.id,
+        (tweetingUser as User).id,
       );
-      let response = {
-        ...tweet,
-        entities,
-        liked: liked != null,
+      const IsRetweeted = await isRetweeted(
+        (req.user as User)?.id,
+        structuredTweet.id,
+      );
+      ret.push({
+        ...structuredTweet,
+        liked: liked ? true : false,
         isFollowing,
-        tweetCount: await getNumOfTweets(tweet.author.userName),
-      };
-      responses.push(response);
+        isRetweeted: IsRetweeted,
+        tweetCount: await getNumOfTweets(
+          structuredTweet.author?.userName as string,
+        ),
+      });
     }
 
-    res.json({
+    const responseBody = {
       status: 'success',
-      tweets: responses,
-    });
+      tweets: ret,
+    };
+    return res.status(200).json(responseBody);
   },
 );
 
@@ -583,6 +541,7 @@ export const getTweet = catchAsync(
         liked: liked ? true : false,
         isFollowing,
         isRetweeted: IsRetweeted,
+        tweetCount: await getNumOfTweets(structuredTweet.author.userName),
       },
     };
     return res.status(200).json(responseBody);

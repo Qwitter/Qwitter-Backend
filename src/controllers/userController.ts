@@ -146,6 +146,7 @@ export const getUser = catchAsync(
       profileBannerUrl: user.profileBannerUrl,
       profileImageUrl: user.profileImageUrl,
       email: user.email.toLowerCase(),
+      location: user.location,
       tweetCount: await getNumOfTweets(user.userName),
       isFollowing,
       isBlocked,
@@ -172,6 +173,7 @@ export const getRequestingUser = catchAsync(
       profileBannerUrl: user.profileBannerUrl,
       profileImageUrl: user.profileImageUrl,
       email: user.email.toLowerCase(),
+      location: user.location,
       tweetCount: await getNumOfTweets(user.userName),
     };
     return res.status(200).json(resposeObject);
@@ -413,8 +415,8 @@ export const getUserFollowings = catchAsync(
 
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
-    _req.body.url = _req.body.url.toLowerCase();
     if (_req.body.url) {
+      _req.body.url = _req.body.url.toLowerCase();
       if (
         !((_req.body.url as String).indexOf('.') > 0) ||
         !(_req.body.url as String).startsWith('http')
