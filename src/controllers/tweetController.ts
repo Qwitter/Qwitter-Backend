@@ -164,18 +164,15 @@ export const getForYouTimeline = catchAsync(
       structuredTweet = structuredTweets[0];
       const liked = await prisma.like.findFirst({
         where: {
-          userId: (req.user as User)?.id,
-          tweetId: req.params.id,
+          userId: currentUser.id,
+          tweetId: tweet.id,
         },
       });
       const isFollowing = await isUserFollowing(
-        (req.user as User)?.id,
+        currentUser.id,
         (tweetingUser as User).id,
       );
-      const IsRetweeted = await isRetweeted(
-        (req.user as User)?.id,
-        structuredTweet.id,
-      );
+      const IsRetweeted = await isRetweeted(currentUser.id, structuredTweet.id);
       ret.push({
         ...structuredTweet,
         liked: liked ? true : false,
