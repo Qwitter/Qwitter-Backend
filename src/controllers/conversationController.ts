@@ -22,6 +22,7 @@ import {
   isUserMuted,
   getUserByID,
 } from '../repositories/userRepository';
+import { sendConversationUpdate } from '../utils/notifications';
 
 // export const sendMessage = (req: Request, res: Response) => {};
 
@@ -349,6 +350,7 @@ export const postMessage = catchAsync(
       req.body.replyId,
       photoName,
     );
+    sendConversationUpdate(id);
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
