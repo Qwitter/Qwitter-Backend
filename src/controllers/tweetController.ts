@@ -397,7 +397,7 @@ export const getTweetReplies = catchAsync(
       },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
     for (var reply of replies) {
       const liked = await prisma.like.findFirst({
         where: {
