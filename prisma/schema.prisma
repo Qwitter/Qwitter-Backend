@@ -44,6 +44,7 @@ model User {
   muted                Mute[]                @relation("muted")
   Tweet                Tweet[]
   Like                 Like[]
+  Bookmark             Bookmark[]
   Mention              Mention[]
   Message              Message[]
   Notification         Notification[]        @relation("sendNotification")
@@ -116,6 +117,7 @@ model Tweet {
   sensitive   Boolean       @default(false)
   deletedAt   DateTime?     @db.Timestamp()
   likes       Like[]
+  bookmarks   Bookmark[]
   TweetEntity TweetEntity[] @relation("HasEntity")
 
   @@id([id])
@@ -125,6 +127,15 @@ model Like {
   liker   User   @relation(fields: [userId], references: [id])
   userId  String
   liked   Tweet  @relation(fields: [tweetId], references: [id])
+  tweetId String
+
+  @@id([userId, tweetId])
+}
+
+model Bookmark {
+  bookmarker   User   @relation(fields: [userId], references: [id])
+  userId  String
+  bookmarked   Tweet  @relation(fields: [tweetId], references: [id])
   tweetId String
 
   @@id([userId, tweetId])
