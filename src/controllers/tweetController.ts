@@ -52,7 +52,7 @@ const getTimeline = async (req: Request) => {
     },
   });
 
-  const followingIds = following.map((follow) => follow.followedId);
+  const followingIds = following?.map((follow) => follow.followedId) || [];
 
   followingIds.push(userId);
 
@@ -397,7 +397,7 @@ export const getTweetReplies = catchAsync(
       },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
     for (var reply of replies) {
       const liked = await prisma.like.findFirst({
         where: {
@@ -468,7 +468,7 @@ export const getTweetRetweets = catchAsync(
       },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
     let retweetersMapped = retweeters?.map((retweet) => retweet.author as User);
     let retweetersPromises = await retweetersMapped?.map(async (retweeter) => {
       let retweetUser = await getUserByUsername(retweeter.userName);
@@ -607,7 +607,7 @@ export const getTweetLikers = catchAsync(
       take: parsedLimit,
     });
 
-    const likers = tweetLikers.map((like) => like.liker);
+    const likers = tweetLikers?.map((like) => like.liker) || [];
     const ret: object[] = [];
     for (let liker of likers) {
       const isFollowing = await isUserFollowing(authUser.id, liker.id);

@@ -167,7 +167,7 @@ export const getTweetsCreatedByUser = async (
     },
     skip,
     take,
-  });
+  }) || [];
   let tweetWithEntities = [];
   for (var tweet of tweets) {
     const entities = await getTweetEntities(tweet.id);

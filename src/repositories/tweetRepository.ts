@@ -52,7 +52,9 @@ export const getTweetById = async (tweetId: string) => {
     },
   });
 
-  return { ...tweet, author: tweet?.author };
+  if(tweet)
+    return { ...tweet, author: tweet?.author };
+  return null;
 };
 
 export const searchTweet = async (
@@ -96,7 +98,7 @@ export const searchTweet = async (
       },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
   } else if (query) {
     words = query.split(' ');
     tweets = await prisma.tweet.findMany({
@@ -135,7 +137,7 @@ export const searchTweet = async (
       },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
   }
 
   const Querytweets = [];
@@ -245,7 +247,7 @@ export const getTweetsLikedById = async (
     },
     skip,
     take: parsedLimit,
-  });
+  }) || [];
 
   const likedTweets = [];
 
