@@ -12,6 +12,7 @@ import {
   isUserBlocked,
   isUserFollowing,
 } from '../repositories/userRepository';
+import { authorSelectOptions } from '../types/user';
 
 export const getNotification = async (
   req: Request,
@@ -44,7 +45,9 @@ export const getNotification = async (
     if (notification.Notification.type == 'reply') {
       const createdTweet = await prisma.tweet.findFirst({
         where: { id: notification.Notification.objectId as string },
+        include: { author: { select: authorSelectOptions } },
       });
+      console.log(createdTweet);
       const entities = await getTweetEntities((createdTweet as Tweet).id);
       const returnedTweet = {
         ...createdTweet,
@@ -85,6 +88,7 @@ export const getNotification = async (
     } else if (notification.Notification.type == 'retweet') {
       const createdTweet = await prisma.tweet.findFirst({
         where: { id: notification.Notification.objectId as string },
+        include: { author: { select: authorSelectOptions } },
       });
       const entities = await getTweetEntities((createdTweet as Tweet).id);
       const returnedTweet = {

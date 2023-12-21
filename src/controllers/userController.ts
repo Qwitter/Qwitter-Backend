@@ -688,7 +688,7 @@ export const followUser = catchAsync(
       },
     });
 
-    const isMuted = isUserMuted(userToFollow.id, (req.user as User).id);
+    const isMuted = await isUserMuted(userToFollow.id, (req.user as User).id);
     // TODO: Add here send notification using the function in utils/notifications
     if (!isMuted) {
       const notification = await prisma.notification.create({
@@ -826,7 +826,7 @@ export const getUserSuggestions = catchAsync(
       let followersArray = await prisma.follow.findMany({
         take: 10,
         where: {
-          followedId: {not: currentUser.id},
+          followedId: { not: currentUser.id },
           folowererId: followedIDs[randomIndex].followedId,
           follower: {
             deletedAt: null,
@@ -882,11 +882,10 @@ export const getUserSuggestions = catchAsync(
       let popUsers = await prisma.user.findMany({
         take: 50,
         where: {
-
           deletedAt: null,
           blocked: { none: { blocker: { id: currentUser.id } } },
           blocker: { none: { blocked: { id: currentUser.id } } },
-          followed: {none:{folowererId:currentUser.id}},
+          followed: { none: { folowererId: currentUser.id } },
         },
         orderBy: {
           followersCount: 'desc',

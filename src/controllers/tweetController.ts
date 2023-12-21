@@ -382,6 +382,7 @@ export const postTweet = catchAsync(
       };
       sendNotification((tempUser as User).userName, notificationObject);
     }
+    //TODO: add followers notification for the new post
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
@@ -813,6 +814,7 @@ export const getUserReplies = catchAsync(
     }
     const tweets = await getTweetsCreatedByUser(user.id, skip, parsedLimit);
     for (var tweet of tweets) {
+      if (tweet.replyToTweetId == null) continue;
       const liked = await prisma.like.findFirst({
         where: {
           userId: (req.user as User)?.id,
@@ -892,6 +894,7 @@ export const getUserLikedTweets = catchAsync(
 export const getUserMediaTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
+    const authUser = req.user as User;
 
     const { page = '1', limit = '10' } = req.query;
     const parsedPage = parseInt(page as string, 10);
@@ -920,6 +923,7 @@ export const getUserMediaTweets = catchAsync(
       (user as User).id as string,
       skip,
       parsedLimit,
+      authUser,
     );
     const responses = await getTweetsRepliesRetweets(tweets);
     return res.status(200).json({ tweets: responses });
