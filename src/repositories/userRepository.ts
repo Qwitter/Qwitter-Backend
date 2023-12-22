@@ -151,6 +151,7 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   return blockedUsers;
 };
 
+
 export const getTweetsCreatedByUser = async (
   userId: string,
   skip: number = 0,
@@ -165,6 +166,9 @@ export const getTweetsCreatedByUser = async (
       author: {
         select: authorSelectOptions,
       },
+    },
+    orderBy:{
+      createdAt:'desc'
     },
     skip,
     take,
@@ -202,7 +206,7 @@ export const isUserBlocked = async (
       blockerId_blockedId: {
         blockerId: userid1,
         blockedId: userid2,
-      },
+      }
     },
   });
 
