@@ -71,10 +71,7 @@ export const getNotification = async (
           tweetId: structuredTweets[0].id,
         },
       });
-      const IsRetweeted = await isRetweeted(
-        authUser.id,
-        structuredTweets[0].id,
-      );
+      const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
       const structuredTweet = {
         ...structuredTweets[0],
         liked: liked ? true : false,
