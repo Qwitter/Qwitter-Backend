@@ -151,28 +151,28 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   return blockedUsers;
 };
 
-
 export const getTweetsCreatedByUser = async (
   userId: string,
   skip: number = 0,
   take: number = 10,
 ) => {
-  const tweets = await prisma.tweet.findMany({
-    where: {
-      userId,
-      deletedAt: null,
-    },
-    include: {
-      author: {
-        select: authorSelectOptions,
+  const tweets =
+    (await prisma.tweet.findMany({
+      where: {
+        userId,
+        deletedAt: null,
       },
-    },
-    orderBy:{
-      createdAt:'desc'
-    },
-    skip,
-    take,
-  }) || [];
+      include: {
+        author: {
+          select: authorSelectOptions,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip,
+      take,
+    })) || [];
   let tweetWithEntities = [];
   for (var tweet of tweets) {
     const entities = await getTweetEntities(tweet.id);
@@ -185,6 +185,7 @@ export const isUserFollowing = async (
   userid1: string,
   userid2: string,
 ): Promise<boolean> => {
+  if (!userid1 || !userid2) return false;
   const followRelationship = await prisma.follow.findUnique({
     where: {
       folowererId_followedId: {
@@ -201,12 +202,13 @@ export const isUserBlocked = async (
   userid1: string,
   userid2: string,
 ): Promise<boolean> => {
+  if (!userid1 || !userid2) return false;
   const blockRelationship = await prisma.block.findUnique({
     where: {
       blockerId_blockedId: {
         blockerId: userid1,
         blockedId: userid2,
-      }
+      },
     },
   });
 
@@ -217,6 +219,7 @@ export const isUserMuted = async (
   userid1: string,
   userid2: string,
 ): Promise<boolean> => {
+  if (!userid1 || !userid2) return false;
   const muteRelationship = await prisma.mute.findUnique({
     where: {
       muterId_mutedId: {
