@@ -406,6 +406,7 @@ export const isRetweeted = async (userId: string, tweet: Tweet) => {
     where: {
       retweetedId,
       userId,
+      deletedAt: null,
     },
   });
   return retweeted?.id;
