@@ -186,16 +186,19 @@ export const isUserFollowing = async (
   userid2: string,
 ): Promise<boolean> => {
   if (!userid1 || !userid2) return false;
-  const followRelationship = await prisma.follow.findUnique({
-    where: {
-      folowererId_followedId: {
-        folowererId: userid1,
-        followedId: userid2,
+  try {
+    const followRelationship = await prisma.follow.findUnique({
+      where: {
+        folowererId_followedId: {
+          folowererId: userid1,
+          followedId: userid2,
+        },
       },
-    },
-  });
-
-  return !!followRelationship;
+    });
+    return !!followRelationship;
+  } catch (err) {
+    return false;
+  }
 };
 
 export const isUserBlocked = async (
@@ -203,16 +206,19 @@ export const isUserBlocked = async (
   userid2: string,
 ): Promise<boolean> => {
   if (!userid1 || !userid2) return false;
-  const blockRelationship = await prisma.block.findUnique({
-    where: {
-      blockerId_blockedId: {
-        blockerId: userid1,
-        blockedId: userid2,
+  try {
+    const blockRelationship = await prisma.block.findUnique({
+      where: {
+        blockerId_blockedId: {
+          blockerId: userid1,
+          blockedId: userid2,
+        },
       },
-    },
-  });
-
-  return !!blockRelationship;
+    });
+    return !!blockRelationship;
+  } catch (err) {
+    return false;
+  }
 };
 
 export const isUserMuted = async (
@@ -220,16 +226,19 @@ export const isUserMuted = async (
   userid2: string,
 ): Promise<boolean> => {
   if (!userid1 || !userid2) return false;
-  const muteRelationship = await prisma.mute.findUnique({
-    where: {
-      muterId_mutedId: {
-        muterId: userid1,
-        mutedId: userid2,
+  try {
+    const muteRelationship = await prisma.mute.findUnique({
+      where: {
+        muterId_mutedId: {
+          muterId: userid1,
+          mutedId: userid2,
+        },
       },
-    },
-  });
-
-  return !!muteRelationship;
+    });
+    return !!muteRelationship;
+  } catch (err) {
+    return false;
+  }
 };
 
 export const getUsersByName = async (
