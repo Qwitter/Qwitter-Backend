@@ -1054,7 +1054,7 @@ export const searchConversations = catchAsync(
       users: conversation.UserConversations.map((userConversation) => ({
         userName: userConversation.User.userName,
         name: userConversation.User.name,
-        userPhoto: userConversation.User.profileImageUrl,
+        profileImageUrl: userConversation.User.profileImageUrl,
       })).filter((user) => user.userName != ((req.user) as User).userName),
       lastMessage:
         conversation.Message.length > 0 ? conversation.Message[0] : null,
