@@ -347,11 +347,38 @@ describe('GET /tweet/:id', () => {
         iat: 1699498302,
         exp: 1707274302,
       });
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'jhondoe12364',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
 
       const res = await Request(app)
         .get('/api/v1/tweets/123/replies')
         .set('authorization', 'Bearer abc123');
       expect(res.status).toBe(404);
+      expect(res.body.message).toBe("Tweet not found");
+
     });
 
     test('Should mock tweet', async () => {
@@ -516,6 +543,32 @@ describe('GET /tweet/:id', () => {
         iat: 1699498302,
         exp: 1707274302,
       });
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'jhondoe12364',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
+
 
       const res = await Request(app)
         .get('/api/v1/tweets/123/retweets')
@@ -971,6 +1024,33 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
 
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'jhondoe12364',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
+
+
       const res = await Request(app)
         .get('/api/v1/tweets/123/retweets')
         .set('authorization', 'Bearer abc123');
@@ -1412,7 +1492,7 @@ describe('GET /tweet/:id', () => {
       });
 
       const res = await Request(app)
-        .get('/api/v1/tweets/user/ahmed')
+        .get('/api/v1/tweets/user/ahmed/likes')
         .set('authorization', 'Bearer abc123');
       expect(res.status).toBe(404);
     });
@@ -1901,6 +1981,12 @@ describe('GET /tweet/:id', () => {
     };
     prismaMock.user.findFirst.mockResolvedValue(user);
     prismaMock.user.findUnique.mockResolvedValue(user);
+    
+    const followObject = {
+      folowererId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
+      followedId: "251f773f-f284-4522-8e55-a17b6ddb63ef"
+    };
+    prismaMock.follow.findMany.mockResolvedValue([followObject]);
 
     const tweet = {
       createdAt: new Date(),
@@ -1947,6 +2033,18 @@ describe('GET /tweet/:id', () => {
 
     prismaMock.tweet.create.mockResolvedValue(tweetCreated);
 
+    const notificationResponse = {
+      id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+      createdAt: new Date(),
+      senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
+      objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
+      type: "post",
+      deleted: false,
+      seen: false
+    };
+    prismaMock.notification.create.mockResolvedValue(notificationResponse);
+
+
     const res = await Request(app)
       .post('/api/v1/tweets')
       .set('authorization', 'Bearer abc123')
@@ -1957,6 +2055,7 @@ describe('GET /tweet/:id', () => {
         // retweetedId:"351f773f-f284-4522-8e55-a17b6ddb63ef",
         sensitive: '',
       });
+
 
     expect(res.status).toBe(201);
   });
@@ -2097,7 +2196,74 @@ describe('GET /tweet/:id', () => {
     });
   });
 
-  test('search hashtags', async () => {
+  test('search hashtags 2', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'ahmed',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+
+    const tweetCreated = {
+      createdAt: new Date(),
+      id: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+      text: 'Hello',
+      userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      readCount: 1,
+      replyCount: 1,
+      retweetCount: 0,
+      qouteCount: 0,
+      likesCount: 0,
+      sensitive: false,
+      source: null,
+      coordinates: null,
+      replyToTweetId: null,
+      retweetedId: null,
+      qouteTweetedId: null,
+      deletedAt: null,
+      author: user,
+    };
+
+    prismaMock.tweet.findMany.mockResolvedValue([tweetCreated]);
+
+    const res = await Request(app)
+      .get('/api/v1/tweets/hashtags?q=o')
+      .set('authorization', 'Bearer abc123');
+    console.log(res.body);
+    expect(res.status).toBe(200);
+  });
+
+
+  test('search timeline', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
     jest.mock('jsonwebtoken');
@@ -2159,9 +2325,334 @@ describe('GET /tweet/:id', () => {
       .get('/api/v1/tweets')
       .set('authorization', 'Bearer abc123');
 
-    console.log(res.body);
-
+    
     expect(res.status).toBe(200);
     expect(res.body.tweets).toHaveLength(1);
   });
+
+  test('search for you timeline', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'ahmed',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+
+    const tweetCreated = {
+      createdAt: new Date(),
+      id: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+      text: 'Hello',
+      userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      readCount: 1,
+      replyCount: 1,
+      retweetCount: 0,
+      qouteCount: 0,
+      likesCount: 0,
+      sensitive: false,
+      source: null,
+      coordinates: null,
+      replyToTweetId: null,
+      retweetedId: null,
+      qouteTweetedId: null,
+      deletedAt: null,
+      author: user,
+    };
+
+    prismaMock.tweet.findMany.mockResolvedValue([tweetCreated]);
+    prismaMock.tweet.findUnique.mockResolvedValue(tweetCreated);
+
+    const res = await Request(app)
+      .get('/api/v1/timeline')
+      .set('authorization', 'Bearer abc123');
+
+    
+    expect(res.status).toBe(200);
+    expect(res.body.tweets).toHaveLength(1);
+  });
+
+
+  describe('like/unlike tweets', () => {
+    test('like enot existing tweet', async () => {
+      jest.mock('bcrypt');
+      bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+      jest.mock('jsonwebtoken');
+      jwt.sign = jest.fn().mockResolvedValue('generated_token');
+      jwt.verify = jest.fn().mockResolvedValue({
+        id: 'eac0ece1',
+        iat: 1699498302,
+        exp: 1707274302,
+      });
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'ahmed',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
+      prismaMock.user.findUnique.mockResolvedValue(user);
+
+      const res = await Request(app)
+        .post('/api/v1/tweets/123/like')
+        .set('authorization', 'Bearer abc123');
+
+      expect(res.status).toBe(400);
+    });
+
+    test('umlike enot existing tweet', async () => {
+      jest.mock('bcrypt');
+      bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+      jest.mock('jsonwebtoken');
+      jwt.sign = jest.fn().mockResolvedValue('generated_token');
+      jwt.verify = jest.fn().mockResolvedValue({
+        id: 'eac0ece1',
+        iat: 1699498302,
+        exp: 1707274302,
+      });
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'ahmed',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
+      prismaMock.user.findUnique.mockResolvedValue(user);
+
+      const res = await Request(app)
+        .delete('/api/v1/tweets/123/like')
+        .set('authorization', 'Bearer abc123');
+
+      expect(res.status).toBe(400);
+    });
+
+
+    test('like existing tweet', async () => {
+      jest.mock('bcrypt');
+      bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+      jest.mock('jsonwebtoken');
+      jwt.sign = jest.fn().mockResolvedValue('generated_token');
+      jwt.verify = jest.fn().mockResolvedValue({
+        id: 'eac0ece1',
+        iat: 1699498302,
+        exp: 1707274302,
+      });
+      const user = {
+        id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'ahmed',
+        password:
+          '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+        passwordChangedAt: null,
+        passwordResetToken: 'registered_fake_token',
+        passwordResetExpires: null,
+        google_id: '',
+      };
+      prismaMock.user.findFirst.mockResolvedValue(user);
+      prismaMock.user.findUnique.mockResolvedValue(user);
+
+      const tweetCreated = {
+        createdAt: new Date(),
+        id: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+        text: 'Hello',
+        userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        readCount: 1,
+        replyCount: 1,
+        retweetCount: 0,
+        qouteCount: 0,
+        likesCount: 0,
+        sensitive: false,
+        source: null,
+        coordinates: null,
+        replyToTweetId: null,
+        retweetedId: null,
+        qouteTweetedId: null,
+        deletedAt: null,
+        author: user,
+      };
+      prismaMock.tweet.findFirst.mockResolvedValue(tweetCreated);
+      prismaMock.tweet.findUnique.mockResolvedValue(tweetCreated);
+
+      const notificationResponse = {
+        id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+        createdAt: new Date(),
+        senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
+        objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
+        type: "like",
+        deleted: false,
+        seen: false
+      };
+      prismaMock.notification.create.mockResolvedValue(notificationResponse);
+
+
+      const res = await Request(app)
+        .post('/api/v1/tweets/351f773f-f284-4522-8e55-a17b6ddb63eg/like')
+        .set('authorization', 'Bearer abc123');
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+    });
+  });
+
+  test('unlike existing tweet', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'ahmed',
+      password:
+        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+
+    const tweetCreated = {
+      createdAt: new Date(),
+      id: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+      text: 'Hello',
+      userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      readCount: 1,
+      replyCount: 1,
+      retweetCount: 0,
+      qouteCount: 0,
+      likesCount: 0,
+      sensitive: false,
+      source: null,
+      coordinates: null,
+      replyToTweetId: null,
+      retweetedId: null,
+      qouteTweetedId: null,
+      deletedAt: null,
+      author: user,
+    };
+    prismaMock.tweet.findFirst.mockResolvedValue(tweetCreated);
+    prismaMock.tweet.findUnique.mockResolvedValue(tweetCreated);
+
+    const notificationResponse = {
+      id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+      createdAt: new Date(),
+      senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
+      objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
+      type: "like",
+      deleted: false,
+      seen: false
+    };
+    prismaMock.notification.create.mockResolvedValue(notificationResponse);
+
+
+    
+    const likeResponse = {
+      userId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
+      tweetId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
+    };
+
+    prismaMock.like.findUnique.mockResolvedValue(likeResponse);
+
+
+    const res = await Request(app)
+      .delete('/api/v1/tweets/351f773f-f284-4522-8e55-a17b6ddb63eg/like')
+      .set('authorization', 'Bearer abc123');
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("success");
+  });
+
 });
