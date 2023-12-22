@@ -400,7 +400,7 @@ export const getTweetRetweet = async (tweet: any, userId: string) => {
 
 export const isRetweeted = async (userId: string, tweet: Tweet) => {
   // If the tweet was a retweet, we refer to the original tweet, because retweeting a tweet means retweeting the original tweet
-  const retweetedId = tweet.retweetedId ? tweet.retweetedId : tweet.id;
+  const retweetedId = tweet?.retweetedId ? tweet.retweetedId : tweet?.id;
   if (!retweetedId || !userId) return null;
   const retweeted = await prisma.tweet.findFirst({
     where: {
