@@ -52,7 +52,10 @@ export const getNotification = async (
         ...createdTweet,
         entities,
       };
-      const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+      const structuredTweets = await getTweetsRepliesRetweets(
+        [returnedTweet],
+        authUser.id,
+      );
       const tempUser = await prisma.user.findUnique({
         where: {
           userName: structuredTweets[0].replyToTweet.author.userName,
@@ -75,7 +78,7 @@ export const getNotification = async (
       const structuredTweet = {
         ...structuredTweets[0],
         liked: liked ? true : false,
-        isRetweeted: IsRetweeted,
+        currentUserRetweetId: IsRetweeted,
         isFollowing,
       };
       const replyNotificationObject = {
@@ -94,7 +97,10 @@ export const getNotification = async (
         ...createdTweet,
         entities,
       };
-      const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+      const structuredTweets = await getTweetsRepliesRetweets(
+        [returnedTweet],
+        authUser.id,
+      );
       const tempUser = await prisma.user.findUnique({
         where: {
           userName: structuredTweets[0].retweetedTweet.author.userName,
@@ -114,7 +120,7 @@ export const getNotification = async (
       const structuredTweet = {
         ...structuredTweets[0],
         liked: liked ? true : false,
-        isRetweeted: IsRetweeted,
+        currentUserRetweetId: IsRetweeted,
         isFollowing,
       };
       const retweetNotificationObject = {
@@ -189,7 +195,10 @@ export const getNotification = async (
         ...createdTweet,
         entities,
       };
-      const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+      const structuredTweets = await getTweetsRepliesRetweets(
+        [returnedTweet],
+        authUser.id,
+      );
       const structuredTweet = {
         ...structuredTweets[0],
         liked: false,
@@ -234,7 +243,10 @@ export const getNotification = async (
         ...createdTweet,
         entities,
       };
-      const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+      const structuredTweets = await getTweetsRepliesRetweets(
+        [returnedTweet],
+        authUser.id,
+      );
 
       const liker = (await getUserByID(
         notification.Notification.senderId,
@@ -268,7 +280,7 @@ export const getNotification = async (
           tweetCount: await getNumOfTweets((req.user as User).userName),
         },
         liked: isLiked ? true : false,
-        isRetweeted: IsRetweeted,
+        currentUserRetweetId: IsRetweeted,
         isFollowing: false,
       };
 

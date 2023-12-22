@@ -105,14 +105,14 @@ const getTimeline = async (req: Request) => {
       entities,
       liked: liked != null,
       isFollowing,
-      isRetweeted: isRetweetedBoolean,
+      currentUserRetweetId: isRetweetedBoolean,
       tweetCount: await getNumOfTweets(tweet.author.userName),
     };
     responses.push(response);
   }
 
   // return responses;
-  return getTweetsRepliesRetweets(responses);
+  return getTweetsRepliesRetweets(responses, userId);
 };
 
 export const getForYouTimeline = catchAsync(
@@ -159,8 +159,14 @@ export const getForYouTimeline = catchAsync(
     for (const tweet of tweets) {
       let { tweetingUser } = await getTweetAndUserById(tweet.id);
       const entities = await getTweetEntities(tweet.id);
-      let structuredTweet = await getTweetAndEntitiesById(tweet.id);
-      const structuredTweets = await getTweetsRepliesRetweets([tweet]);
+      let structuredTweet = await getTweetAndEntitiesById(
+        tweet.id,
+        currentUser.id,
+      );
+      const structuredTweets = await getTweetsRepliesRetweets(
+        [tweet],
+        currentUser.id,
+      );
       structuredTweet = structuredTweets[0];
       const liked = await prisma.like.findFirst({
         where: {
@@ -176,12 +182,17 @@ export const getForYouTimeline = catchAsync(
         currentUser.id,
         structuredTweet as Tweet,
       );
+      const isMuted = await isUserMuted(
+        (req.user as User).id,
+        (tweetingUser as User).id,
+      );
       ret.push({
         ...structuredTweet,
         entities,
         liked: liked ? true : false,
         isFollowing,
-        isRetweeted: IsRetweeted,
+        isMuted,
+        currentUserRetweetId: IsRetweeted,
         tweetCount: await getNumOfTweets(
           structuredTweet.author?.userName as string,
         ),
@@ -279,7 +290,10 @@ export const postTweet = catchAsync(
       ...createdTweet,
       entities,
     };
-    const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+    const structuredTweets = await getTweetsRepliesRetweets(
+      [returnedTweet],
+      userId,
+    );
     const structuredTweet = {
       ...structuredTweets[0],
       liked: false,
@@ -459,7 +473,7 @@ export const getTweetReplies = catchAsync(
         liked: liked != null,
         isFollowing,
         isMuted,
-        isRetweeted: isRetweetedBoolean,
+        currentUserRetweetId: isRetweetedBoolean,
         tweetCount: await getNumOfTweets(reply.author.userName),
       };
       responses.push(response);
@@ -529,8 +543,14 @@ export const getTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let { tweetingUser } = await getTweetAndUserById(req.params.id);
 
-    const tweet = await getTweetAndEntitiesById(req.params.id);
-    const structuredTweets = await getTweetsRepliesRetweets([tweet]);
+    const tweet = await getTweetAndEntitiesById(
+      req.params.id,
+      tweetingUser?.id as string,
+    );
+    const structuredTweets = await getTweetsRepliesRetweets(
+      [tweet],
+      tweetingUser?.id as string,
+    );
     const structuredTweet = structuredTweets[0];
 
     let isBlocking = false;
@@ -572,14 +592,18 @@ export const getTweet = catchAsync(
       (req.user as User)?.id,
       structuredTweet.id,
     );
-
+    const isMuted = await isUserMuted(
+      (req.user as User).id,
+      (tweetingUser as User).id,
+    );
     const responseBody = {
       status: 'success',
       tweet: {
         ...structuredTweet,
         liked: liked ? true : false,
         isFollowing,
-        isRetweeted: IsRetweeted,
+        isMuted,
+        currentUserRetweetId: IsRetweeted,
         tweetCount: await getNumOfTweets(structuredTweet.author.userName),
       },
     };
@@ -716,7 +740,7 @@ export const searchTweets = catchAsync(
         ...tweet,
         liked: liked != null,
         isFollowing,
-        isRetweeted: isRetweetedBoolean,
+        currentUserRetweetId: isRetweetedBoolean,
         tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
@@ -773,12 +797,12 @@ export const getUserTweets = catchAsync(
         liked: liked != null,
         isFollowing,
         isMuted,
-        isRetweeted: isRetweetedBoolean,
+        currentUserRetweetId: isRetweetedBoolean,
         tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
-    responses = await getTweetsRepliesRetweets(responses);
+    responses = await getTweetsRepliesRetweets(responses, user.id);
     return res.status(200).json({
       tweets: responses,
     });
@@ -833,12 +857,12 @@ export const getUserReplies = catchAsync(
         liked: liked != null,
         isFollowing,
         isMuted,
-        isRetweeted: isRetweetedBoolean,
+        currentUserRetweetId: isRetweetedBoolean,
         tweetCount: await getNumOfTweets(tweet.author.userName),
       };
       responses.push(response);
     }
-    responses = await getTweetsRepliesRetweets(responses);
+    responses = await getTweetsRepliesRetweets(responses, user.id);
     return res.status(200).json({
       tweets: responses,
     });
@@ -884,7 +908,7 @@ export const getUserLikedTweets = catchAsync(
       skip,
       parsedLimit,
     );
-    const responses = await getTweetsRepliesRetweets(tweets);
+    const responses = await getTweetsRepliesRetweets(tweets, user.id);
     return res.status(200).json({ tweets: responses });
   },
 );
@@ -923,7 +947,10 @@ export const getUserMediaTweets = catchAsync(
       parsedLimit,
       authUser,
     );
-    const responses = await getTweetsRepliesRetweets(tweets);
+    const responses = await getTweetsRepliesRetweets(
+      tweets,
+      (req.user as User).id,
+    );
     return res.status(200).json({ tweets: responses });
   },
 );
@@ -1006,7 +1033,10 @@ export const likeTweet = catchAsync(
       ...createdTweet,
       entities,
     };
-    const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+    const structuredTweets = await getTweetsRepliesRetweets(
+      [returnedTweet],
+      likerId,
+    );
 
     const liked = await getUserByUsername(
       createdTweet?.author.userName as string,
@@ -1045,7 +1075,7 @@ export const likeTweet = catchAsync(
         tweetCount: await getNumOfTweets((req.user as User).userName),
       },
       liked: isLiked ? true : false,
-      isRetweeted: IsRetweeted,
+      currentUserRetweetId: IsRetweeted,
       isFollowing: false,
     };
 

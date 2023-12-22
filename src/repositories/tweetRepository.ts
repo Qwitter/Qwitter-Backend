@@ -2,6 +2,7 @@ import { authorSelectOptions } from '../types/user';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 import { Tweet, User } from '@prisma/client';
+import { isUserFollowing, isUserMuted } from './userRepository';
 
 export const getTweetAndUserById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
@@ -24,20 +25,42 @@ export const getTweetAndUserById = async (tweetId: string) => {
   }
   return { tweet: tweet, tweetingUser: user };
 };
-export const getTweetAndEntitiesById = async (tweetId: string) => {
-  const tweet = await prisma.tweet.findUnique({
+export const getTweetAndEntitiesById = async (
+  tweetId: string,
+  userId: string,
+) => {
+  let tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
       deletedAt: null,
     },
     include: {
       author: {
-        select: authorSelectOptions,
+        select: { ...authorSelectOptions, id: true },
       },
     },
   });
+  const isMuted = await isUserMuted(userId, tweet?.author.id as string);
+  const liked = await prisma.like.findFirst({
+    where: {
+      userId: userId,
+      tweetId: tweet?.id,
+    },
+  });
+  const isFollowing = await isUserFollowing(userId, tweet?.author.id as string);
+  const currentUserRetweetId = await isRetweeted(userId, tweet as Tweet);
+  // Removing ID for security purposes
+  const tweetWithoutUserId = JSON.parse(JSON.stringify(tweet)); // Deep clone to avoid reference
+  delete tweetWithoutUserId.author.id;
   const entities = await getTweetEntities(tweetId);
-  return { ...tweet, entities };
+  return {
+    ...tweetWithoutUserId,
+    entities,
+    isMuted,
+    isFollowing,
+    currentUserRetweetId,
+    liked,
+  };
 };
 export const getTweetById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
@@ -339,16 +362,22 @@ export const incrementRetweet = async (id: string, val: number = 1) => {
     },
   });
 };
-export const getTweetsRepliesRetweets = async (tweets: any[]) => {
+export const getTweetsRepliesRetweets = async (
+  tweets: any[],
+  userId: string,
+) => {
   let newTweets = [];
   for (const tweet of tweets) {
     if (tweet.replyToTweetId) {
-      newTweets.push(await getTweetReply(tweet));
+      newTweets.push(await getTweetReply(tweet, userId));
     } else if (tweet.retweetedId) {
-      let retweetedTweet = await getTweetRetweet(tweet); // This the is the original tweet + The retweeted tweet
+      let retweetedTweet = await getTweetRetweet(tweet, userId); // This the is the original tweet + The retweeted tweet
       if (retweetedTweet.retweetedTweet.replyToTweetId) {
         // If the retweeted is a reply
-        let retweetReply = await getTweetReply(retweetedTweet.retweetedTweet); // This will be the retweeted tweet and the the tweet replied to
+        let retweetReply = await getTweetReply(
+          retweetedTweet.retweetedTweet,
+          userId,
+        ); // This will be the retweeted tweet and the the tweet replied to
         retweetedTweet.retweetedTweet = retweetReply;
       }
       newTweets.push(retweetedTweet);
@@ -358,15 +387,17 @@ export const getTweetsRepliesRetweets = async (tweets: any[]) => {
   }
   return newTweets;
 };
-export const getTweetReply = async (tweet: any) => {
+export const getTweetReply = async (tweet: any, userId: string) => {
   const replyToTweet = await getTweetAndEntitiesById(
     tweet.replyToTweetId as string,
+    userId,
   );
   return { ...tweet, replyToTweet };
 };
-export const getTweetRetweet = async (tweet: any) => {
+export const getTweetRetweet = async (tweet: any, userId: string) => {
   const retweetedTweet = await getTweetAndEntitiesById(
     tweet.retweetedId as string,
+    userId,
   );
   return { ...tweet, retweetedTweet };
 };
