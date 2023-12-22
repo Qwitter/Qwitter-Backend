@@ -374,7 +374,7 @@ export const postTweet = catchAsync(
     });
     const followers = await prisma.follow.findMany({
       where: { followedId: (req.user as User).id },
-    });
+    }) || [];
     for (let follower of followers) {
       await prisma.recieveNotification.create({
         data: {
