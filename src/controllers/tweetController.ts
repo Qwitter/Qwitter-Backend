@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../utils/catchAsync';
 import prisma from '../client';
-import { User } from '@prisma/client';
+import { Tweet, User } from '@prisma/client';
 import { AppError } from '../utils/appError';
 import {
   createEntityTweet,
@@ -13,6 +13,7 @@ import {
 import {
   getNumOfTweets,
   getTweetsCreatedByUser,
+  getUserByID,
   getUserByUsername,
   isUserBlocked,
   isUserFollowing,
@@ -98,10 +99,7 @@ const getTimeline = async (req: Request) => {
       (req.user as User).id,
       tweet.userId,
     );
-    const isRetweetedBoolean = await isRetweeted(
-      (req.user as User)?.id,
-      tweet.id,
-    );
+    const isRetweetedBoolean = await isRetweeted((req.user as User)?.id, tweet);
     let response = {
       ...tweet,
       entities,
@@ -174,8 +172,10 @@ export const getForYouTimeline = catchAsync(
         currentUser.id,
         (tweetingUser as User).id,
       );
-      console.log(structuredTweet);
-      const IsRetweeted = await isRetweeted(currentUser.id, structuredTweet.id);
+      const IsRetweeted = await isRetweeted(
+        currentUser.id,
+        structuredTweet as Tweet,
+      );
       ret.push({
         ...structuredTweet,
         entities,
@@ -200,6 +200,7 @@ export const postTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const currentUser = req.user as User;
     const userId = currentUser.id;
+    let retweetId = req.body.retweetedId;
     // Check that both are not sent
     if (req.body.replyToTweetId && req.body.retweetedId) {
       return next(new AppError('Can not retweet and reply together', 401));
@@ -213,14 +214,20 @@ export const postTweet = catchAsync(
         await incrementReplies(req.body.replyToTweetId);
       }
     }
-    // Check for replyToTweet and retweet
-    if (req.body.retweetedId) {
-      const tweet = await getTweetById(req.body.retweetedId);
+    if (retweetId) {
+      const tweet = await getTweetById(retweetId);
       if (!tweet) {
         return next(new AppError('Invalid retweetId', 401));
-      } else {
-        await incrementRetweet(req.body.retweetedId);
       }
+      // Checking that this tweet was a retweet for another tweet to return the original tweet
+      // When you retweet a tweet, you retweet the original tweet
+      if (tweet.retweetedId) retweetId = tweet.retweetedId;
+      // You can not retweet a tweet twice
+      const retweetedBefore = await isRetweeted(userId, retweetId);
+      if (retweetedBefore) {
+        return next(new AppError('Can not retweet twice', 401));
+      }
+      await incrementRetweet(retweetId);
     }
     const createdTweet = await prisma.tweet.create({
       data: {
@@ -342,6 +349,36 @@ export const postTweet = catchAsync(
       sendNotification((tempUser as User).userName, notificationObject);
     }
     //TODO: add followers notification for the new post
+
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: (req.user as User).id,
+        objectId: structuredTweet.id,
+        type: 'Post',
+      },
+    });
+    const followers = await prisma.follow.findMany({
+      where: { followedId: (req.user as User).id },
+    });
+    for (let follower of followers) {
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: follower.folowererId,
+        },
+      });
+      const notificationObject = {
+        type: 'post',
+        createdAt: new Date(),
+        post: structuredTweet,
+      };
+      sendNotification(
+        ((await getUserByID(follower.followedId)) as User).userName,
+        notificationObject,
+      );
+    }
+
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
@@ -382,22 +419,23 @@ export const getTweetReplies = catchAsync(
       return;
     }
 
-    const replies = await prisma.tweet.findMany({
-      where: {
-        replyToTweetId: tweetId,
-        deletedAt: null,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        author: {
-          select: authorSelectOptions,
+    const replies =
+      (await prisma.tweet.findMany({
+        where: {
+          replyToTweetId: tweetId,
+          deletedAt: null,
         },
-      },
-      skip,
-      take: parsedLimit,
-    }) || [];
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          author: {
+            select: authorSelectOptions,
+          },
+        },
+        skip,
+        take: parsedLimit,
+      })) || [];
     for (var reply of replies) {
       const liked = await prisma.like.findFirst({
         where: {
@@ -412,7 +450,7 @@ export const getTweetReplies = catchAsync(
       const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        reply.id,
+        reply,
       );
       const entities = await getTweetEntities(reply.id);
       let response = {
@@ -426,7 +464,6 @@ export const getTweetReplies = catchAsync(
       };
       responses.push(response);
     }
-
     res.status(200).json({
       status: 'success',
       replies: responses,
@@ -458,17 +495,18 @@ export const getTweetRetweets = catchAsync(
     }
     const authUser = req.user as User;
 
-    const retweeters = await prisma.tweet.findMany({
-      where: {
-        retweetedId: tweetId,
-        deletedAt: null,
-      },
-      include: {
-        author: { select: authorSelectOptions },
-      },
-      skip,
-      take: parsedLimit,
-    }) || [];
+    const retweeters =
+      (await prisma.tweet.findMany({
+        where: {
+          retweetedId: tweetId,
+          deletedAt: null,
+        },
+        include: {
+          author: { select: authorSelectOptions },
+        },
+        skip,
+        take: parsedLimit,
+      })) || [];
     let retweetersMapped = retweeters?.map((retweet) => retweet.author as User);
     let retweetersPromises = await retweetersMapped?.map(async (retweeter) => {
       let retweetUser = await getUserByUsername(retweeter.userName);
@@ -728,7 +766,7 @@ export const getUserTweets = catchAsync(
       const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id,
+        tweet,
       );
       let response = {
         ...tweet,
@@ -788,7 +826,7 @@ export const getUserReplies = catchAsync(
       const isMuted = await isUserMuted((req.user as User).id, tweet.userId);
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id,
+        tweet,
       );
       let response = {
         ...tweet,
@@ -921,6 +959,104 @@ export const likeTweet = catchAsync(
     });
     await incrementLikes(id);
     // TODO: Add here send a notification using the function in utils/notification
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: (req.user as User).id,
+        objectId: id,
+        type: 'like',
+      },
+    });
+
+    await prisma.recieveNotification.create({
+      data: {
+        notificationId: notification.id,
+        recieverId: existingTweet.author.id,
+      },
+    });
+
+    const createdTweet = await prisma.tweet.findFirst({
+      where: {
+        id: id,
+        deletedAt: null,
+      },
+      select: {
+        createdAt: true,
+        id: true,
+        text: true,
+        source: true,
+        coordinates: true,
+        replyToTweetId: true,
+        replyCount: true,
+        retweetedId: true,
+        retweetCount: true,
+        qouteTweetedId: true,
+        qouteCount: true,
+        likesCount: true,
+        sensitive: true,
+        deletedAt: true,
+        author: {
+          select: authorSelectOptions,
+        },
+      },
+    });
+
+    const entities = await getTweetEntities(createdTweet?.id as string);
+    const returnedTweet = {
+      ...createdTweet,
+      entities,
+    };
+    const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+
+    const liked = await getUserByUsername(
+      createdTweet?.author.userName as string,
+    );
+    const isBlocked = await isUserBlocked((liked as User).id, likerId);
+    const isBlocking = await isUserBlocked(likerId, (liked as User).id);
+
+    const IsRetweeted = await isRetweeted(
+      (liked as User).id,
+      structuredTweets[0],
+    );
+
+    const isLiked = await prisma.like.findFirst({
+      where: {
+        userId: (liked as User).id,
+        tweetId: createdTweet?.id as string,
+      },
+    });
+
+    const structuredTweet = {
+      ...structuredTweets[0],
+      liker: {
+        userName: (req.user as User).userName,
+        name: (req.user as User).name,
+        url: (req.user as User).url,
+        description: (req.user as User).description,
+        followersCount: (req.user as User).followersCount,
+        followingCount: (req.user as User).followingCount,
+        profileImageUrl: (req.user as User).profileImageUrl,
+        isFollowing: await isUserFollowing(
+          liked?.id as string,
+          (req.user as User).id,
+        ),
+        isBlocked: isBlocked || isBlocking,
+        isMuted: false,
+        tweetCount: await getNumOfTweets((req.user as User).userName),
+      },
+      liked: isLiked ? true : false,
+      isRetweeted: IsRetweeted,
+      isFollowing: false,
+    };
+
+    const notificationObject = {
+      type: 'like',
+      createdAt: new Date(),
+      like: structuredTweet,
+    };
+
+    sendNotification(existingTweet.author.userName, notificationObject);
+
     res.status(200).json({ status: 'success' });
   },
 );

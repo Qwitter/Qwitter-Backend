@@ -43,6 +43,48 @@ describe('GET /user/:username', () => {
     const res = await Request(app)
       .get('/api/v1/user/jhondoe')
       .set('authorization', 'Bearer abc123');
+    expect(res.status).toBe(404);
+    expect(res.body.message).toEqual('User not found');
+  });
+  test('this should send request with header containing token with a non existing user and return 404 with User not found\n', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+    };
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+
+    const res = await Request(app)
+      .get('/api/v1/user/jhondoe')
+      .set('authorization', 'Bearer abc123');
     console.log(res.body);
     expect(res.status).toBe(404);
     expect(res.body.message).toEqual('User not found');
@@ -226,7 +268,6 @@ describe('POST /follow/:username', () => {
     const res = await Request(app)
       .post('/api/v1/user/follow/json')
       .set('Authorization', 'Bearer abc123');
-    console.log(res.body);
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('User followed successfully');
   });
@@ -2410,7 +2451,6 @@ describe('get Mute List of a User Function', () => {
           const response = await Request(app)
             .get('/api/v1/user/mute')
             .set('authorization', 'Bearer abc123');
-          console.log(response.body);
           expect(response.status).toBe(200);
         });
       });
@@ -2471,67 +2511,6 @@ describe('get Mute List of a User Function', () => {
     });
   });
 });
-
-// describe('POST /user//profile_picture', () => {
-//   const user = {
-//     id: 'eac0ece1',
-//     name: 'Zahran',
-//     birthDate: new Date(),
-//     location: null,
-//     url: null,
-//     description: null,
-//     protected: false,
-//     verified: false,
-//     followersCount: 0,
-//     followingCount: 0,
-//     createdAt: new Date(),
-//     deletedAt: null,
-//     profileBannerUrl: null,
-//     profileImageUrl: null,
-//     email: 'ahmed@gmail.com',
-//     userName: 'ahmedzahran12364',
-//     password:
-//       '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
-//     passwordChangedAt: null,
-//     passwordResetToken: null,
-//     passwordResetExpires: null,
-//     google_id: null,
-//   };
-//   test('should sign up a new user and return a token and user data with status 200', async () => {
-//     jest.mock('bcrypt');
-//     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
-//     jest.mock('jsonwebtoken');
-//     jwt.sign = jest.fn().mockResolvedValue('generated_token');
-//     jwt.verify = jest.fn().mockResolvedValue({
-//       id: 'eac0ece1',
-//       iat: 1699498302,
-//       exp: 1707274302,
-//     });
-//     prismaMock.user.findFirst.mockResolvedValue(user)
-
-//     const mockFromConnectionString = jest.fn();
-//     const mockGetContainerClient = jest.fn();
-//     const mockGetBlockBlobClient = jest.fn();
-//     const mockUploadFile = jest.fn();
-//     const mockBlockBlobClient = { uploadFile: mockUploadFile, url: 'mocked-url' };
-
-//     BlobServiceClient.fromConnectionString = mockFromConnectionString;
-//     mockFromConnectionString.mockReturnValue({
-//       getContainerClient: mockGetContainerClient,
-//     });
-//     mockGetContainerClient.mockReturnValue({
-//       getBlockBlobClient: mockGetBlockBlobClient,
-//     });
-//     mockGetBlockBlobClient.mockReturnValue(mockBlockBlobClient);
-
-//     mockUploadFile.mockResolvedValueOnce(undefined);
-
-//     prismaMock.user.update.mockResolvedValue(user);
-//     const buffer = Buffer.from('some data');
-//     const response = (await Request(app).post('/api/v1/user/profile_picture').set('authorization', 'Bearer abc123').attach( '',buffer,'imageMock/test.jpg'));;
-//     console.log(response.body)
-
-//   })});
 
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 describe('delete /user/profile_banner', () => {
@@ -2771,7 +2750,7 @@ describe('GET /user/search', () => {
 });
 
 describe('GET /user/followers/:username', () => {
-  test('this should test search users endpoint', async () => {
+  test('this should test get user followers endpoint', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
     jest.mock('jsonwebtoken');
@@ -2838,7 +2817,7 @@ describe('GET /user/followers/:username', () => {
 });
 
 describe('GET /user/follow/:username', () => {
-  test('this should test search users endpoint', async () => {
+  test('this should test get followings user endpoint and get status 200', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
     jest.mock('jsonwebtoken');
@@ -3146,7 +3125,6 @@ describe('get Block List of a User Function', () => {
           const response = await Request(app)
             .get('/api/v1/user/block')
             .set('authorization', 'Bearer abc123');
-          console.log(response.body);
           expect(response.status).toBe(200);
         });
       });
@@ -3205,5 +3183,266 @@ describe('get Block List of a User Function', () => {
       expect(response.status).toBe(401);
       expect(response.body.message).toStrictEqual('Unauthorized access');
     });
+  });
+});
+
+describe('GET /user/suggestions', () => {
+  test('this should test get user suggestions endpoint and return 200', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+
+    const follower = {
+      folowererId: 'sdfsfsf',
+      followedId: 'sdfsdf',
+      followed: {
+        name: 'jhon doe',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'jhon@qwitter.com',
+        userName: 'jhondoe12364',
+      },
+    };
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'jhon doe',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon@qwitter.com',
+      userName: 'jhondoe12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+      follower: [follower],
+    };
+
+    const follower2 = {
+      folowererId: 'aksjvnkdjfnvkjfnvkjdfnv',
+      followedId: 'kdfjnvkjdfnv',
+      followed: {
+        name: 'ghaith',
+        birthDate: new Date(),
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        verified: false,
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date(),
+        deletedAt: null,
+        profileBannerUrl: null,
+        profileImageUrl: null,
+        email: 'ghauth@qwitter.com',
+        userName: 'ghaith',
+      },
+    };
+
+    const user2 = {
+      id: '34875938475983475934',
+      name: 'jhon doe 2',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'jhon2@qwitter.com',
+      userName: 'jhondoe123642222',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: null,
+      google_id: '',
+      follower: [follower],
+    };
+
+    prismaMock.user.findFirst.mockResolvedValue(user);
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.findMany.mockResolvedValue([user2]);
+    prismaMock.follow.findMany.mockResolvedValueOnce([follower, follower2]);
+
+    const res = await Request(app)
+      .get('/api/v1/user/suggestions')
+      .set('authorization', 'Bearer abc123');
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('POST /user/profile_picture', () => {
+  const user = {
+    id: 'eac0ece1',
+    name: 'Zahran',
+    birthDate: new Date(),
+    location: null,
+    url: null,
+    description: null,
+    protected: false,
+    verified: false,
+    followersCount: 0,
+    followingCount: 0,
+    createdAt: new Date(),
+    deletedAt: null,
+    profileBannerUrl: null,
+    profileImageUrl: null,
+    email: 'ahmed@gmail.com',
+    userName: 'ahmedzahran12364',
+    password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+    passwordChangedAt: null,
+    passwordResetToken: null,
+    passwordResetExpires: null,
+    google_id: null,
+  };
+  test('should send photo and return  status 200', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    jest.spyOn(uploadMiddleware, 'uploadImage').mockReturnValue('');
+
+    prismaMock.user.update.mockResolvedValue(user);
+    const buffer = Buffer.from('some data');
+    const response = await Request(app)
+      .post('/api/v1/user/profile_picture')
+      .set('authorization', 'Bearer abc123')
+      .attach('photo', buffer, 'imageMock/test.jpg');
+    expect(response.body.message).toEqual('Image uploaded successfully');
+    expect(response.status).toBe(200);
+  });
+  test('should send empty and return  status 500', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    jest.spyOn(uploadMiddleware, 'uploadImage').mockReturnValue('');
+
+    prismaMock.user.update.mockResolvedValue(user);
+    const response = await Request(app)
+      .post('/api/v1/user/profile_picture')
+      .set('authorization', 'Bearer abc123');
+    expect(response.status).toBe(500);
+    expect(response.body.message).toEqual(
+      'An error occurred while uploading profile picture',
+    );
+  });
+});
+
+describe('POST /user/profile_banner', () => {
+  const user = {
+    id: 'eac0ece1',
+    name: 'Zahran',
+    birthDate: new Date(),
+    location: null,
+    url: null,
+    description: null,
+    protected: false,
+    verified: false,
+    followersCount: 0,
+    followingCount: 0,
+    createdAt: new Date(),
+    deletedAt: null,
+    profileBannerUrl: null,
+    profileImageUrl: null,
+    email: 'ahmed@gmail.com',
+    userName: 'ahmedzahran12364',
+    password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+    passwordChangedAt: null,
+    passwordResetToken: null,
+    passwordResetExpires: null,
+    google_id: null,
+  };
+  test('should send photo and return  status 200', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    jest.spyOn(uploadMiddleware, 'uploadImage').mockReturnValue('');
+
+    prismaMock.user.update.mockResolvedValue(user);
+    const buffer = Buffer.from('some data');
+    const response = await Request(app)
+      .post('/api/v1/user/profile_banner')
+      .set('authorization', 'Bearer abc123')
+      .attach('photo', buffer, 'imageMock/test.jpg');
+    expect(response.body.message).toEqual('Image uploaded successfully');
+    expect(response.status).toBe(200);
+  });
+  test('should send empty and return  status 500', async () => {
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id: 'eac0ece1',
+      iat: 1699498302,
+      exp: 1707274302,
+    });
+    prismaMock.user.findFirst.mockResolvedValue(user);
+
+    jest.spyOn(uploadMiddleware, 'uploadImage').mockReturnValue('');
+
+    prismaMock.user.update.mockResolvedValue(user);
+    const response = await Request(app)
+      .post('/api/v1/user/profile_banner')
+      .set('authorization', 'Bearer abc123');
+    expect(response.status).toBe(500);
+    expect(response.body.message).toEqual(
+      'An error occurred while uploading profile picture',
+    );
   });
 });

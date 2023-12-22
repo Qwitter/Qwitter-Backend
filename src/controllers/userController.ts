@@ -485,7 +485,7 @@ export const blockUser = catchAsync(
       if (block) {
         res.json({ status: 'success' }).status(200);
       } else {
-        res.json({ status: 'success' }).status(404);
+        res.json({ status: 'failure' }).status(404);
       }
     }
   },
@@ -503,11 +503,8 @@ export const unblockUser = catchAsync(
       return _next(new AppError('user not blocked', 404));
     } else {
       const block = await unblockUserByIDs(blockingUser.id, blockedUser.id);
-      if (block) {
-        res.json({ status: 'success' }).status(200);
-      } else {
-        res.json({ status: 'failute' }).status(404);
-      }
+      block?res.json({ status: 'success' }).status(200):res.json({ status: 'failure' }).status(404);
+
     }
   },
 );
@@ -645,6 +642,7 @@ export const followUser = catchAsync(
       (req.user as User).id,
       userToFollow.id,
     );
+
     const isBlocking = await isUserBlocked(
       userToFollow.id,
       (req.user as User).id,
@@ -810,7 +808,6 @@ export const getUserSuggestions = catchAsync(
         follower: true,
       },
     });
-
     let followedIDs = tempUser?.follower;
     let followedSetIDs = new Set();
     let suggestions = [];
@@ -943,14 +940,5 @@ export const getUserSuggestions = catchAsync(
       }
     }
     return res.json(suggestions.slice(0, 50)).status(200);
-  },
-);
-export const testNotification = catchAsync(
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const { userName } = req.params;
-    sendNotification(userName, { text: 'Notification test' });
-    res.status(200).json({
-      message: 'Test Notification',
-    });
   },
 );

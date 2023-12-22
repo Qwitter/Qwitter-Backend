@@ -322,14 +322,14 @@ const CreateTweetPayload = {
   body: object({
     text: string({
       required_error: 'Tweet Text should not be empty',
-    }),
+    }).optional(),
     source: string({
       required_error: 'Please indicate the source of the request [Iphone,....]',
-    }),
+    }).optional(),
     coordinates: string().optional(),
     replyToTweetId: string().optional(),
     retweetedId: string().optional(),
-    sensitive: string(),
+    sensitive: string().optional(),
   }),
 };
 export const CreateTweetSchema = object({
