@@ -894,6 +894,8 @@ export const searchConversations = catchAsync(
                 name: true,
               },
             },
+            seen: true,
+            dateJoined: true
           },
         },
         Message: {
@@ -965,6 +967,7 @@ export const searchConversations = catchAsync(
               },
             },
             dateJoined: true,
+            seen: true
           },
         },
         Message: {
@@ -1002,13 +1005,21 @@ export const searchConversations = catchAsync(
         name: conversation.name,
         type: conversation?.isGroup ? 'group' : 'direct',
         photo: conversation.photo,
+        dateJoined: conversation?.isGroup
+        ? conversation.UserConversations.find(
+            (u) => u.User.userName == (req.user as User).userName,
+          )?.dateJoined
+        : '',
         users: conversation.UserConversations.map((userConversation) => ({
           userName: userConversation.User.userName,
           name: userConversation.User.name,
-          userPhoto: userConversation.User.profileImageUrl,
-        })),
+          profileImageUrl: userConversation.User.profileImageUrl,
+        })).filter((user) => user.userName != ((req.user) as User).userName),
         lastMessage:
           conversation.Message.length > 0 ? conversation.Message[0] : null,
+        seen: conversation.UserConversations.find(
+              (u) => u.User.userName == (req.user as User).userName,
+            )?.seen || false  
       }));
 
     const people = conversationsPeopleGroups
@@ -1021,10 +1032,13 @@ export const searchConversations = catchAsync(
         users: conversation.UserConversations.map((userConversation) => ({
           userName: userConversation.User.userName,
           name: userConversation.User.name,
-          userPhoto: userConversation.User.profileImageUrl,
-        })),
+          profileImageUrl: userConversation.User.profileImageUrl,
+        })).filter((user) => user.userName != ((req.user) as User).userName),
         lastMessage:
           conversation.Message.length > 0 ? conversation.Message[0] : null,
+        seen: conversation.UserConversations.find(
+          (u) => u.User.userName == (req.user as User).userName,
+        )?.seen || false  
       }));
 
     const messages = conversationsMessage.map((conversation) => ({
@@ -1041,9 +1055,12 @@ export const searchConversations = catchAsync(
         userName: userConversation.User.userName,
         name: userConversation.User.name,
         userPhoto: userConversation.User.profileImageUrl,
-      })),
+      })).filter((user) => user.userName != ((req.user) as User).userName),
       lastMessage:
         conversation.Message.length > 0 ? conversation.Message[0] : null,
+      seen: conversation.UserConversations.find(
+        (u) => u.User.userName == (req.user as User).userName,
+      )?.seen || false  
     }));
 
     res.status(200).json({
