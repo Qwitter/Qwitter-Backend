@@ -201,6 +201,7 @@ export const getForYouTimeline = catchAsync(
 
     const responseBody = {
       status: 'success',
+      resultsCount: tweets.length,
       tweets: ret,
     };
     return res.status(200).json(responseBody);
@@ -372,9 +373,10 @@ export const postTweet = catchAsync(
         type: 'Post',
       },
     });
-    const followers = await prisma.follow.findMany({
-      where: { followedId: (req.user as User).id },
-    }) || [];
+    const followers =
+      (await prisma.follow.findMany({
+        where: { followedId: (req.user as User).id },
+      })) || [];
     for (let follower of followers) {
       await prisma.recieveNotification.create({
         data: {
@@ -745,7 +747,7 @@ export const searchTweets = catchAsync(
       };
       responses.push(response);
     }
-    res.status(200).json({ tweets: responses });
+    res.status(200).json({ tweets: responses, resultsCount: tweets.length });
   },
 );
 export const getUserTweets = catchAsync(
