@@ -211,7 +211,7 @@ export const extractEntities = async (text: string) => {
   // Creating entities and linking it with tweet
 
   let entitiesId: string[] = [];
-
+  let hashmap = new Map<string, boolean>();
   // Processing Hashtags
   for (const hashtag of hashtags) {
     let entityId: string = '';
@@ -220,7 +220,11 @@ export const extractEntities = async (text: string) => {
         text: hashtag,
       },
     });
+    let isRepeated = false;
+    if (hashmap.has(hashtag)) isRepeated = true;
+    hashmap.set(hashtag, true);
     if (existingHashtag) {
+      if (isRepeated) break;
       await incrementHashtagCount(hashtag);
       entityId = existingHashtag.entityId;
     } else {

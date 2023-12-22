@@ -13,6 +13,7 @@ import {
 import {
   getNumOfTweets,
   getTweetsCreatedByUser,
+  getUserByID,
   getUserByUsername,
   isUserBlocked,
   isUserFollowing,
@@ -174,7 +175,6 @@ export const getForYouTimeline = catchAsync(
         currentUser.id,
         (tweetingUser as User).id,
       );
-      console.log(structuredTweet);
       const IsRetweeted = await isRetweeted(currentUser.id, structuredTweet.id);
       ret.push({
         ...structuredTweet,
@@ -342,6 +342,36 @@ export const postTweet = catchAsync(
       sendNotification((tempUser as User).userName, notificationObject);
     }
     //TODO: add followers notification for the new post
+
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: (req.user as User).id,
+        objectId: structuredTweet.id,
+        type: 'Post',
+      },
+    });
+    const followers = await prisma.follow.findMany({
+      where: { followedId: (req.user as User).id },
+    });
+    for (let follower of followers) {
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: follower.folowererId,
+        },
+      });
+      const notificationObject = {
+        type: 'post',
+        createdAt: new Date(),
+        post: structuredTweet,
+      };
+      sendNotification(
+        ((await getUserByID(follower.followedId)) as User).userName,
+        notificationObject,
+      );
+    }
+
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
@@ -921,6 +951,104 @@ export const likeTweet = catchAsync(
     });
     await incrementLikes(id);
     // TODO: Add here send a notification using the function in utils/notification
+    const notification = await prisma.notification.create({
+      data: {
+        createdAt: new Date(),
+        senderId: (req.user as User).id,
+        objectId: id,
+        type: 'like',
+      },
+    });
+
+    await prisma.recieveNotification.create({
+      data: {
+        notificationId: notification.id,
+        recieverId: existingTweet.author.id,
+      },
+    });
+
+    const createdTweet = await prisma.tweet.findFirst({
+      where: {
+        id: id,
+        deletedAt: null,
+      },
+      select: {
+        createdAt: true,
+        id: true,
+        text: true,
+        source: true,
+        coordinates: true,
+        replyToTweetId: true,
+        replyCount: true,
+        retweetedId: true,
+        retweetCount: true,
+        qouteTweetedId: true,
+        qouteCount: true,
+        likesCount: true,
+        sensitive: true,
+        deletedAt: true,
+        author: {
+          select: authorSelectOptions,
+        },
+      },
+    });
+
+    const entities = await getTweetEntities(createdTweet?.id as string);
+    const returnedTweet = {
+      ...createdTweet,
+      entities,
+    };
+    const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+
+    const liked = await getUserByUsername(
+      createdTweet?.author.userName as string,
+    );
+    const isBlocked = await isUserBlocked((liked as User).id, likerId);
+    const isBlocking = await isUserBlocked(likerId, (liked as User).id);
+
+    const IsRetweeted = await isRetweeted(
+      (liked as User).id,
+      (liked as User).id,
+    );
+
+    const isLiked = await prisma.like.findFirst({
+      where: {
+        userId: (liked as User).id,
+        tweetId: createdTweet?.id as string,
+      },
+    });
+
+    const structuredTweet = {
+      ...structuredTweets[0],
+      liker: {
+        userName: (req.user as User).userName,
+        name: (req.user as User).name,
+        url: (req.user as User).url,
+        description: (req.user as User).description,
+        followersCount: (req.user as User).followersCount,
+        followingCount: (req.user as User).followingCount,
+        profileImageUrl: (req.user as User).profileImageUrl,
+        isFollowing: await isUserFollowing(
+          liked?.id as string,
+          (req.user as User).id,
+        ),
+        isBlocked: isBlocked || isBlocking,
+        isMuted: false,
+        tweetCount: await getNumOfTweets((req.user as User).userName),
+      },
+      liked: isLiked ? true : false,
+      isRetweeted: IsRetweeted,
+      isFollowing: false,
+    };
+
+    const notificationObject = {
+      type: 'like',
+      createdAt: new Date(),
+      like: structuredTweet,
+    };
+
+    sendNotification(existingTweet.author.userName, notificationObject);
+
     res.status(200).json({ status: 'success' });
   },
 );
