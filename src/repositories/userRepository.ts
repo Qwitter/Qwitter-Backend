@@ -159,6 +159,7 @@ export const getTweetsCreatedByUser = async (
   const tweets = await prisma.tweet.findMany({
     where: {
       userId,
+      deletedAt: null,
     },
     include: {
       author: {
