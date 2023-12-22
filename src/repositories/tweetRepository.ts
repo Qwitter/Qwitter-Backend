@@ -25,6 +25,7 @@ export const getTweetAndUserById = async (tweetId: string) => {
   }
   return { tweet: tweet, tweetingUser: user };
 };
+
 export const getTweetAndEntitiesById = async (
   tweetId: string,
   userId: string,
@@ -41,12 +42,7 @@ export const getTweetAndEntitiesById = async (
     },
   });
   const isMuted = await isUserMuted(userId, tweet?.author.id as string);
-  const liked = await prisma.like.findFirst({
-    where: {
-      userId: userId,
-      tweetId: tweet?.id,
-    },
-  });
+  const liked = await isLiked(userId, tweet?.id as string);
   const isFollowing = await isUserFollowing(userId, tweet?.author.id as string);
   const currentUserRetweetId = await isRetweeted(userId, tweet as Tweet);
   // Removing ID for security purposes
@@ -405,6 +401,7 @@ export const getTweetRetweet = async (tweet: any, userId: string) => {
 export const isRetweeted = async (userId: string, tweet: Tweet) => {
   // If the tweet was a retweet, we refer to the original tweet, because retweeting a tweet means retweeting the original tweet
   const retweetedId = tweet.retweetedId ? tweet.retweetedId : tweet.id;
+  if (!retweetedId || !userId) return null;
   const retweeted = await prisma.tweet.findFirst({
     where: {
       retweetedId,
@@ -412,4 +409,14 @@ export const isRetweeted = async (userId: string, tweet: Tweet) => {
     },
   });
   return retweeted?.id;
+};
+export const isLiked = async (userId: string, tweetId: string) => {
+  if (!tweetId || !userId) return false;
+  const liked = await prisma.like.findFirst({
+    where: {
+      userId: userId,
+      tweetId: tweetId,
+    },
+  });
+  return liked !== null;
 };
