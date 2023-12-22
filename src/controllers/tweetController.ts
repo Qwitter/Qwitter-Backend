@@ -592,7 +592,7 @@ export const getTweet = catchAsync(
     );
     const IsRetweeted = await isRetweeted(
       (req.user as User)?.id,
-      structuredTweet.id,
+      structuredTweet,
     );
     const isMuted = await isUserMuted(
       (req.user as User).id,
