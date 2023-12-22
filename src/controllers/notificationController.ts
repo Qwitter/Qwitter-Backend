@@ -110,10 +110,7 @@ export const getNotification = async (
           tweetId: structuredTweets[0].id,
         },
       });
-      const IsRetweeted = await isRetweeted(
-        authUser.id,
-        structuredTweets[0].id,
-      );
+      const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
       const structuredTweet = {
         ...structuredTweets[0],
         liked: liked ? true : false,
@@ -246,7 +243,7 @@ export const getNotification = async (
       const isBlocked = await isUserBlocked(authUser.id, liker.id);
       const isBlocking = await isUserBlocked(liker.id, authUser.id);
 
-      const IsRetweeted = await isRetweeted(authUser.id, authUser.id);
+      const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
 
       const isLiked = await prisma.like.findFirst({
         where: {
