@@ -47,7 +47,7 @@ export const getTweetAndEntitiesById = async (
   const currentUserRetweetId = await isRetweeted(userId, tweet as Tweet);
   // Removing ID for security purposes
   const tweetWithoutUserId = JSON.parse(JSON.stringify(tweet)); // Deep clone to avoid reference
-  delete tweetWithoutUserId.author.id;
+  delete tweetWithoutUserId?.author?.id;
   const entities = await getTweetEntities(tweetId);
   return {
     ...tweetWithoutUserId,
