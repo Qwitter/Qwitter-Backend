@@ -235,7 +235,7 @@ export const postTweet = catchAsync(
       // When you retweet a tweet, you retweet the original tweet
       if (tweet.retweetedId) retweetId = tweet.retweetedId;
       // You can not retweet a tweet twice
-      const retweetedBefore = await isRetweeted(userId, retweetId);
+      const retweetedBefore = await isRetweeted(userId, tweet);
       if (retweetedBefore) {
         return next(new AppError('Can not retweet twice', 401));
       }
@@ -736,7 +736,7 @@ export const searchTweets = catchAsync(
       );
       const isRetweetedBoolean = await isRetweeted(
         (req.user as User)?.id,
-        tweet.id,
+        tweet,
       );
       let response = {
         ...tweet,
