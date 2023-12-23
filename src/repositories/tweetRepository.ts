@@ -209,7 +209,7 @@ export const deleteTweetById = async (tweetId: string) => {
       deletedAt: new Date(),
     },
   });
-  prisma.tweet.updateMany({
+  await prisma.tweet.updateMany({
     where: {
       retweetedId: tweetId,
       deletedAt: null,
