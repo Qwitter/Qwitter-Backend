@@ -49,7 +49,7 @@ describe('GET /user/:username', () => {
     expect(res.status).toBe(404);
     expect(res.body.message).toEqual('User not found')
   });
-  test('this should send request with header containing token with a non existing user and return 404 with User not found\n', async () => {
+  test('this should send request and return 200\n', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
     jest.mock('jsonwebtoken');
@@ -91,7 +91,7 @@ describe('GET /user/:username', () => {
     expect(res.status).toBe(200);
   });
 
-  test('this should send request with header containing token and return unauthorized access', async () => {
+  test('this should send request with header containing token and return non exisiting user error', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
     jest.mock('jsonwebtoken');
@@ -99,10 +99,85 @@ describe('GET /user/:username', () => {
     jwt.verify = jest.fn().mockResolvedValue({});
     prismaMock.user.findFirst.mockResolvedValue(null);
     const res = await Request(app)
-      .get('/api/v1/user')
-      .set('authorization', 'abc123');
-    expect(res.status).toBe(401);
+      .get('/api/v1/user/jhon')
+    console.log(res.body)
+    expect(res.status).toBe(404);
   });
+  test('should send a  token and without id and return error ', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: new Date(),
+      google_id: '',
+    };
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const response = await Request(app)
+      .get('/api/v1/user/jhon').set('authorization', 'Bearer abc123');
+    expect(response.status).toEqual(409);
+    expect(response.body.message).toStrictEqual('Invalid access credentials');
+  });
+  test('should send a expired token and return msg Invalid token and status 400 ', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    const user = {
+      id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      name: 'Ahmed Zahran',
+      birthDate: new Date(),
+      location: null,
+      url: null,
+      description: null,
+      protected: false,
+      verified: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date(),
+      deletedAt: null,
+      profileBannerUrl: null,
+      profileImageUrl: null,
+      email: 'ahmed@qwitter.com',
+      userName: 'ahmedzahran12364',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      passwordChangedAt: null,
+      passwordResetToken: 'registered_fake_token',
+      passwordResetExpires: new Date(),
+      google_id: '',
+    };
+    jest.mock('bcrypt');
+    bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
+    jest.mock('jsonwebtoken');
+    jwt.sign = jest.fn().mockResolvedValue('generated_token');
+    jwt.verify = jest.fn().mockResolvedValue({
+      id:"238423874",
+      exp:0
+    });
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.user.update.mockResolvedValue(user);
+
+    const response = await Request(app)
+      .get('/api/v1/user/jhon').set('authorization', 'Bearer abc123');
+    expect(response.status).toEqual(409);
+    expect(response.body.message).toStrictEqual('Token Expired');
+  });
+  
 });
 
 describe('POST /follow/:username', () => {
