@@ -680,7 +680,6 @@ router
  *
  */
 
-router.route('/logout').post(authController.logout);
 
 /**
  * @openapi

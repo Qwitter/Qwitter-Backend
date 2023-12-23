@@ -253,7 +253,6 @@ export const signUp = catchAsync(
           },
         });
         _res.status(403).json({ message: 'Email is not Verified' });
-        // return _next(new AppError('Email is not Verified', 403));
       } else {
         const hashedPassword = await hashPassword(req.body.password);
         const uniqueUserName = await createUniqueUserName(req.body.name, 6);
@@ -314,11 +313,11 @@ export const signUpGoogle = catchAsync(
     }
 
     const token: string = auth_header.split(' ')[1];
-    const payloadData = verify(token, process.env.JWT_SECRET as string);
+    const payloadData =await verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
-    const email = (payloadData as JwtPayload).email.toLowerCase();
+    const email = (payloadData as JwtPayload).email?.toLowerCase();
     const name = (payloadData as JwtPayload).name;
-
+    console.log((payloadData as JwtPayload).google_id)
     if (!google_id || !email || !name) {
       return _next(new AppError('Invalid access credentials', 409));
     }
@@ -502,23 +501,6 @@ export const sendVerificationEmail = catchAsync(
   },
 );
 
-export const logout = catchAsync(
-  async (req: Request, res: Response, _next: NextFunction) => {
-    const token = req.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-      res.status(401).json({ message: 'You are not logged in' });
-    } else {
-      verify(token, process.env.JWT_SECRET as string, (err) => {
-        if (err) {
-          res.status(401).json({ message: 'Invalid token' });
-        } else {
-          res.status(200).json({ message: 'Successfully logged out' });
-        }
-      });
-    }
-  },
-);
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {

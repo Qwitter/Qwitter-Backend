@@ -48,7 +48,7 @@ export const mobileLoggedIn = catchAsync(
       return next(new AppError('Unauthorized access', 401));
     }
     const token: string = auth_header.split(' ')[1];
-    const payloadData = verify(token, process.env.JWT_SECRET as string);
+    const payloadData =await verify(token, process.env.JWT_SECRET as string);
     if (!(payloadData as JwtPayload).email) {
       return next(new AppError('Invalid access credentials', 409));
     }
