@@ -16,18 +16,6 @@ const prisma = new PrismaClient().$extends({
           });
         return await query(args);
       },
-      async findFirst({ args, query }) {
-        if (args.where?.id)
-          await prisma.tweet.update({
-            where: {
-              id: args.where?.id as string,
-            },
-            data: {
-              readCount: { increment: 1 },
-            },
-          });
-        return await query(args);
-      },
     },
   },
 });

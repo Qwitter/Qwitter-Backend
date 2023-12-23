@@ -14,15 +14,14 @@ export const getTweetAndUserById = async (tweetId: string) => {
       TweetEntity: true,
     },
   });
-  let user;
-  if (tweet) {
+  let user = null;
+  if (tweet)
     user = await prisma.user.findUnique({
       where: {
         id: tweet?.userId,
         deletedAt: null,
       },
     });
-  }
   return { tweet: tweet, tweetingUser: user };
 };
 
@@ -41,6 +40,7 @@ export const getTweetAndEntitiesById = async (
       },
     },
   });
+  if (!tweet) return null;
   const isMuted = await isUserMuted(userId, tweet?.author.id as string);
   const liked = await isLiked(userId, tweet?.id as string);
   const isFollowing = await isUserFollowing(userId, tweet?.author.id as string);
@@ -364,11 +364,12 @@ export const getTweetsRepliesRetweets = async (
 ) => {
   let newTweets = [];
   for (const tweet of tweets) {
+    if (!tweet) continue;
     if (tweet.replyToTweetId) {
       newTweets.push(await getTweetReply(tweet, userId));
     } else if (tweet.retweetedId) {
       let retweetedTweet = await getTweetRetweet(tweet, userId); // This the is the original tweet + The retweeted tweet
-      if (retweetedTweet.retweetedTweet.replyToTweetId) {
+      if (retweetedTweet?.retweetedTweet?.replyToTweetId) {
         // If the retweeted is a reply
         let retweetReply = await getTweetReply(
           retweetedTweet.retweetedTweet,
