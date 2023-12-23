@@ -11,11 +11,12 @@ export const getMention = async (userId: string) => {
 };
 export const getTweetEntities = async (tweetId: string) => {
   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
-  const relations = await prisma.tweetEntity.findMany({
-    where: {
-      tweetId: tweetId,
-    },
-  }) || [];
+  const relations =
+    (await prisma.tweetEntity.findMany({
+      where: {
+        tweetId: tweetId,
+      },
+    })) || [];
   for (const relation of relations) {
     const entity = await prisma.entity.findUnique({
       where: {
@@ -257,14 +258,20 @@ function extractHashtags(inputString: string): string[] {
   // Regular expression to find hashtags
   const hashtagRegex = /#(\w+)/g;
   // Use match() to find all occurrences of the hashtag pattern in the input string
-  const hashtags = inputString.match(hashtagRegex);
+  let hashtags = inputString.match(hashtagRegex) as string[];
   // If there are hashtags, return them; otherwise, return an empty array
-  return hashtags ? hashtags : [];
+  hashtags = hashtags?.map((el) => {
+    return el.toLocaleLowerCase();
+  });
+  return [...new Set(hashtags)];
 }
 function extractMentions(inputString: string): string[] {
   const mentionRegex = /@(\w+)/g;
   // Use match() to find all occurrences of the mention pattern in the input string
-  const mentions = inputString.match(mentionRegex);
+  let mentions = inputString.match(mentionRegex) as string[];
   // If there are mentions, return them; otherwise, return an empty array
-  return mentions ? mentions : [];
+  mentions = mentions?.map((el) => {
+    return el.toLocaleLowerCase();
+  });
+  return [...new Set(mentions)];
 }
