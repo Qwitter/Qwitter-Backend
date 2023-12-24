@@ -965,7 +965,8 @@ export const getUserMediaTweets = catchAsync(
 export const likeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const likerId = (req.user as User).id;
+    const user = req.user as User;
+    const likerId = user.id;
 
     const existingLike = await prisma.like.findUnique({
       where: {
@@ -992,22 +993,6 @@ export const likeTweet = catchAsync(
       },
     });
     await incrementLikes(id);
-    // TODO: Add here send a notification using the function in utils/notification
-    const notification = await prisma.notification.create({
-      data: {
-        createdAt: new Date(),
-        senderId: (req.user as User).id,
-        objectId: id,
-        type: 'like',
-      },
-    });
-
-    await prisma.recieveNotification.create({
-      data: {
-        notificationId: notification.id,
-        recieverId: existingTweet.author.id,
-      },
-    });
 
     const createdTweet = await prisma.tweet.findFirst({
       where: {
@@ -1086,14 +1071,31 @@ export const likeTweet = catchAsync(
       isFollowing: false,
     };
 
-    const notificationObject = {
-      type: 'like',
-      createdAt: new Date(),
-      like: structuredTweet,
-    };
+    if (user.userName !== createdTweet?.author.userName) {
+      // Checking that the liker is not the author
+      const notification = await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: user.id,
+          objectId: id,
+          type: 'like',
+        },
+      });
 
-    sendNotification(existingTweet.author.userName, notificationObject);
+      await prisma.recieveNotification.create({
+        data: {
+          notificationId: notification.id,
+          recieverId: existingTweet.author.id,
+        },
+      });
+      const notificationObject = {
+        type: 'like',
+        createdAt: new Date(),
+        like: structuredTweet,
+      };
 
+      sendNotification(existingTweet.author.userName, notificationObject);
+    }
     res.status(200).json({ status: 'success' });
   },
 );

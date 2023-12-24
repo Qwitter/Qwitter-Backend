@@ -241,9 +241,10 @@ export const extractEntities = async (text: string) => {
 
   // Processing Mentions
 
-  for (const mention of mentions) {
+  for (let mention of mentions) {
     let entityId: string = '';
-    const existingUser = await getUserByUsername(mention.substring(1));
+    mention = mention.toLocaleLowerCase().substring(1);
+    const existingUser = await getUserByUsername(mention);
     if (!existingUser) continue;
     const existingMention = await getMention(existingUser.id);
     if (existingMention) {
