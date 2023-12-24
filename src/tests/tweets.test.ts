@@ -799,6 +799,7 @@ describe('GET /tweet/:id', () => {
         retweetedId: null,
         qouteTweetedId: null,
         deletedAt: new Date(),
+        author: user
       };
 
       prismaMock.tweet.findUnique.mockResolvedValue(tweet);
@@ -864,6 +865,7 @@ describe('GET /tweet/:id', () => {
         retweetedId: null,
         qouteTweetedId: null,
         deletedAt: null,
+        author: user
       };
 
       prismaMock.tweet.findUnique.mockResolvedValue(tweet);
@@ -2258,7 +2260,6 @@ describe('GET /tweet/:id', () => {
     const res = await Request(app)
       .get('/api/v1/tweets/hashtags?q=o')
       .set('authorization', 'Bearer abc123');
-    console.log(res.body);
     expect(res.status).toBe(200);
   });
 
