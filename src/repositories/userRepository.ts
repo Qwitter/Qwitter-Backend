@@ -3,6 +3,7 @@ import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 
 export const getUserByUsername = async (user_name: string) => {
+  if (!user_name) return null;
   return await prisma.user.findUnique({
     where: {
       userName: user_name.toLowerCase(),

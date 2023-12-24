@@ -503,8 +503,9 @@ export const unblockUser = catchAsync(
       return _next(new AppError('user not blocked', 404));
     } else {
       const block = await unblockUserByIDs(blockingUser.id, blockedUser.id);
-      block?res.json({ status: 'success' }).status(200):res.json({ status: 'failure' }).status(404);
-
+      block
+        ? res.json({ status: 'success' }).status(200)
+        : res.json({ status: 'failure' }).status(404);
     }
   },
 );
@@ -708,7 +709,7 @@ export const followUser = catchAsync(
         type: 'follow',
         createdAt: new Date(),
         follower: {
-          username: (req.user as User).userName,
+          userName: (req.user as User).userName,
           name: (req.user as User).name,
           url: (req.user as User).url,
           description: (req.user as User).description,

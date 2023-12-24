@@ -32,6 +32,7 @@ import {
   getTweetsRepliesRetweets,
   isRetweeted,
   getTweetAndEntitiesById,
+  getTweetsMentionedById,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
 import { sendNotification } from '../utils/notifications';
@@ -763,10 +764,7 @@ export const getUserTweets = catchAsync(
     const user = await getUserByUsername(userName);
     // Checking that the user exists
     if (!user) {
-      return res.status(404).json({
-        tweets: [],
-        message: 'User Not found',
-      });
+      return _next(new AppError('User Not found', 404));
     }
     if (
       (await isUserBlocked((req.user as User).id, user.id)) ||
@@ -823,10 +821,7 @@ export const getUserReplies = catchAsync(
     const user = await getUserByUsername(userName);
     // Checking that the user exists
     if (!user) {
-      return res.status(404).json({
-        tweets: [],
-        message: 'User Not found',
-      });
+      return _next(new AppError('User Not found', 404));
     }
     if (
       (await isUserBlocked((req.user as User).id, user.id)) ||
@@ -891,11 +886,7 @@ export const getUserLikedTweets = catchAsync(
     const user = await getUserByUsername(userName);
 
     if (!user) {
-      res.status(404).json({
-        status: 'error',
-        message: 'User not found',
-      });
-      return;
+      return _next(new AppError('User Not found', 404));
     }
     if (
       (await isUserBlocked((req.user as User).id, user.id)) ||
@@ -906,6 +897,24 @@ export const getUserLikedTweets = catchAsync(
       });
     }
     const tweets = await getTweetsLikedById(
+      (user as User).id as string,
+      skip,
+      parsedLimit,
+    );
+    const responses = await getTweetsRepliesRetweets(tweets, user.id);
+    return res.status(200).json({ tweets: responses });
+  },
+);
+export const getUserMentionedTweets = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { page = '1', limit = '10' } = req.query;
+    const parsedPage = parseInt(page as string, 10);
+    const parsedLimit = parseInt(limit as string, 10);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const user = req.user as User;
+    const tweets = await getTweetsMentionedById(
       (user as User).id as string,
       skip,
       parsedLimit,
@@ -929,11 +938,7 @@ export const getUserMediaTweets = catchAsync(
     const user = await getUserByUsername(userName);
 
     if (!user) {
-      res.status(404).json({
-        status: 'error',
-        message: 'User not found',
-      });
-      return;
+      return _next(new AppError('User Not found', 404));
     }
     if (
       (await isUserBlocked((req.user as User).id, user.id)) ||

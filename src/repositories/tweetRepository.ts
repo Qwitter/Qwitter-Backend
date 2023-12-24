@@ -280,6 +280,45 @@ export const getTweetsLikedById = async (
 
   return likedTweets;
 };
+export const getTweetsMentionedById = async (
+  Id: string,
+  skip: number,
+  parsedLimit: number,
+) => {
+  const tweets =
+    (await prisma.tweet.findMany({
+      where: {
+        TweetEntity: {
+          some: {
+            entity: {
+              type: 'mention',
+              Mention: {
+                userId: Id,
+              },
+            },
+          },
+        },
+      },
+      include: {
+        author: { select: authorSelectOptions },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip,
+      take: parsedLimit,
+    })) || [];
+
+  const mentionedTweets = [];
+
+  for (const tweet of tweets) {
+    const entities = await getTweetEntities(tweet.id);
+    const temp = { ...tweet, entities: entities };
+    mentionedTweets.push(temp);
+  }
+
+  return mentionedTweets;
+};
 
 export const getTweetsMediaById = async (
   Id: string,

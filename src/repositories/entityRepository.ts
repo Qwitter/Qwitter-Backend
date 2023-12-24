@@ -23,14 +23,22 @@ export const getTweetEntities = async (tweetId: string) => {
         id: relation.entityId,
       },
       include: {
-        Mention: true,
+        Mention: {
+          include: {
+            mentionedUser: {
+              select: {
+                userName: true,
+              },
+            },
+          },
+        },
         Hashtag: true,
         Url: true,
         Media: true,
       },
     });
     if (entity?.Mention) {
-      entities.mentions.push(entity.Mention);
+      entities.mentions.push(entity.Mention.mentionedUser.userName as string);
     } else if (entity?.Hashtag) {
       entities.hashtags.push(entity.Hashtag);
     } else if (entity?.Url) {
@@ -212,7 +220,6 @@ export const extractEntities = async (text: string) => {
   // Creating entities and linking it with tweet
 
   let entitiesId: string[] = [];
-  let hashmap = new Map<string, boolean>();
   // Processing Hashtags
   for (const hashtag of hashtags) {
     let entityId: string = '';
@@ -221,11 +228,7 @@ export const extractEntities = async (text: string) => {
         text: hashtag,
       },
     });
-    let isRepeated = false;
-    if (hashmap.has(hashtag)) isRepeated = true;
-    hashmap.set(hashtag, true);
     if (existingHashtag) {
-      if (isRepeated) break;
       await incrementHashtagCount(hashtag);
       entityId = existingHashtag.entityId;
     } else {
@@ -240,7 +243,7 @@ export const extractEntities = async (text: string) => {
 
   for (const mention of mentions) {
     let entityId: string = '';
-    const existingUser = await getUserByUsername(mention);
+    const existingUser = await getUserByUsername(mention.substring(1));
     if (!existingUser) continue;
     const existingMention = await getMention(existingUser.id);
     if (existingMention) {

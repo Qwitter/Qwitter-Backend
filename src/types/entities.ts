@@ -1,8 +1,8 @@
-import { Hashtag, Mention, Url } from '@prisma/client';
+import { Hashtag, Url } from '@prisma/client';
 
 export type Entities = {
   hashtags: Hashtag[];
-  mentions: Mention[];
+  mentions: string[];
   urls: Url[];
   media: { type: string; value: string }[];
 };

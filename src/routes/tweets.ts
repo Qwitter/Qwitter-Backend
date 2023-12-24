@@ -15,6 +15,7 @@ import {
   likeTweet,
   unlikeTweet,
   getUserReplies,
+  getUserMentionedTweets,
 } from '../controllers/tweetController';
 import { isLoggedIn } from '../middlewares/authMiddlewares';
 import {
@@ -193,6 +194,7 @@ router
   .route('/user/:username/like')
   .get(isLoggedIn, validate(getProfileTab), getUserLikedTweets);
 
+router.route('/mention').get(isLoggedIn, getUserMentionedTweets);
 /**
  * @openapi
  * '/api/v1/tweets/user/{username}/media':
@@ -300,7 +302,7 @@ router.delete('/:id', tweetExists, deleteTweet);
  *        description: Unauthorized
  */
 
-router.get('/:id',isLoggedIn, getTweet);
+router.get('/:id', isLoggedIn, getTweet);
 
 /**
  * @openapi
