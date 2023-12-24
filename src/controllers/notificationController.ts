@@ -265,21 +265,20 @@ export const getNotification = catchAsync(
         const structuredTweet = {
           ...structuredTweets[0],
           liker: {
-            userName: (req.user as User).userName,
-            name: (req.user as User).name,
-            url: (req.user as User).url,
-            description: (req.user as User).description,
-            followersCount: (req.user as User).followersCount,
-            followingCount: (req.user as User).followingCount,
-            profileImageUrl: (req.user as User).profileImageUrl,
+            userName: liker.userName,
+            name: liker.name,
+            url: liker.url,
+            description: liker.description,
+            followersCount: liker.followersCount,
+            followingCount: liker.followingCount,
+            profileImageUrl: liker.profileImageUrl,
             isFollowing: await isUserFollowing(authUser.id, liker.id),
             isBlocked: isBlocked || isBlocking,
             isMuted: false,
-            tweetCount: await getNumOfTweets((req.user as User).userName),
+            tweetCount: await getNumOfTweets(liker.userName),
           },
           liked: isLiked ? true : false,
           currentUserRetweetId: IsRetweeted,
-          isFollowing: false,
         };
 
         const likeNotificationObject = {
