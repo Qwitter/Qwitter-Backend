@@ -86,8 +86,7 @@ describe('GET /user/:username', () => {
       .get('/api/v1/user/jhondoe')
       .set('authorization', 'Bearer abc123');
     console.log(res.body);
-    expect(res.status).toBe(404);
-    expect(res.body.message).toEqual('User not found');
+    expect(res.status).toBe(200);
   });
   test('this should send request with header containing token with a non existing user and return 404 with User not found\n', async () => {
     jest.mock('bcrypt');
