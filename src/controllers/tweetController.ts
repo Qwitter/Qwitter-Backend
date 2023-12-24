@@ -965,12 +965,11 @@ export const getUserMediaTweets = catchAsync(
 export const likeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const user = req.user as User;
-    const likerId = user.id;
+    const authUser = req.user as User;
 
     const existingLike = await prisma.like.findUnique({
       where: {
-        userId_tweetId: { userId: likerId, tweetId: id },
+        userId_tweetId: { userId: authUser.id, tweetId: id },
         liker: { deletedAt: null },
       },
     });
@@ -988,12 +987,13 @@ export const likeTweet = catchAsync(
 
     await prisma.like.create({
       data: {
-        userId: likerId,
+        userId: authUser.id,
         tweetId: id,
       },
     });
     await incrementLikes(id);
 
+    //TODO: add like notification
     const createdTweet = await prisma.tweet.findFirst({
       where: {
         id: id,
@@ -1027,14 +1027,14 @@ export const likeTweet = catchAsync(
     };
     const structuredTweets = await getTweetsRepliesRetweets(
       [returnedTweet],
-      likerId,
+      authUser.id,
     );
 
     const liked = await getUserByUsername(
       createdTweet?.author.userName as string,
     );
-    const isBlocked = await isUserBlocked((liked as User).id, likerId);
-    const isBlocking = await isUserBlocked(likerId, (liked as User).id);
+    const isBlocked = await isUserBlocked((liked as User).id, authUser.id);
+    const isBlocking = await isUserBlocked(authUser.id, (liked as User).id);
 
     const IsRetweeted = await isRetweeted(
       (liked as User).id,
@@ -1051,32 +1051,28 @@ export const likeTweet = catchAsync(
     const structuredTweet = {
       ...structuredTweets[0],
       liker: {
-        userName: (req.user as User).userName,
-        name: (req.user as User).name,
-        url: (req.user as User).url,
-        description: (req.user as User).description,
-        followersCount: (req.user as User).followersCount,
-        followingCount: (req.user as User).followingCount,
-        profileImageUrl: (req.user as User).profileImageUrl,
-        isFollowing: await isUserFollowing(
-          liked?.id as string,
-          (req.user as User).id,
-        ),
+        userName: authUser.userName,
+        name: authUser.name,
+        url: authUser.url,
+        description: authUser.description,
+        followersCount: authUser.followersCount,
+        followingCount: authUser.followingCount,
+        profileImageUrl: authUser.profileImageUrl,
+        isFollowing: await isUserFollowing(liked?.id as string, authUser.id),
         isBlocked: isBlocked || isBlocking,
         isMuted: false,
         tweetCount: await getNumOfTweets((req.user as User).userName),
       },
       liked: isLiked ? true : false,
       currentUserRetweetId: IsRetweeted,
-      isFollowing: false,
     };
 
-    if (user.userName !== createdTweet?.author.userName) {
+    if (authUser.userName !== createdTweet?.author.userName) {
       // Checking that the liker is not the author
       const notification = await prisma.notification.create({
         data: {
           createdAt: new Date(),
-          senderId: user.id,
+          senderId: authUser.id,
           objectId: id,
           type: 'like',
         },
