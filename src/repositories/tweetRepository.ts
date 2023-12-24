@@ -52,8 +52,7 @@ export const getTweetById = async (tweetId: string) => {
     },
   });
 
-  if(tweet)
-    return { ...tweet, author: tweet?.author };
+  if (tweet) return { ...tweet, author: tweet?.author };
   return null;
 };
 
@@ -67,77 +66,79 @@ export const searchTweet = async (
   let tweets;
   let words: string[];
   if (hashtag) {
-    tweets = await prisma.tweet.findMany({
-      where: {
-        TweetEntity: {
-          some: { entity: { Hashtag: { text: hashtag } } },
+    tweets =
+      (await prisma.tweet.findMany({
+        where: {
+          TweetEntity: {
+            some: { entity: { Hashtag: { text: hashtag } } },
+          },
+          deletedAt: null,
+          author: {
+            blocked: { none: { blocker: { id: currentUser.id } } },
+            blocker: { none: { blocked: { id: currentUser.id } } },
+          },
         },
-        deletedAt: null,
-        author: {
-          blocked: { none: { blocker: { id: currentUser.id } } },
-          blocker: { none: { blocked: { id: currentUser.id } } },
+        select: {
+          createdAt: true,
+          id: true,
+          text: true,
+          source: true,
+          coordinates: true,
+          author: {
+            select: authorSelectOptions,
+          },
+          replyToTweetId: true,
+          replyCount: true,
+          retweetedId: true,
+          retweetCount: true,
+          qouteTweetedId: true,
+          qouteCount: true,
+          likesCount: true,
+          sensitive: true,
         },
-      },
-      select: {
-        createdAt: true,
-        id: true,
-        text: true,
-        source: true,
-        coordinates: true,
-        author: {
-          select: authorSelectOptions,
-        },
-        replyToTweetId: true,
-        replyCount: true,
-        retweetedId: true,
-        retweetCount: true,
-        qouteTweetedId: true,
-        qouteCount: true,
-        likesCount: true,
-        sensitive: true,
-      },
-      skip,
-      take: parsedLimit,
-    }) || [];
+        skip,
+        take: parsedLimit,
+      })) || [];
   } else if (query) {
     words = query.split(' ');
-    tweets = await prisma.tweet.findMany({
-      where: {
-        OR: words.map((word) => ({
-          OR: [
-            { text: { contains: word, mode: 'insensitive' } },
-            { author: { userName: { contains: word, mode: 'insensitive' } } },
-            { author: { name: { contains: word, mode: 'insensitive' } } },
-            {
-              TweetEntity: {
-                some: { entity: { Hashtag: { text: word } } },
+    tweets =
+      (await prisma.tweet.findMany({
+        where: {
+          OR: words.map((word) => ({
+            OR: [
+              { text: { contains: word, mode: 'insensitive' } },
+              { author: { userName: { contains: word, mode: 'insensitive' } } },
+              { author: { name: { contains: word, mode: 'insensitive' } } },
+              {
+                TweetEntity: {
+                  some: { entity: { Hashtag: { text: word } } },
+                },
               },
-            },
-          ],
-        })),
-        deletedAt: null,
-      },
-      select: {
-        createdAt: true,
-        id: true,
-        text: true,
-        source: true,
-        coordinates: true,
-        author: {
-          select: authorSelectOptions,
+            ],
+          })),
+          deletedAt: null,
         },
-        replyToTweetId: true,
-        replyCount: true,
-        retweetedId: true,
-        retweetCount: true,
-        qouteTweetedId: true,
-        qouteCount: true,
-        likesCount: true,
-        sensitive: true,
-      },
-      skip,
-      take: parsedLimit,
-    }) || [];
+        select: {
+          createdAt: true,
+          id: true,
+          text: true,
+          source: true,
+          coordinates: true,
+          author: {
+            select: authorSelectOptions,
+          },
+          replyToTweetId: true,
+          replyCount: true,
+          retweetedId: true,
+          retweetCount: true,
+          qouteTweetedId: true,
+          qouteCount: true,
+          likesCount: true,
+          sensitive: true,
+        },
+        skip,
+        take: parsedLimit,
+      })) || [];
   }
 
   const Querytweets = [];
@@ -211,43 +212,44 @@ export const getTweetsLikedById = async (
   skip: number,
   parsedLimit: number,
 ) => {
-  const tweets = await prisma.like.findMany({
-    where: {
-      userId: Id,
-      liked: {
-        deletedAt: null,
-      },
-    },
-    select: {
-      liked: {
-        select: {
-          createdAt: true,
-          id: true,
-          text: true,
-          source: true,
-          coordinates: true,
-          author: {
-            select: authorSelectOptions,
-          },
-          replyToTweetId: true,
-          replyCount: true,
-          retweetedId: true,
-          retweetCount: true,
-          qouteTweetedId: true,
-          qouteCount: true,
-          likesCount: true,
-          sensitive: true,
+  const tweets =
+    (await prisma.like.findMany({
+      where: {
+        userId: Id,
+        liked: {
+          deletedAt: null,
         },
       },
-    },
-    orderBy: {
-      liked: {
-        createdAt: 'desc',
+      select: {
+        liked: {
+          select: {
+            createdAt: true,
+            id: true,
+            text: true,
+            source: true,
+            coordinates: true,
+            author: {
+              select: authorSelectOptions,
+            },
+            replyToTweetId: true,
+            replyCount: true,
+            retweetedId: true,
+            retweetCount: true,
+            qouteTweetedId: true,
+            qouteCount: true,
+            likesCount: true,
+            sensitive: true,
+          },
+        },
       },
-    },
-    skip,
-    take: parsedLimit,
-  }) || [];
+      orderBy: {
+        liked: {
+          createdAt: 'desc',
+        },
+      },
+      skip,
+      take: parsedLimit,
+    })) || [];
 
   const likedTweets = [];
 

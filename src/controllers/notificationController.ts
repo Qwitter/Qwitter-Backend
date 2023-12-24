@@ -94,7 +94,9 @@ export const getNotification = async (
         ...createdTweet,
         entities,
       };
+      console.log(returnedTweet);
       const structuredTweets = await getTweetsRepliesRetweets([returnedTweet]);
+
       const tempUser = await prisma.user.findUnique({
         where: {
           userName: structuredTweets[0].retweetedTweet.author.userName,
@@ -231,7 +233,6 @@ export const getNotification = async (
           },
         },
       });
-
       const entities = await getTweetEntities(createdTweet?.id as string);
       const returnedTweet = {
         ...createdTweet,
