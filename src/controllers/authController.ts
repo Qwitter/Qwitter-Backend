@@ -280,6 +280,7 @@ export const signUp = catchAsync(
             profileBannerUrl: true,
             profileImageUrl: true,
             userName: true,
+            unSeenConversation: true,
           },
         });
         const { id, ...newObject } = newUser;

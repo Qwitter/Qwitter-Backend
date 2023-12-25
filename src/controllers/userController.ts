@@ -829,6 +829,9 @@ export const getUserSuggestions = catchAsync(
           followedId: { not: currentUser.id },
           folowererId: followedIDs[randomIndex].followedId,
           follower: {
+            blocked: { none: { blocker: { id: currentUser.id } } },
+            blocker: { none: { blocked: { id: currentUser.id } } },
+            followed: { none: { folowererId: currentUser.id } },
             deletedAt: null,
           },
         },
@@ -848,32 +851,34 @@ export const getUserSuggestions = catchAsync(
             followersArray[j].followedId,
           );
           suggestionsIDs.add(followersArray[j].followedId);
-          suggestions.push({
-            ...(await prisma.user.findUnique({
-              where: {
-                id: followersArray[j].followedId,
-                deletedAt: null,
-                blocked: { none: { blocker: { id: currentUser.id } } },
-                blocker: { none: { blocked: { id: currentUser.id } } },
-              },
-              select: {
-                name: true,
-                birthDate: true,
-                location: true,
-                url: true,
-                description: true,
-                verified: true,
-                followersCount: true,
-                followingCount: true,
-                createdAt: true,
-                profileBannerUrl: true,
-                profileImageUrl: true,
-                email: true,
-                userName: true,
-              },
-            })),
-            isFollowing,
+          const newUser = await prisma.user.findUnique({
+            where: {
+              id: followersArray[j].followedId,
+              deletedAt: null,
+              blocked: { none: { blocker: { id: currentUser.id } } },
+              blocker: { none: { blocked: { id: currentUser.id } } },
+            },
+            select: {
+              name: true,
+              birthDate: true,
+              location: true,
+              url: true,
+              description: true,
+              verified: true,
+              followersCount: true,
+              followingCount: true,
+              createdAt: true,
+              profileBannerUrl: true,
+              profileImageUrl: true,
+              email: true,
+              userName: true,
+            },
           });
+          if (newUser)
+            suggestions.push({
+              ...newUser,
+              isFollowing,
+            });
         }
       }
       followedIDs.splice(randomIndex, 1);
