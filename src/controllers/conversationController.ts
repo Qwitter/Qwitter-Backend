@@ -538,6 +538,7 @@ export const deleteConversation = catchAsync(
         userId_conversationId: { userId: authUser.id, conversationId: conv.id },
       },
     });
+    if (!deletedConv) return res.status(404).json({ operationSuccess: false });
     await prisma.message.create({
       data: {
         text: authUser.userName + ' left this group',
@@ -547,9 +548,7 @@ export const deleteConversation = catchAsync(
         isMessage: false,
       },
     });
-
-    if (deletedConv) res.json({ operationSuccess: true }).status(200);
-    else res.json({ operationSuccess: false }).status(404);
+    res.json({ operationSuccess: true }).status(200);
     return;
   },
 );
@@ -673,7 +672,7 @@ export const getConversation = catchAsync(
         },
       });
       let users = [];
-      for (let i = 0; i < tempConv.Conversation.UserConversations.length; i++)
+      for (let i = 0; i < tempConv.Conversation.UserConversations.length; i++) {
         if (
           tempConv.Conversation.UserConversations[i].User.userName !=
           authUser.userName
@@ -714,6 +713,7 @@ export const getConversation = catchAsync(
             isMuted: isMuted,
           });
         }
+      }
       let newName, newFullName;
       if (tempConv.Conversation.name) {
         newName = tempConv.Conversation.name;
