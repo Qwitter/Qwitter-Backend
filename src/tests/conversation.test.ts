@@ -30,6 +30,7 @@ describe('searchForMembers Function', () => {
       describe('user Found', () => {
         test('No query in request should respond by 400', async () => {
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -64,6 +65,7 @@ describe('searchForMembers Function', () => {
         });
         test('No conversation by that Id should respond by 400', async () => {
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -97,6 +99,7 @@ describe('searchForMembers Function', () => {
         });
         test('Users matched are returned should respond by 200', async () => {
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -204,6 +207,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -252,6 +256,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -310,6 +315,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -366,6 +372,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -429,6 +436,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -495,6 +503,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -566,6 +575,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
               birthDate: new Date(),
@@ -670,6 +680,7 @@ describe('searchForMembersForNewConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -710,6 +721,7 @@ describe('searchForMembersForNewConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -735,6 +747,7 @@ describe('searchForMembersForNewConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            notificationCount: 0,
             name: 'dsfdsf',
             userName: 'sdfdsf',
             profileImageUrl: 'dsffds',
@@ -818,6 +831,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -858,6 +872,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -902,6 +917,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -946,6 +962,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -987,6 +1004,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1012,6 +1030,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1063,6 +1082,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1088,6 +1108,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1151,6 +1172,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1176,6 +1198,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1309,6 +1332,7 @@ describe('getConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1434,6 +1458,7 @@ describe('getConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1632,6 +1657,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1671,6 +1697,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -1739,6 +1766,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
