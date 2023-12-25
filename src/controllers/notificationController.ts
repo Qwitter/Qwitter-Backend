@@ -31,9 +31,7 @@ export const getNotification = catchAsync(
           createdAt: 'desc',
         },
       },
-      include: {
-        Notification: {},
-      },
+      include: { Notification: true },
       skip,
       take: parsedLimit,
     });
@@ -287,6 +285,84 @@ export const getNotification = catchAsync(
           like: structuredTweet,
         };
         parsedNotifications.push(likeNotificationObject);
+      } else if (notification.Notification.type == 'mention') {
+        const createdTweet = await prisma.tweet.findFirst({
+          where: {
+            id: notification.Notification.objectId as string,
+            deletedAt: null,
+          },
+          select: {
+            createdAt: true,
+            id: true,
+            text: true,
+            source: true,
+            coordinates: true,
+            replyToTweetId: true,
+            replyCount: true,
+            retweetedId: true,
+            retweetCount: true,
+            qouteTweetedId: true,
+            qouteCount: true,
+            likesCount: true,
+            sensitive: true,
+            deletedAt: true,
+            author: {
+              select: authorSelectOptions,
+            },
+          },
+        });
+
+        const entities = await getTweetEntities(createdTweet?.id as string);
+        const returnedTweet = {
+          ...createdTweet,
+          entities,
+        };
+        const structuredTweets = await getTweetsRepliesRetweets(
+          [returnedTweet],
+          authUser.id,
+        );
+
+        const liker = (await getUserByID(
+          notification.Notification.senderId,
+        )) as User;
+
+        const isBlocked = await isUserBlocked(authUser.id, liker.id);
+        const isBlocking = await isUserBlocked(liker.id, authUser.id);
+
+        const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
+
+        const isLiked = await prisma.like.findFirst({
+          where: {
+            userId: authUser.id,
+            tweetId: createdTweet?.id as string,
+          },
+        });
+
+        const structuredTweet = {
+          ...structuredTweets[0],
+          liker: {
+            userName: liker.userName,
+            name: liker.name,
+            url: liker.url,
+            description: liker.description,
+            followersCount: liker.followersCount,
+            followingCount: liker.followingCount,
+            profileImageUrl: liker.profileImageUrl,
+            isFollowing: await isUserFollowing(authUser.id, liker.id),
+            isBlocked: isBlocked || isBlocking,
+            isMuted: false,
+            tweetCount: await getNumOfTweets(liker.userName),
+          },
+          liked: isLiked ? true : false,
+          currentUserRetweetId: IsRetweeted,
+        };
+
+        const mentionNotificationObject = {
+          type: notification.Notification.type,
+          createdAt: notification.Notification.createdAt,
+          tweet: structuredTweet,
+        };
+        parsedNotifications.push(mentionNotificationObject);
       } else {
         continue;
       }

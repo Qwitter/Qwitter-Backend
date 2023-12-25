@@ -371,7 +371,7 @@ export const postTweet = catchAsync(
         createdAt: new Date(),
         senderId: (req.user as User).id,
         objectId: structuredTweet.id,
-        type: 'Post',
+        type: 'post',
       },
     });
     const followers =
@@ -393,6 +393,29 @@ export const postTweet = catchAsync(
       const followerUser = (await getUserByID(follower.followedId)) as User;
       if (followerUser.userName !== currentUser.userName)
         sendNotification(followerUser, notificationObject);
+    }
+
+    // Mentions Notifications
+    if (entities.mentions.length > 0) {
+      await prisma.notification.create({
+        data: {
+          createdAt: new Date(),
+          senderId: (req.user as User).id,
+          objectId: structuredTweet.id,
+          type: 'mention',
+        },
+      });
+      const mentions = entities.mentions;
+      for (let userName of mentions) {
+        const user = await getUserByUsername(userName);
+        if (user)
+          await prisma.recieveNotification.create({
+            data: {
+              notificationId: notification.id,
+              recieverId: user.id,
+            },
+          });
+      }
     }
 
     return res.status(201).json({
@@ -688,7 +711,7 @@ export const getTweetLikers = catchAsync(
 
     return res.status(200).json({
       status: 'success',
-      ret,
+      likers: ret,
     });
   },
 );
