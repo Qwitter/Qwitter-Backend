@@ -160,6 +160,8 @@ export const getRequestingUser = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const user = req.user as User;
     const resposeObject = {
+      notificationCount: user.notificationCount,
+      unSeenConversation: user.unSeenConversation,
       userName: user.userName,
       name: user.name,
       birthDate: user.birthDate,

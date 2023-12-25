@@ -359,13 +359,17 @@ export const postMessage = catchAsync(
     const users = await findConversationPeople(id);
     for (const tempUser of users) {
       // Incrementing the count of seen conversations
-      const seen = await isConversationSeen(id, user.id);
+      const seen = await isConversationSeen(id, tempUser.userId);
       if (seen) {
         // It should be seen to update it to unseen
         if (tempUser.userId !== user.id)
-          await incrementSeenConversation(tempUser.userId, 1, id);
+          await incrementSeenConversation(tempUser.userId, 1);
       }
     }
+    await prisma.userConversations.updateMany({
+      where: { conversationId: id, NOT: { userId: user.id } },
+      data: { seen: false },
+    });
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
