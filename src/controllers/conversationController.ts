@@ -363,7 +363,7 @@ export const postMessage = catchAsync(
       if (seen) {
         // It should be seen to update it to unseen
         if (tempUser.userId !== user.id)
-          incrementSeenConversation(tempUser.userId, 1, id);
+          await incrementSeenConversation(tempUser.userId, 1, id);
       }
     }
     const formattedMessage = {
