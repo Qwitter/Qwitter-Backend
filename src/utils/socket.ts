@@ -19,6 +19,7 @@ export const EVENTS = {
     MESSAGE: 'MESSAGE', // Sending a general message to the user on the room of the username
     CONVERSATION: 'CONVERSATION', //Socket for
     UNREAD_CONVERSATIONS: 'UNREAD_CONVERSATIONS',
+    FEED: 'FEED',
   },
 };
 interface CustomSocket extends Socket {

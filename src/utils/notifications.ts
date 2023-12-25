@@ -15,7 +15,7 @@ export const sendNotification = (user: User, notification: object): void => {
 
 // This is for the blue icon on the home page in Twitter
 export const newTweetNotification = (): void => {
-  io.to('ALL').emit(EVENTS.SERVER.NOTIFICATION, {
+  io.to('ALL').emit(EVENTS.SERVER.FEED, {
     message: 'newTweet',
   });
 };
