@@ -25,7 +25,10 @@ import {
   isUserMuted,
   getUserByID,
 } from '../repositories/userRepository';
-import { sendConversationUpdate } from '../utils/notifications';
+import {
+  sendConversationUpdate,
+  sendUnseenConversationCount,
+} from '../utils/notifications';
 
 // export const sendMessage = (req: Request, res: Response) => {};
 
@@ -1096,5 +1099,12 @@ export const searchConversations = catchAsync(
       people,
       messages,
     });
+  },
+);
+export const testNotification = catchAsync(
+  async (req: Request, res: Response, _: NextFunction) => {
+    const user = req.user as User;
+    sendUnseenConversationCount(user.userName as string, 1234);
+    res.status(200).json({ message: 'Sent' });
   },
 );

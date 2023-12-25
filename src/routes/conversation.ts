@@ -344,4 +344,6 @@ router
     validate(deleteMessageSchema),
     conversationController.deleteMessage,
   );
+
+router.route('/test').post(isLoggedIn, conversationController.testNotification);
 export default router;
