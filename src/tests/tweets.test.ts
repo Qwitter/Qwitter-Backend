@@ -16,6 +16,7 @@ describe('GET /user', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -163,6 +164,7 @@ describe('GET /user', () => {
 //         describe('tweet exists', () => {
 //           test('should respond with status 200', async () => {
 //             const user = {
+// notificationCount:0,
 //               id: 'eac0ece1',
 //               name: 'Zahran',
 //               birthDate: new Date(),
@@ -234,6 +236,7 @@ describe('GET /user', () => {
 //         describe('tweet doesnot exists', () => {
 //           test('should respond with status 404', async () => {
 //             const user = {
+// notificationCount: 0,
 //               id: 'eac0ece1',
 //               name: 'Zahran',
 //               birthDate: new Date(),
@@ -348,6 +351,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -377,8 +381,7 @@ describe('GET /tweet/:id', () => {
         .get('/api/v1/tweets/123/replies')
         .set('authorization', 'Bearer abc123');
       expect(res.status).toBe(404);
-      expect(res.body.message).toBe("Tweet not found");
-
+      expect(res.body.message).toBe('Tweet not found');
     });
 
     test('Should mock tweet', async () => {
@@ -392,6 +395,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -457,6 +461,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -544,6 +549,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -569,7 +575,6 @@ describe('GET /tweet/:id', () => {
       };
       prismaMock.user.findFirst.mockResolvedValue(user);
 
-
       const res = await Request(app)
         .get('/api/v1/tweets/123/retweets')
         .set('authorization', 'Bearer abc123');
@@ -587,6 +592,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -652,6 +658,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -757,6 +764,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -799,7 +807,7 @@ describe('GET /tweet/:id', () => {
         retweetedId: null,
         qouteTweetedId: null,
         deletedAt: new Date(),
-        author: user
+        author: user,
       };
 
       prismaMock.tweet.findUnique.mockResolvedValue(tweet);
@@ -823,6 +831,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -865,7 +874,7 @@ describe('GET /tweet/:id', () => {
         retweetedId: null,
         qouteTweetedId: null,
         deletedAt: null,
-        author: user
+        author: user,
       };
 
       prismaMock.tweet.findUnique.mockResolvedValue(tweet);
@@ -889,6 +898,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -957,6 +967,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1027,6 +1038,7 @@ describe('GET /tweet/:id', () => {
       });
 
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1052,7 +1064,6 @@ describe('GET /tweet/:id', () => {
       };
       prismaMock.user.findFirst.mockResolvedValue(user);
 
-
       const res = await Request(app)
         .get('/api/v1/tweets/123/retweets')
         .set('authorization', 'Bearer abc123');
@@ -1070,6 +1081,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1135,6 +1147,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1228,6 +1241,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1273,6 +1287,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1379,6 +1394,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1424,6 +1440,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1510,6 +1527,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1556,6 +1574,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1633,6 +1652,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1716,6 +1736,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1789,6 +1810,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1864,6 +1886,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1959,6 +1982,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1983,10 +2007,10 @@ describe('GET /tweet/:id', () => {
     };
     prismaMock.user.findFirst.mockResolvedValue(user);
     prismaMock.user.findUnique.mockResolvedValue(user);
-    
+
     const followObject = {
-      folowererId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
-      followedId: "251f773f-f284-4522-8e55-a17b6ddb63ef"
+      folowererId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      followedId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
     };
     prismaMock.follow.findMany.mockResolvedValue([followObject]);
 
@@ -2036,16 +2060,15 @@ describe('GET /tweet/:id', () => {
     prismaMock.tweet.create.mockResolvedValue(tweetCreated);
 
     const notificationResponse = {
-      id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+      id: '251f773f-f284-4522-8e55-a17b6ddb63aa',
       createdAt: new Date(),
-      senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
-      objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
-      type: "post",
+      senderId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      objectId: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+      type: 'post',
       deleted: false,
-      seen: false
+      seen: false,
     };
     prismaMock.notification.create.mockResolvedValue(notificationResponse);
-
 
     const res = await Request(app)
       .post('/api/v1/tweets')
@@ -2057,7 +2080,6 @@ describe('GET /tweet/:id', () => {
         // retweetedId:"351f773f-f284-4522-8e55-a17b6ddb63ef",
         sensitive: '',
       });
-
 
     expect(res.status).toBe(201);
   });
@@ -2074,6 +2096,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2141,6 +2164,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2209,6 +2233,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2225,8 +2250,7 @@ describe('GET /tweet/:id', () => {
       profileImageUrl: null,
       email: 'jhon@qwitter.com',
       userName: 'ahmed',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: 'registered_fake_token',
       passwordResetExpires: null,
@@ -2263,7 +2287,6 @@ describe('GET /tweet/:id', () => {
     expect(res.status).toBe(200);
   });
 
-
   test('search timeline', async () => {
     jest.mock('bcrypt');
     bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
@@ -2275,6 +2298,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2326,7 +2350,6 @@ describe('GET /tweet/:id', () => {
       .get('/api/v1/tweets')
       .set('authorization', 'Bearer abc123');
 
-    
     expect(res.status).toBe(200);
     expect(res.body.tweets).toHaveLength(1);
   });
@@ -2342,6 +2365,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2394,11 +2418,9 @@ describe('GET /tweet/:id', () => {
       .get('/api/v1/timeline')
       .set('authorization', 'Bearer abc123');
 
-    
     expect(res.status).toBe(200);
     expect(res.body.tweets).toHaveLength(1);
   });
-
 
   describe('like/unlike tweets', () => {
     test('like enot existing tweet', async () => {
@@ -2412,6 +2434,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2456,6 +2479,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2489,7 +2513,6 @@ describe('GET /tweet/:id', () => {
       expect(res.status).toBe(400);
     });
 
-
     test('like existing tweet', async () => {
       jest.mock('bcrypt');
       bcrypt.hash = jest.fn().mockResolvedValue('hashed_password');
@@ -2501,6 +2524,7 @@ describe('GET /tweet/:id', () => {
         exp: 1707274302,
       });
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2550,22 +2574,21 @@ describe('GET /tweet/:id', () => {
       prismaMock.tweet.findUnique.mockResolvedValue(tweetCreated);
 
       const notificationResponse = {
-        id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+        id: '251f773f-f284-4522-8e55-a17b6ddb63aa',
         createdAt: new Date(),
-        senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
-        objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
-        type: "like",
+        senderId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+        objectId: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+        type: 'like',
         deleted: false,
-        seen: false
+        seen: false,
       };
       prismaMock.notification.create.mockResolvedValue(notificationResponse);
-
 
       const res = await Request(app)
         .post('/api/v1/tweets/351f773f-f284-4522-8e55-a17b6ddb63eg/like')
         .set('authorization', 'Bearer abc123');
       expect(res.status).toBe(200);
-      expect(res.body.status).toBe("success");
+      expect(res.body.status).toBe('success');
     });
   });
 
@@ -2580,6 +2603,7 @@ describe('GET /tweet/:id', () => {
       exp: 1707274302,
     });
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2596,8 +2620,7 @@ describe('GET /tweet/:id', () => {
       profileImageUrl: null,
       email: 'jhon@qwitter.com',
       userName: 'ahmed',
-      password:
-        '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+      password: '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
       passwordChangedAt: null,
       passwordResetToken: 'registered_fake_token',
       passwordResetExpires: null,
@@ -2629,31 +2652,27 @@ describe('GET /tweet/:id', () => {
     prismaMock.tweet.findUnique.mockResolvedValue(tweetCreated);
 
     const notificationResponse = {
-      id:"251f773f-f284-4522-8e55-a17b6ddb63aa",
+      id: '251f773f-f284-4522-8e55-a17b6ddb63aa',
       createdAt: new Date(),
-      senderId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
-      objectId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
-      type: "like",
+      senderId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      objectId: '351f773f-f284-4522-8e55-a17b6ddb63eg',
+      type: 'like',
       deleted: false,
-      seen: false
+      seen: false,
     };
     prismaMock.notification.create.mockResolvedValue(notificationResponse);
 
-
-    
     const likeResponse = {
-      userId: "251f773f-f284-4522-8e55-a17b6ddb63ef",
-      tweetId: "351f773f-f284-4522-8e55-a17b6ddb63eg",
+      userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+      tweetId: '351f773f-f284-4522-8e55-a17b6ddb63eg',
     };
 
     prismaMock.like.findUnique.mockResolvedValue(likeResponse);
-
 
     const res = await Request(app)
       .delete('/api/v1/tweets/351f773f-f284-4522-8e55-a17b6ddb63eg/like')
       .set('authorization', 'Bearer abc123');
     expect(res.status).toBe(200);
-    expect(res.body.status).toBe("success");
+    expect(res.body.status).toBe('success');
   });
-
 });

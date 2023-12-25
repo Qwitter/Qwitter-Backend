@@ -331,7 +331,7 @@ export const postTweet = catchAsync(
         createdAt: new Date(),
         reply: structuredTweet,
       };
-      sendNotification((tempUser as User).userName, notificationObject);
+      sendNotification(tempUser as User, notificationObject);
     }
     //TODO: add retweet notification
     if (
@@ -362,7 +362,7 @@ export const postTweet = catchAsync(
         createdAt: new Date(),
         retweet: structuredTweet,
       };
-      sendNotification((tempUser as User).userName, notificationObject);
+      sendNotification(tempUser as User, notificationObject);
     }
     //TODO: add followers notification for the new post
 
@@ -390,10 +390,9 @@ export const postTweet = catchAsync(
         createdAt: new Date(),
         post: structuredTweet,
       };
-      sendNotification(
-        ((await getUserByID(follower.followedId)) as User).userName,
-        notificationObject,
-      );
+      const followerUser = (await getUserByID(follower.followedId)) as User;
+      if (followerUser.userName !== currentUser.userName)
+        sendNotification(followerUser, notificationObject);
     }
 
     return res.status(201).json({
@@ -918,7 +917,9 @@ export const getUserMentionedTweets = catchAsync(
       (user as User).id as string,
       skip,
       parsedLimit,
+      user,
     );
+
     const responses = await getTweetsRepliesRetweets(tweets, user.id);
     return res.status(200).json({ tweets: responses });
   },
@@ -1090,7 +1091,7 @@ export const likeTweet = catchAsync(
         like: structuredTweet,
       };
 
-      sendNotification(existingTweet.author.userName, notificationObject);
+      sendNotification(existingTweet.author, notificationObject);
     }
     res.status(200).json({ status: 'success' });
   },

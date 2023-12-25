@@ -284,6 +284,7 @@ export const getTweetsMentionedById = async (
   Id: string,
   skip: number,
   parsedLimit: number,
+  currentUser: User,
 ) => {
   const tweets =
     (await prisma.tweet.findMany({
@@ -313,7 +314,19 @@ export const getTweetsMentionedById = async (
 
   for (const tweet of tweets) {
     const entities = await getTweetEntities(tweet.id);
-    const temp = { ...tweet, entities: entities };
+    const liked = await prisma.like.findFirst({
+      where: {
+        userId: currentUser.id,
+        tweetId: tweet.id,
+      },
+    });
+    const currentUserRetweetId = await isRetweeted(currentUser.id, tweet);
+    const temp = {
+      ...tweet,
+      entities: entities,
+      liked: liked != null,
+      currentUserRetweetId,
+    };
     mentionedTweets.push(temp);
   }
 

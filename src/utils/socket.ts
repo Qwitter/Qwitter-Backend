@@ -15,6 +15,7 @@ export const EVENTS = {
     JOINED_ROOM: 'JOINED_ROOM', // Sending a message that a user joined a room
     ROOM_MESSAGE: 'ROOM_MESSAGE', // Sending a message to the conversation room socket only
     NOTIFICATION: 'NOTIFICATION', // Sending a message to the room of the username
+    NOTIFICATION_COUNT: 'NOTIFICATION_COUNT',
     MESSAGE: 'MESSAGE', // Sending a general message to the user on the room of the username
     CONVERSATION: 'CONVERSATION', //Socket for
   },

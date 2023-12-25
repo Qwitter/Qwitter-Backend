@@ -1,12 +1,14 @@
+import { User } from '@prisma/client';
 import prisma from '../client';
 import { io } from '../socketServer';
 import { EVENTS } from './socket';
 
-export const sendNotification = (
-  userName: string,
-  notification: object,
-): void => {
-  io.to(userName).emit(EVENTS.SERVER.NOTIFICATION, notification);
+export const sendNotification = (user: User, notification: object): void => {
+  io.to(user.userName).emit(EVENTS.SERVER.NOTIFICATION, notification);
+  io.to(user.userName).emit(
+    EVENTS.SERVER.NOTIFICATION_COUNT,
+    user.notificationCount,
+  );
 };
 
 // Sends update to all the people in the conversation in the page of the conversations

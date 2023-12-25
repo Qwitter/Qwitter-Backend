@@ -725,7 +725,7 @@ export const followUser = catchAsync(
           tweetCount: await getNumOfTweets((req.user as User).userName),
         },
       };
-      sendNotification(username, notificationObject);
+      sendNotification(req.user as User, notificationObject);
     }
 
     res

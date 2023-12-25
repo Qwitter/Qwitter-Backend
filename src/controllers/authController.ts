@@ -68,7 +68,7 @@ export const login = catchAsync(
       type: 'login',
       createdAt: new Date(),
     };
-    sendNotification(user.userName, notificationObject);
+    sendNotification(user, notificationObject);
     sendToken(
       token,
       200,
@@ -313,11 +313,11 @@ export const signUpGoogle = catchAsync(
     }
 
     const token: string = auth_header.split(' ')[1];
-    const payloadData =await verify(token, process.env.JWT_SECRET as string);
+    const payloadData = await verify(token, process.env.JWT_SECRET as string);
     const google_id = (payloadData as JwtPayload).google_id;
     const email = (payloadData as JwtPayload).email?.toLowerCase();
     const name = (payloadData as JwtPayload).name;
-    console.log((payloadData as JwtPayload).google_id)
+    console.log((payloadData as JwtPayload).google_id);
     if (!google_id || !email || !name) {
       return _next(new AppError('Invalid access credentials', 409));
     }
@@ -392,7 +392,7 @@ export const logInGoogle = catchAsync(
       type: 'login',
       createdAt: new Date(),
     };
-    sendNotification(user.userName, notificationObject);
+    sendNotification(user, notificationObject);
     _res.status(200).json({
       token,
       user: { ...user, tweetCount: getNumOfTweets(user.userName) },
@@ -500,7 +500,6 @@ export const sendVerificationEmail = catchAsync(
     });
   },
 );
-
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
