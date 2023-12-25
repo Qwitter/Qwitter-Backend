@@ -23,7 +23,6 @@ export const sendUnseenConversationCount = (
   userName: string,
   newCount: number,
 ): void => {
-  console.log(userName, newCount);
   io.to(userName).emit(EVENTS.SERVER.UNREAD_CONVERSATIONS, newCount);
 };
 
