@@ -250,7 +250,6 @@ export const isConversationSeen = async (
   const conversation = await prisma.userConversations.findUnique({
     where: { userId_conversationId: { userId, conversationId } },
   });
-  console.log(conversation);
   return conversation?.seen;
 };
 export const resetSeenConversation = async (userId: string) => {
