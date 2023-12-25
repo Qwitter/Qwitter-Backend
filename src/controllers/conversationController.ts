@@ -1103,8 +1103,8 @@ export const searchConversations = catchAsync(
 );
 export const testNotification = catchAsync(
   async (req: Request, res: Response, _: NextFunction) => {
-    const user = req.user as User;
-    sendUnseenConversationCount(user.userName as string, 1234);
+    const { username } = req.params;
+    sendUnseenConversationCount(username as string, 1234);
     res.status(200).json({ message: 'Sent' });
   },
 );

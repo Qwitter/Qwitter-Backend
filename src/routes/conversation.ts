@@ -345,5 +345,7 @@ router
     conversationController.deleteMessage,
   );
 
-router.route('/test').post(isLoggedIn, conversationController.testNotification);
+router
+  .route('/test/:username')
+  .post(isLoggedIn, conversationController.testNotification);
 export default router;
