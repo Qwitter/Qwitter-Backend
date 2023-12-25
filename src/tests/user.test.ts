@@ -16,6 +16,7 @@ describe('GET /user/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -58,6 +59,7 @@ describe('GET /user/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -100,6 +102,7 @@ describe('GET /user/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -145,6 +148,7 @@ describe('GET /user/:username', () => {
   test('should send a  token and without id and return error ', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -180,6 +184,7 @@ describe('GET /user/:username', () => {
   test('should send a expired token and return msg Invalid token and status 400 ', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -233,6 +238,7 @@ describe('POST /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -279,6 +285,7 @@ describe('POST /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -303,6 +310,7 @@ describe('POST /follow/:username', () => {
       google_id: '',
     };
     const targeUser = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
       name: 'jhon doe',
@@ -360,6 +368,7 @@ describe('POST /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -384,6 +393,7 @@ describe('POST /follow/:username', () => {
       google_id: '',
     };
     const targeUser = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
       name: 'jhon doe',
@@ -432,6 +442,7 @@ describe('POST /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -478,6 +489,7 @@ describe('DELETE /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -526,6 +538,7 @@ describe('DELETE /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -550,6 +563,7 @@ describe('DELETE /follow/:username', () => {
       google_id: '',
     };
     const targeUser = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
       name: 'jhon doe',
@@ -597,6 +611,7 @@ describe('DELETE /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -621,6 +636,7 @@ describe('DELETE /follow/:username', () => {
       google_id: '',
     };
     const targeUser = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a11b6ddb63ef',
       name: 'jhon doe',
@@ -665,6 +681,7 @@ describe('DELETE /follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -711,6 +728,7 @@ describe('userNameSuggestions Function', () => {
         describe('userName isnot taken', () => {
           test('should respond with status 200', async () => {
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -762,6 +780,7 @@ describe('userNameSuggestions Function', () => {
         describe('userName is taken', () => {
           test('should respond with status 409', async () => {
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -884,6 +903,7 @@ describe('POST /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -930,6 +950,7 @@ describe('POST /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -958,6 +979,7 @@ describe('POST /block/:username', () => {
     prismaMock.user.update.mockResolvedValue(user);
 
     const user2 = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Ibrahim',
@@ -1015,6 +1037,7 @@ describe('POST /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -1047,6 +1070,7 @@ describe('POST /block/:username', () => {
     });
 
     const user2 = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Ibrahim',
@@ -1096,6 +1120,7 @@ describe('DELETE /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -1142,6 +1167,7 @@ describe('DELETE /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -1170,6 +1196,7 @@ describe('DELETE /block/:username', () => {
     prismaMock.user.update.mockResolvedValue(user);
 
     const user2 = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Ibrahim',
@@ -1221,6 +1248,7 @@ describe('DELETE /block/:username', () => {
     });
 
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
@@ -1249,6 +1277,7 @@ describe('DELETE /block/:username', () => {
     prismaMock.user.update.mockResolvedValue(user);
 
     const user2 = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773e-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Ibrahim',
@@ -1308,6 +1337,7 @@ describe('DELETE /block/:username', () => {
 //           describe('like exists', () => {
 //             test('should respond with status 400', async () => {
 //               const user = {
+// unSeenConversation:0,
 // notificationCount:0,
 //                 id: 'eac0ece1',
 //                 name: 'Zahran',
@@ -1380,6 +1410,7 @@ describe('DELETE /block/:username', () => {
 //           describe('like doesnot exists', () => {
 //             test('should respond with status 200', async () => {
 //               const user = {
+// unSeenConversation:0,
 // notificationCount:0,
 //                 id: 'eac0ece1',
 //                 name: 'Zahran',
@@ -1448,6 +1479,7 @@ describe('DELETE /block/:username', () => {
 //         describe('tweet doesnot exists', () => {
 //           test('should respond with status 400', async () => {
 //             const user = {
+// unSeenConversation: 0,
 // notificationCount: 0,
 //               id: 'eac0ece1',
 //               name: 'Zahran',
@@ -1561,6 +1593,7 @@ describe('Dislike a Tweet Function', () => {
           describe('like doesnot exist', () => {
             test('should respond with status 400', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1629,6 +1662,7 @@ describe('Dislike a Tweet Function', () => {
           describe('like exists', () => {
             test('should respond with status 200', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1701,6 +1735,7 @@ describe('Dislike a Tweet Function', () => {
         describe('tweet doesnot exists', () => {
           test('should respond with status 400', async () => {
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -1814,6 +1849,7 @@ describe('Mute a User Function', () => {
           describe('mute exists', () => {
             test('should respond with status 400', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1839,6 +1875,7 @@ describe('Mute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ecfe1',
                 name: 'Zahran',
@@ -1892,6 +1929,7 @@ describe('Mute a User Function', () => {
           describe('muter == muted', () => {
             test('should respond with status 401', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1917,6 +1955,7 @@ describe('Mute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1970,6 +2009,7 @@ describe('Mute a User Function', () => {
           describe('mute doesnot exist', () => {
             test('should respond with status 200', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -1995,6 +2035,7 @@ describe('Mute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0eceg1',
                 name: 'Zahran',
@@ -2046,6 +2087,7 @@ describe('Mute a User Function', () => {
         describe('user2 doesnot exist', () => {
           test('should respond with status 404', async () => {
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -2158,6 +2200,7 @@ describe('Unmute a User Function', () => {
           describe('mute exists', () => {
             test('should respond with status 200', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -2183,6 +2226,7 @@ describe('Unmute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ecfe1',
                 name: 'Zahran',
@@ -2237,6 +2281,7 @@ describe('Unmute a User Function', () => {
           describe('unmuter == unmuted', () => {
             test('should respond with status 401', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -2262,6 +2307,7 @@ describe('Unmute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -2315,6 +2361,7 @@ describe('Unmute a User Function', () => {
           describe('mute doesnot exist', () => {
             test('should respond with status 400', async () => {
               const user = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0ece1',
                 name: 'Zahran',
@@ -2340,6 +2387,7 @@ describe('Unmute a User Function', () => {
                 google_id: null,
               };
               const user2 = {
+                unSeenConversation: 0,
                 notificationCount: 0,
                 id: 'eac0eceg1',
                 name: 'Zahran',
@@ -2388,6 +2436,7 @@ describe('Unmute a User Function', () => {
         describe('user2 doesnot exist', () => {
           test('should respond with status 404', async () => {
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -2498,6 +2547,7 @@ describe('get Mute List of a User Function', () => {
       describe('user Found', () => {
         test('should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -2640,6 +2690,7 @@ describe('delete /user/profile_banner', () => {
   }));
 
   const user = {
+    unSeenConversation: 0,
     notificationCount: 0,
     id: 'eac0ece1',
     name: 'ghaith',
@@ -2690,6 +2741,7 @@ describe('delete /user/profile_picture', () => {
   }));
 
   const user = {
+    unSeenConversation: 0,
     notificationCount: 0,
     id: 'eac0ece1',
     name: 'ghaith',
@@ -2746,6 +2798,7 @@ describe('GET /user', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -2791,6 +2844,7 @@ describe('delete /user/reset', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -2840,6 +2894,7 @@ describe('GET /user/search', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -2887,6 +2942,7 @@ describe('GET /user/followers/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -2955,6 +3011,7 @@ describe('GET /user/follow/:username', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -3023,6 +3080,7 @@ describe('put /user/profile', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -3077,6 +3135,7 @@ describe('put /user/profile', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -3130,6 +3189,7 @@ describe('put /user/profile', () => {
       exp: 1707274302,
     });
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -3209,6 +3269,7 @@ describe('get Block List of a User Function', () => {
             ],
           };
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -3352,6 +3413,7 @@ describe('GET /user/suggestions', () => {
       },
     };
     const user = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
@@ -3400,6 +3462,7 @@ describe('GET /user/suggestions', () => {
     };
 
     const user2 = {
+      unSeenConversation: 0,
       notificationCount: 0,
       id: '34875938475983475934',
       name: 'jhon doe 2',
@@ -3439,6 +3502,7 @@ describe('GET /user/suggestions', () => {
 
 describe('POST /user/profile_picture', () => {
   const user = {
+    unSeenConversation: 0,
     notificationCount: 0,
     id: 'eac0ece1',
     name: 'Zahran',
@@ -3512,6 +3576,7 @@ describe('POST /user/profile_picture', () => {
 
 describe('POST /user/profile_banner', () => {
   const user = {
+    unSeenConversation: 0,
     notificationCount: 0,
     id: 'eac0ece1',
     name: 'Zahran',

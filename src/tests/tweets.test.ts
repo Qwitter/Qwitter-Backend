@@ -17,6 +17,7 @@ describe('GET /user', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -237,6 +238,7 @@ describe('GET /user', () => {
 //           test('should respond with status 404', async () => {
 //             const user = {
 // notificationCount: 0,
+// unSeenConversation: 0,
 //               id: 'eac0ece1',
 //               name: 'Zahran',
 //               birthDate: new Date(),
@@ -352,6 +354,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -396,6 +399,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -462,6 +466,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -550,6 +555,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -593,6 +599,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -659,6 +666,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -765,6 +773,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -832,6 +841,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -899,6 +909,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -968,6 +979,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1039,6 +1051,7 @@ describe('GET /tweet/:id', () => {
 
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1082,6 +1095,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1148,6 +1162,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1242,6 +1257,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1288,6 +1304,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1395,6 +1412,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1441,6 +1459,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1528,6 +1547,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1575,6 +1595,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1653,6 +1674,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -1737,6 +1759,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1811,6 +1834,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1887,6 +1911,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -1983,6 +2008,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2097,6 +2123,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2165,6 +2192,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2234,6 +2262,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2299,6 +2328,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2366,6 +2396,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),
@@ -2435,6 +2466,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2480,6 +2512,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2525,6 +2558,7 @@ describe('GET /tweet/:id', () => {
       });
       const user = {
         notificationCount: 0,
+        unSeenConversation: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'jhon doe',
         birthDate: new Date(),
@@ -2604,6 +2638,7 @@ describe('GET /tweet/:id', () => {
     });
     const user = {
       notificationCount: 0,
+      unSeenConversation: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'jhon doe',
       birthDate: new Date(),

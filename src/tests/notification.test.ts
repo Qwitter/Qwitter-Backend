@@ -30,6 +30,7 @@ describe('getNotification Function', () => {
       describe('user Found', () => {
         test('reply should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -136,6 +137,7 @@ describe('getNotification Function', () => {
         });
         test('retweet should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -242,6 +244,7 @@ describe('getNotification Function', () => {
         });
         test('login should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -348,6 +351,7 @@ describe('getNotification Function', () => {
         });
         test('follow should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -454,6 +458,7 @@ describe('getNotification Function', () => {
         });
         test('post should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -560,6 +565,7 @@ describe('getNotification Function', () => {
         });
         test('like should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -666,6 +672,7 @@ describe('getNotification Function', () => {
         });
         test('unknown type is skipped should respond with status 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',

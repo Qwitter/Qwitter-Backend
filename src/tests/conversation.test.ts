@@ -30,6 +30,7 @@ describe('searchForMembers Function', () => {
       describe('user Found', () => {
         test('No query in request should respond by 400', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -65,6 +66,7 @@ describe('searchForMembers Function', () => {
         });
         test('No conversation by that Id should respond by 400', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -99,6 +101,7 @@ describe('searchForMembers Function', () => {
         });
         test('Users matched are returned should respond by 200', async () => {
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -207,6 +210,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -256,6 +260,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -315,6 +320,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -372,6 +378,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -436,6 +443,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -503,6 +511,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -575,6 +584,7 @@ describe('postConversationUsers Function', () => {
               exp: 1707274302,
             });
             const user = {
+              unSeenConversation: 0,
               notificationCount: 0,
               id: 'eac0ece1',
               name: 'Zahran',
@@ -680,6 +690,7 @@ describe('searchForMembersForNewConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -721,6 +732,7 @@ describe('searchForMembersForNewConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -747,6 +759,7 @@ describe('searchForMembersForNewConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            unSeenConversation: 0,
             notificationCount: 0,
             name: 'dsfdsf',
             userName: 'sdfdsf',
@@ -831,6 +844,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -872,6 +886,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -917,6 +932,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -962,6 +978,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1004,6 +1021,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1030,6 +1048,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
@@ -1082,6 +1101,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1108,6 +1128,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
@@ -1172,6 +1193,7 @@ describe('createConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1198,6 +1220,7 @@ describe('createConversation Function', () => {
           };
           prismaMock.user.findFirst.mockResolvedValueOnce(user);
           const user2 = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'sdfdsgfsgf',
             name: 'Zahran',
@@ -1332,6 +1355,7 @@ describe('getConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1458,6 +1482,7 @@ describe('getConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1657,6 +1682,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1697,6 +1723,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
@@ -1766,6 +1793,7 @@ describe('deleteConversation Function', () => {
             exp: 1707274302,
           });
           const user = {
+            unSeenConversation: 0,
             notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
