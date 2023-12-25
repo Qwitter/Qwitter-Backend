@@ -1904,3 +1904,212 @@ describe('deleteConversation Function', () => {
     });
   });
 });
+
+describe('searchConversations Function', () => {
+  describe('auth_key in header', () => {
+    describe('auth_key is valid', () => {
+      describe('user Found', () => {
+        test('no query in the request should respond by 400', async () => {
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          const user = {
+            unSeenConversation: 0,
+            notificationCount: 0,
+            id: 'eac0ece1',
+            name: 'Zahran',
+            birthDate: new Date(),
+            location: null,
+            url: null,
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 0,
+            followingCount: 0,
+            createdAt: new Date(),
+            deletedAt: null,
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@gmail.com',
+            userName: 'ahmedzahran12364',
+            password:
+              '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+            passwordChangedAt: null,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            google_id: null,
+          };
+          prismaMock.user.findFirst.mockResolvedValueOnce(user);
+          const response = await Request(app)
+            .get('/api/v1/conversation/search')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(400);
+          expect(response.body.message).toStrictEqual(
+            'Query parameter "q" is required.',
+          );
+        });
+        test('query avail should respond by 200', async () => {
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          const user = {
+            unSeenConversation: 0,
+            notificationCount: 0,
+            id: 'eac0ece1',
+            name: 'Zahran',
+            birthDate: new Date(),
+            location: null,
+            url: null,
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 0,
+            followingCount: 0,
+            createdAt: new Date(),
+            deletedAt: null,
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@gmail.com',
+            userName: 'ahmedzahran12364',
+            password:
+              '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+            passwordChangedAt: null,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            google_id: null,
+          };
+          prismaMock.user.findFirst.mockResolvedValueOnce(user);
+          const conversation = {
+            id: 'true',
+            name: 'true',
+            isGroup: true,
+            photo: 'true',
+            UserConversations: [
+              {
+                User: {
+                  userName: 'true',
+                  profileImageUrl: 'true',
+                  name: 'true',
+                },
+                seen: true,
+                dateJoined: new Date(),
+              },
+            ],
+            Message: [
+              {
+                id: 'true',
+                text: 'true',
+                date: new Date(),
+                sender: {
+                  userName: 'true',
+                  profileImageUrl: 'true',
+                },
+              },
+            ],
+          };
+          const conversation2 = {
+            id: 'true',
+            name: 'true',
+            isGroup: false,
+            photo: 'true',
+            UserConversations: [
+              {
+                User: {
+                  userName: 'true',
+                  profileImageUrl: 'true',
+                  name: 'true',
+                },
+                seen: true,
+                dateJoined: new Date(),
+              },
+            ],
+            Message: [
+              {
+                id: 'true',
+                text: 'true',
+                date: new Date(),
+                sender: {
+                  userName: 'true',
+                  profileImageUrl: 'true',
+                },
+              },
+            ],
+          };
+          prismaMock.conversation.findMany.mockResolvedValueOnce([
+            conversation,
+            conversation2,
+          ]);
+          prismaMock.conversation.findMany.mockResolvedValueOnce([
+            conversation,
+            conversation2,
+          ]);
+
+          const response = await Request(app)
+            .get('/api/v1/conversation/search?q=dsjfhsk')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(200);
+          expect(response.body.groups).toBeDefined();
+          expect(response.body.people).toBeDefined();
+          expect(response.body.messages).toBeDefined();
+        });
+      });
+      describe('user not Found', () => {
+        test('should respond with status 404', async () => {
+          jwt.sign = jest.fn().mockResolvedValue('generated_token');
+          jwt.verify = jest.fn().mockResolvedValue({
+            id: 'eac0ece1',
+            iat: 1699498302,
+            exp: 1707274302,
+          });
+          prismaMock.user.findFirst.mockResolvedValue(null);
+          const response = await Request(app)
+            .get('/api/v1/conversation/search')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(404);
+          expect(response.body.message).toStrictEqual('User not found');
+        });
+      });
+    });
+    describe('auth_key is invalid', () => {
+      test('should respond with status 409 token expired', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({
+          id: 'eac0ece1',
+          iat: 1699498302,
+          exp: 0,
+        });
+
+        const response = await Request(app)
+          .get('/api/v1/conversation/search')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual('Token Expired');
+      });
+      test('should respond with status 409 token invalid', async () => {
+        jwt.verify = jest.fn().mockResolvedValueOnce({});
+
+        const response = await Request(app)
+          .get('/api/v1/conversation/search')
+          .set('authorization', 'Bearer abc123');
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toStrictEqual(
+          'Invalid access credentials',
+        );
+      });
+    });
+  });
+  describe('auth_key not found in header', () => {
+    test('should respond with status 401', async () => {
+      const response = await Request(app).get('/api/v1/conversation/search');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toStrictEqual('Unauthorized access');
+    });
+  });
+});
