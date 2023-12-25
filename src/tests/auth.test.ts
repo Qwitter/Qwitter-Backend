@@ -84,6 +84,7 @@ describe('checkExistence Function', () => {
         userNameOrEmail: 'ahmed@gmail.com',
       };
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'Ahmed Zahran',
         google_id: null,
@@ -134,6 +135,7 @@ describe('checkExistence Function', () => {
         userNameOrEmail: 'ahmedzahran12364',
       };
       const user = {
+        notificationCount: 0,
         id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
         name: 'Ahmed Zahran',
         google_id: null,
@@ -170,6 +172,7 @@ describe('checkExistence Function', () => {
 describe('POST /auth/login', () => {
   test('should send post request to login with a registered user using username and respond with status and token and user', async () => {
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -252,6 +255,7 @@ describe('verifyEmail Function', () => {
           email: 'ahmed@qwitter.com',
         };
         const user = {
+          notificationCount: 0,
           id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
           name: 'Ahmed Zahran',
           birthDate: new Date(),
@@ -351,6 +355,7 @@ describe('verifyEmail Function', () => {
 describe('POST /auth/signup', () => {
   test('should sign up a new user and return a token and user data with status 200', async () => {
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -398,6 +403,7 @@ describe('POST /auth/signup', () => {
 
   test('should not sign up an already registered user and return a 409 error', async () => {
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -434,6 +440,7 @@ describe('POST /auth/signup', () => {
   });
   test('unverified email case', async () => {
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -473,6 +480,7 @@ describe('POST /auth/signup', () => {
   });
   test('unverified email case', async () => {
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -587,6 +595,7 @@ describe('POST /change-password', () => {
       passwordConfirmation: 'password',
     };
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -630,6 +639,7 @@ describe('POST /change-password', () => {
       passwordConfirmation: 'password2',
     };
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -682,6 +692,7 @@ describe('POST /change-password', () => {
 describe('POST forgotPassword', () => {
   test('should send a registered email and return a msg confirming a reset email and status code 200', async () => {
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -736,6 +747,7 @@ describe('POST forgotPassword', () => {
 describe('POST /reset-password', () => {
   test('should send a registered token and return a msg confirming a reset password and status code 200', async () => {
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -784,6 +796,7 @@ describe('POST /reset-password', () => {
   test('should send a expired token and return msg Invalid token and status 400 ', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
     const user = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -826,6 +839,7 @@ describe('userNameSuggestions Function', () => {
       describe('user Found', () => {
         test('should respond with status 200', async () => {
           const user = {
+            notificationCount: 0,
             id: 'eac0ece1',
             name: 'Zahran',
             birthDate: new Date(),
@@ -925,6 +939,7 @@ describe('POST /auth/update-password', () => {
       exp: 1707274302,
     });
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -981,6 +996,7 @@ describe('POST /auth/update-password', () => {
       exp: 1707274302,
     });
     const mockUser = {
+      notificationCount: 0,
       id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
       name: 'Ahmed Zahran',
       birthDate: new Date(),
@@ -1030,6 +1046,7 @@ describe('POST /auth/update-password', () => {
 
 describe('POST /auth/google/signup', () => {
   const mockUser = {
+    notificationCount: 0,
     id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
     name: 'Ahmed Zahran',
     birthDate: new Date(),
@@ -1139,6 +1156,7 @@ describe('POST /auth/google/signup', () => {
 
 describe('POST /auth/google/login', () => {
   const mockUser = {
+    notificationCount: 0,
     id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
     name: 'Ahmed Zahran',
     birthDate: new Date(),
@@ -1275,6 +1293,7 @@ describe('POST /auth/google/login', () => {
 
 describe('POST /auth/check-password', () => {
   const mockUser = {
+    notificationCount: 0,
     id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
     name: 'Ahmed Zahran',
     birthDate: new Date(),
@@ -1323,6 +1342,7 @@ describe('POST /auth/check-password', () => {
 
 describe('POST /auth/change-email', () => {
   const mockUser = {
+    notificationCount: 0,
     id: '251f773f-f284-4522-8e55-a17b6ddb63ef',
     name: 'Ahmed Zahran',
     birthDate: new Date(),

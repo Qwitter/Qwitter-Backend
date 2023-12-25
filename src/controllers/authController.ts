@@ -68,7 +68,7 @@ export const login = catchAsync(
       type: 'login',
       createdAt: new Date(),
     };
-    sendNotification(user.userName, notificationObject);
+    sendNotification(user, notificationObject);
     sendToken(
       token,
       200,
@@ -391,7 +391,7 @@ export const logInGoogle = catchAsync(
       type: 'login',
       createdAt: new Date(),
     };
-    sendNotification(user.userName, notificationObject);
+    sendNotification(user, notificationObject);
     _res.status(200).json({
       token,
       user: { ...user, tweetCount: getNumOfTweets(user.userName) },
