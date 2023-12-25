@@ -85,7 +85,6 @@ describe('GET /user/:username', () => {
     const res = await Request(app)
       .get('/api/v1/user/jhondoe')
       .set('authorization', 'Bearer abc123');
-    console.log(res.body);
     expect(res.status).toBe(200);
   });
   test('this should send request with header containing token with a non existing user and return 404 with User not found\n', async () => {
@@ -127,7 +126,6 @@ describe('GET /user/:username', () => {
     const res = await Request(app)
       .get('/api/v1/user/jhondoe')
       .set('authorization', 'Bearer abc123');
-    console.log(res.body);
     expect(res.status).toBe(200);
   });
 
@@ -138,9 +136,7 @@ describe('GET /user/:username', () => {
     jwt.sign = jest.fn().mockResolvedValue('generated_token');
     jwt.verify = jest.fn().mockResolvedValue({});
     prismaMock.user.findFirst.mockResolvedValue(null);
-    const res = await Request(app)
-      .get('/api/v1/user/jhon')
-    console.log(res.body)
+    const res = await Request(app).get('/api/v1/user/jhon');
     expect(res.status).toBe(404);
   });
   test('should send a  token and without id and return error ', async () => {
@@ -172,7 +168,8 @@ describe('GET /user/:username', () => {
     prismaMock.user.update.mockResolvedValue(user);
 
     const response = await Request(app)
-      .get('/api/v1/user/jhon').set('authorization', 'Bearer abc123');
+      .get('/api/v1/user/jhon')
+      .set('authorization', 'Bearer abc123');
     expect(response.status).toEqual(409);
     expect(response.body.message).toStrictEqual('Invalid access credentials');
   });
@@ -206,18 +203,18 @@ describe('GET /user/:username', () => {
     jest.mock('jsonwebtoken');
     jwt.sign = jest.fn().mockResolvedValue('generated_token');
     jwt.verify = jest.fn().mockResolvedValue({
-      id:"238423874",
-      exp:0
+      id: '238423874',
+      exp: 0,
     });
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.user.update.mockResolvedValue(user);
 
     const response = await Request(app)
-      .get('/api/v1/user/jhon').set('authorization', 'Bearer abc123');
+      .get('/api/v1/user/jhon')
+      .set('authorization', 'Bearer abc123');
     expect(response.status).toEqual(409);
     expect(response.body.message).toStrictEqual('Token Expired');
   });
-  
 });
 
 describe('POST /follow/:username', () => {

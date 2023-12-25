@@ -284,8 +284,8 @@ export const getConversationDetails = catchAsync(
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
-    if (!conversationId)
-      return res.json({ message: 'Bad Request' }).status(400);
+    // if (!conversationId)
+    //   return res.json({ message: 'Bad Request' }).status(400);
     //check if user is in the conversation
     const found = await prisma.userConversations.findFirst({
       where: {
@@ -779,8 +779,12 @@ export const postConversationUsers = catchAsync(
     }
 
     let users = req.body.users as Array<string>;
-    users = users.map((user) => user.toLowerCase());
 
+    if (!users) {
+      return next(new AppError('No users to add', 401));
+    }
+
+    users = users.map((user) => user.toLowerCase());
     const usersData = await prisma.user.findMany({
       where: {
         userName: {
@@ -895,7 +899,7 @@ export const searchConversations = catchAsync(
               },
             },
             seen: true,
-            dateJoined: true
+            dateJoined: true,
           },
         },
         Message: {
@@ -967,7 +971,7 @@ export const searchConversations = catchAsync(
               },
             },
             dateJoined: true,
-            seen: true
+            seen: true,
           },
         },
         Message: {
@@ -1006,20 +1010,21 @@ export const searchConversations = catchAsync(
         type: conversation?.isGroup ? 'group' : 'direct',
         photo: conversation.photo,
         dateJoined: conversation?.isGroup
-        ? conversation.UserConversations.find(
-            (u) => u.User.userName == (req.user as User).userName,
-          )?.dateJoined
-        : '',
+          ? conversation.UserConversations.find(
+              (u) => u.User.userName == (req.user as User).userName,
+            )?.dateJoined
+          : '',
         users: conversation.UserConversations.map((userConversation) => ({
           userName: userConversation.User.userName,
           name: userConversation.User.name,
           profileImageUrl: userConversation.User.profileImageUrl,
-        })).filter((user) => user.userName != ((req.user) as User).userName),
+        })).filter((user) => user.userName != (req.user as User).userName),
         lastMessage:
           conversation.Message.length > 0 ? conversation.Message[0] : null,
-        seen: conversation.UserConversations.find(
-              (u) => u.User.userName == (req.user as User).userName,
-            )?.seen || false  
+        seen:
+          conversation.UserConversations.find(
+            (u) => u.User.userName == (req.user as User).userName,
+          )?.seen || false,
       }));
 
     const people = conversationsPeopleGroups
@@ -1033,12 +1038,13 @@ export const searchConversations = catchAsync(
           userName: userConversation.User.userName,
           name: userConversation.User.name,
           profileImageUrl: userConversation.User.profileImageUrl,
-        })).filter((user) => user.userName != ((req.user) as User).userName),
+        })).filter((user) => user.userName != (req.user as User).userName),
         lastMessage:
           conversation.Message.length > 0 ? conversation.Message[0] : null,
-        seen: conversation.UserConversations.find(
-          (u) => u.User.userName == (req.user as User).userName,
-        )?.seen || false  
+        seen:
+          conversation.UserConversations.find(
+            (u) => u.User.userName == (req.user as User).userName,
+          )?.seen || false,
       }));
 
     const messages = conversationsMessage.map((conversation) => ({
@@ -1055,12 +1061,13 @@ export const searchConversations = catchAsync(
         userName: userConversation.User.userName,
         name: userConversation.User.name,
         profileImageUrl: userConversation.User.profileImageUrl,
-      })).filter((user) => user.userName != ((req.user) as User).userName),
+      })).filter((user) => user.userName != (req.user as User).userName),
       lastMessage:
         conversation.Message.length > 0 ? conversation.Message[0] : null,
-      seen: conversation.UserConversations.find(
-        (u) => u.User.userName == (req.user as User).userName,
-      )?.seen || false  
+      seen:
+        conversation.UserConversations.find(
+          (u) => u.User.userName == (req.user as User).userName,
+        )?.seen || false,
     }));
 
     res.status(200).json({
