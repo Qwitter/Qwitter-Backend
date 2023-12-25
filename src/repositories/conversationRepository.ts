@@ -6,6 +6,7 @@ import {
   extractEntities,
   getMessageEntities,
 } from './entityRepository';
+import { sendUnseenConversationCount } from '../utils/notifications';
 
 export const searchMember = async (
   query: string,
@@ -245,4 +246,53 @@ export const findConversationById = async (conversationId: string) => {
   return await prisma.conversation.findUnique({
     where: { id: conversationId },
   });
+};
+
+export const isConversationSeen = async (
+  conversationId: string,
+  userId: string,
+) => {
+  const conversation = await prisma.userConversations.findFirst({
+    where: { conversationId, userId },
+    select: {
+      seen: true,
+    },
+  });
+  return conversation?.seen;
+};
+export const resetSeenConversation = async (userId: string) => {
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      unSeenConversation: 0,
+    },
+  });
+};
+export const incrementSeenConversation = async (
+  userId: string,
+  val: number,
+  conversationId: string,
+) => {
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      unSeenConversation: { increment: val },
+    },
+  });
+  await prisma.userConversations.update({
+    where: {
+      userId_conversationId: { userId, conversationId },
+    },
+    data: {
+      seen: val == 1 ? false : true,
+    },
+  });
+  sendUnseenConversationCount(
+    updatedUser.userName,
+    updatedUser.unSeenConversation as number,
+  );
 };

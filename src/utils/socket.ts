@@ -18,6 +18,7 @@ export const EVENTS = {
     NOTIFICATION_COUNT: 'NOTIFICATION_COUNT',
     MESSAGE: 'MESSAGE', // Sending a general message to the user on the room of the username
     CONVERSATION: 'CONVERSATION', //Socket for
+    UNREAD_CONVERSATIONS: 'UNREAD_CONVERSATIONS',
   },
 };
 interface CustomSocket extends Socket {

@@ -11,6 +11,9 @@ import {
   validMessageReply,
   findConversationPeople,
   findConversationById,
+  resetSeenConversation,
+  incrementSeenConversation,
+  isConversationSeen,
 } from '../repositories/conversationRepository';
 import {
   getImagePath,
@@ -351,6 +354,18 @@ export const postMessage = catchAsync(
       photoName,
     );
     sendConversationUpdate(createMessage, id);
+
+    // Incrementing the count of unseen conversations for users in the conversation
+    const users = await findConversationPeople(id);
+    for (const tempUser of users) {
+      // Incrementing the count of seen conversations
+      const seen = await isConversationSeen(id, user.id);
+      if (seen) {
+        // It should be seen to update it to unseen
+        if (tempUser.userId !== user.id)
+          incrementSeenConversation(tempUser.userId, 1, id);
+      }
+    }
     const formattedMessage = {
       profileImageUrl: user.profileImageUrl,
       userName: user.userName,
@@ -760,6 +775,7 @@ export const getConversation = catchAsync(
       };
       responseConvs.push(tempResponse);
     }
+    await resetSeenConversation(authUser.id);
     return res.json(responseConvs).status(200);
   },
 );

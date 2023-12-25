@@ -27,6 +27,7 @@ model User {
   followersCount       Int                   @default(0)
   followingCount       Int                   @default(0)
   notificationCount    Int?                  @default(0)
+  unSeenConversation   Int?                  @default(0)
   createdAt            DateTime              @db.Timestamp()
   deletedAt            DateTime?             @db.Timestamp()
   profileBannerUrl     String?

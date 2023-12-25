@@ -19,6 +19,12 @@ export const newTweetNotification = (): void => {
     message: 'newTweet',
   });
 };
+export const sendUnseenConversationCount = (
+  userName: string,
+  newCount: number,
+): void => {
+  io.to(userName).emit(EVENTS.SERVER.UNREAD_CONVERSATIONS, newCount);
+};
 
 // Sends update to all the people in the conversation in the page of the conversations
 export const sendConversationUpdate = async (

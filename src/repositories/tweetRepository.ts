@@ -258,6 +258,7 @@ export const getTweetsLikedById = async (
             qouteCount: true,
             likesCount: true,
             sensitive: true,
+            readCount: true,
           },
         },
       },
@@ -362,6 +363,7 @@ export const getTweetsMediaById = async (
       qouteCount: true,
       likesCount: true,
       sensitive: true,
+      readCount: true,
     },
     orderBy: {
       createdAt: 'desc',
