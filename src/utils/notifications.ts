@@ -13,6 +13,13 @@ export const sendNotification = (user: User, notification: object): void => {
   incrementNotification(user.userName);
 };
 
+// This is for the blue icon on the home page in Twitter
+export const newTweetNotification = (): void => {
+  io.to('ALL').emit(EVENTS.SERVER.NOTIFICATION, {
+    message: 'newTweet',
+  });
+};
+
 // Sends update to all the people in the conversation in the page of the conversations
 export const sendConversationUpdate = async (
   lastMessage: any,

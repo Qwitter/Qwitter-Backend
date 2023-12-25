@@ -35,7 +35,7 @@ import {
   getTweetsMentionedById,
 } from '../repositories/tweetRepository';
 import { authorSelectOptions } from '../types/user';
-import { sendNotification } from '../utils/notifications';
+import { newTweetNotification, sendNotification } from '../utils/notifications';
 
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
@@ -417,7 +417,7 @@ export const postTweet = catchAsync(
           });
       }
     }
-
+    newTweetNotification();
     return res.status(201).json({
       status: 'success',
       tweet: structuredTweet,
