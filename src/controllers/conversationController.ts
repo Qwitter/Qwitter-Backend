@@ -32,8 +32,8 @@ import { sendConversationUpdate } from '../utils/notifications';
 export const editConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
-    if (!conversationId)
-      return res.json({ message: 'Bad Request' }).status(400);
+    // if (!conversationId)
+    //   return res.json({ message: 'Bad Request' }).status(400);
     //check if user is in the conversation
     const found = await prisma.userConversations.findFirst({
       where: {
