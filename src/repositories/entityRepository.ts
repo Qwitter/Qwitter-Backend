@@ -9,7 +9,7 @@ export const getMention = async (userId: string) => {
     },
   });
 };
-export const getTweetEntities = async (tweetId: string) => {
+export const getTweetEntities2 = async (tweetId: string) => {
   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations =
     (await prisma.tweetEntity.findMany({
@@ -37,6 +37,52 @@ export const getTweetEntities = async (tweetId: string) => {
         Media: true,
       },
     });
+    if (entity?.Mention) {
+      entities.mentions.push(entity.Mention.mentionedUser.userName as string);
+    } else if (entity?.Hashtag) {
+      entities.hashtags.push(entity.Hashtag);
+    } else if (entity?.Url) {
+      entities.urls.push(entity.Url);
+    } else if (entity?.Media) {
+      const newMedia = { value: entity.Media.url, type: entity.Media.type };
+      entities.media.push(newMedia);
+    }
+  }
+  return entities;
+};
+export const getTweetEntities = async (tweetId: string) => {
+  let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
+  const relations =
+    (await prisma.tweetEntity.findMany({
+      where: {
+        tweetId: tweetId,
+      },
+    })) || [];
+  const entitiesIds = relations.map((relation) => {
+    return relation.entityId;
+  }) as string[];
+  const relationEntities = await prisma.entity.findMany({
+    where: {
+      id: {
+        in: entitiesIds,
+      },
+    },
+    include: {
+      Mention: {
+        include: {
+          mentionedUser: {
+            select: {
+              userName: true,
+            },
+          },
+        },
+      },
+      Hashtag: true,
+      Url: true,
+      Media: true,
+    },
+  });
+  for (const entity of relationEntities) {
     if (entity?.Mention) {
       entities.mentions.push(entity.Mention.mentionedUser.userName as string);
     } else if (entity?.Hashtag) {
