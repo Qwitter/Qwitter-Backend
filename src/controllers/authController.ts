@@ -343,6 +343,8 @@ export const signUpGoogle = catchAsync(
           google_id: google_id,
         },
         select: {
+          notificationCount: true,
+          unSeenConversation: true,
           id: true,
           name: true,
           birthDate: true,
@@ -651,6 +653,8 @@ export const changeEmail = catchAsync(
 
       res
         .json({
+          notificationCount: user.notificationCount,
+          unSeenConversation: user.unSeenConversation,
           userName: updatedUser.userName,
           name: updatedUser.name,
           birthDate: updatedUser.birthDate,
