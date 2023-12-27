@@ -31,7 +31,11 @@ import {
 } from '../utils/notifications';
 
 // export const sendMessage = (req: Request, res: Response) => {};
-
+/**
+ * edit Conversationss including their photo and name
+ * it makes sure that the conversation exists if it doesn't it sends 400 and message bad request
+ * else it simply updates the conversation and send status 200 and status success with the conversation id
+ */
 export const editConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
@@ -68,6 +72,13 @@ export const editConversation = catchAsync(
     return res.status(200).json({ status: 'success', id: conversationId });
   },
 );
+
+/**
+ * geting conversation details
+ * it makes sure that the user is the member of the conversation if not it send 401 and User is not a member of the group
+ * if he is a member it returns all details of the conversation including the members, messages, name of the group and photo of conversation with status 200
+ *  */
+
 
 export const getConversationDetails = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -287,6 +298,14 @@ export const getConversationDetails = catchAsync(
     return res.status(200).json(formattedConversationDetails);
   },
 );
+
+/**
+ * Searching for a member in a specific conversation
+ * if the user is not found or the conversation is not found it return 400 status code with message bad request
+ * else it return a list of users wich might be relevant to the query word
+ *  
+ */
+
 export const searchForMembers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const conversationId = req.params.id;
@@ -318,6 +337,13 @@ export const searchForMembers = catchAsync(
     return res.status(200).json({ users: users });
   },
 );
+
+/**
+ * Searching for a member to add to conversation
+ * it returns all users that are relavent to the query and status of 200
+ *  
+ */
+
 export const searchForMembersForNewConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     //search
@@ -334,6 +360,11 @@ export const searchForMembersForNewConversation = catchAsync(
     return res.status(200).json({ users: users });
   },
 );
+/**
+ * for creating a message it first checks if the message is a reply to another message then replied to message exists
+ * if it doesn't it returns status code 400 and invalid reply Id
+ * it  increments the number of unseen conversation for users whitin this conversation then it return the formatted message with status 200
+ */
 
 export const postMessage = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -395,6 +426,15 @@ export const postMessage = catchAsync(
     });
   },
 );
+
+/**
+ * for creating a conversation it first checks that all added users are not blocked and exist if not it return status 401 and not all users are found message
+ * then it checks that none of the prompted users contain the auth user if it does it send 402 with message can't create conversation with yourself
+ * then it checks if users are provided if not it return 403 and error no users provided
+ * if it passed all the previous checks it simply creates the conversation and creates a message declaring the creation of the conversation
+ * it returns the conversation and status 200
+ */
+
 
 export const createConversation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -540,6 +580,14 @@ export const createConversation = catchAsync(
   },
 );
 
+
+
+/**
+ * for deleting conversation meaning the user leaving the conversation
+ * it starts off by making sure that the conversation exists relavant to the user if not it send 401 and message conversation not found
+ * if it passed the previous check it deletes the conversation from the user conversation and return 200 and operationSucces:true
+ */
+
 export const deleteConversation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const authUser = req.user as User;
@@ -575,6 +623,12 @@ export const deleteConversation = catchAsync(
   },
 );
 
+
+/**
+ * for deleting a message it simplu deletes the message if found and return 200 status code
+ * if not found it return 404 and message Message not found
+ */
+
 export const deleteMessage = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.body.message_id;
@@ -594,6 +648,12 @@ export const deleteMessage = catchAsync(
     }
   },
 );
+
+/**
+ * for deleting a message it simply deletes the message if found and return 200 status code
+ * if not found it return 404 and message Message not found
+ */
+
 
 export const getConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -787,6 +847,17 @@ export const getConversation = catchAsync(
   },
 );
 
+/**
+ * for adding users to a conversation
+ * it starts by finding the indicated conversation if it doesn't exist it return status 500 with msg Oops! Something went wrong
+ * if then checks that the indicated conversation is group if not it returns status 401 with msg You can not add users to direct messages
+ * it then checks the user sent users to add if there's none it returns 401 and msg no users to add
+ * then it varifies the existence of each user if not it returns msg 'Not all users are found' and status 404
+ * if the user already exists in the conversation it returns  msg 'User already exists' and status 401
+ * else it adds all of the users to the group
+ */
+
+
 export const postConversationUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const conversationId = req.params.id;
@@ -843,6 +914,15 @@ export const postConversationUsers = catchAsync(
     return res.status(201).json({ message: 'Users added successfully' });
   },
 );
+/**
+ * it fetches the conversation of the auth user that relevant to the promtped query
+ * it first check existence of the query if doesn't exist it return 400 and msg Query parameter "q" is required
+ * if it exists it proceeds to fetch all the conversations that are relavant to query and orders them in chronological order
+ * then it categorizes the fetched conversations into groups and direct messages
+ * then it proceeds to fetch the last messages of each conversation
+ * it formats the response and returns all relavant conversations with status 200
+ */
+
 
 export const searchConversations = catchAsync(
   async (req: Request, res: Response, _: NextFunction) => {
