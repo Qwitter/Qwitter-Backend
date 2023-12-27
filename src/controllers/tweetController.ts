@@ -959,7 +959,7 @@ export const getUserReplies = catchAsync(
       filteredResponses.push(tweet);
     }
     return res.status(200).json({
-      tweets: responses,
+      tweets: filteredResponses,
     });
   },
 );
