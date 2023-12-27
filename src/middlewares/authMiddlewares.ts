@@ -5,6 +5,11 @@ import prisma from '../client';
 import { catchAsync } from '../utils/catchAsync';
 import { User } from '@prisma/client';
 
+/**
+ * middleware to check if user is logged in
+  * check if auth token exists, valid token, not expired & user already exists for this jwt
+  * otherwise return error identifying the opposed error
+ */
 export const isLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
@@ -39,6 +44,11 @@ export const isLoggedIn = catchAsync(
   },
 );
 
+/***
+ * middleware to check if user is logged in for mobile application
+  * check if auth token exists, valid token, not expired & user already exists for this jwt
+  * otherwise return error identifying the opposed error
+ */
 export const mobileLoggedIn = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
     // Checking if the token is verified.
@@ -72,6 +82,11 @@ export const mobileLoggedIn = catchAsync(
     return next();
   },
 );
+
+/***
+  * middleware that passes user if no auth token provided or if it's provided AND valid
+    * used when visitng users' profile (that doesn't require full user authentications)
+ */
 export const authenticate = catchAsync(
   // Does not return an error if the token is not provided
   async (req: Request, _res: Response, next: NextFunction) => {
