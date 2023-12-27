@@ -8,6 +8,10 @@ import {
 } from './entityRepository';
 import { sendUnseenConversationCount } from '../utils/notifications';
 
+/**
+ * search for users to add to conversation
+ * return array of users who are eligible to add
+ */
 export const searchMember = async (
   query: string,
   skip: number,
@@ -74,6 +78,10 @@ export const searchMember = async (
   });
 };
 
+/**
+ * search for users to create a new conversation
+ * return array of users who are eligible to add
+ */
 export const searchMemberForNewConversation = async (
   query: string,
   skip: number,
@@ -135,6 +143,11 @@ export const searchMemberForNewConversation = async (
     return user;
   });
 };
+
+/**
+ * create a message
+ * return a formated message
+ */
 export const createMessage = async (
   text: string,
   userId: string,
@@ -173,6 +186,10 @@ export const createMessage = async (
   return { ...createdMessage, entities };
 };
 
+/**
+ * get message by Id
+ * return the message and its entities
+ */
 export const getMessageById = async (id: string) => {
   const entities = await getMessageEntities(id);
   const message = await prisma.message.findUnique({
@@ -183,6 +200,10 @@ export const getMessageById = async (id: string) => {
   return { ...message, ...entities };
 };
 
+/**
+ * get conversation by Id
+ * return the conversation object
+ */
 export const getConvsersationById = async (id: string) => {
   return await prisma.conversation.findUnique({
     where: {
@@ -191,6 +212,10 @@ export const getConvsersationById = async (id: string) => {
   });
 };
 
+/**
+ * checks if user has a conversation
+ * return the conversation object
+ */
 export const userConversationExists = async (
   userId: string,
   conversationId: string,
@@ -203,6 +228,10 @@ export const userConversationExists = async (
   });
 };
 
+/**
+ * checks if the message replying to is a valid message
+ * return the message object
+ */
 export const validMessageReply = async (
   conversationId: string,
   messageId: string,
@@ -214,6 +243,10 @@ export const validMessageReply = async (
     },
   });
 };
+
+/**
+ * add users to conversation
+ */
 export const addPeopleToConversation = async (
   conversationId: string,
   users: { id: string }[],
@@ -228,6 +261,11 @@ export const addPeopleToConversation = async (
     data: insertedData,
   });
 };
+
+/**
+ * find all people in a certain conversation
+ * returns array of user IDs
+ */
 export const findConversationPeople = async (conversationId: string) => {
   return await prisma.userConversations.findMany({
     where: { conversationId },
@@ -237,12 +275,20 @@ export const findConversationPeople = async (conversationId: string) => {
   });
 };
 
+/**
+ * find conversation by Id
+ * returns Conversation object
+ */
 export const findConversationById = async (conversationId: string) => {
   return await prisma.conversation.findUnique({
     where: { id: conversationId },
   });
 };
 
+/**
+ * checks if conversation is seen
+ * returns boolean
+ */
 export const isConversationSeen = async (
   conversationId: string,
   userId: string,
@@ -252,6 +298,10 @@ export const isConversationSeen = async (
   });
   return conversation?.seen;
 };
+
+/**
+ * resets unseen conversations count
+ */
 export const resetSeenConversation = async (userId: string) => {
   await prisma.user.update({
     where: {
@@ -262,6 +312,10 @@ export const resetSeenConversation = async (userId: string) => {
     },
   });
 };
+
+/**
+ * increment user unseen value
+ */
 export const incrementSeenConversation = async (
   userId: string,
   val: number,
