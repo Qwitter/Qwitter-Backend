@@ -1,0 +1,17 @@
+{
+  "out": "./docs",
+  "exclude": [
+    "node_modules",
+    "coverage",
+    "docs",
+    "prisma",
+    "public",
+    "dist",
+    "src/tests",
+    "src/types",
+    "src/schemas",
+    "src/config",
+    "src/routes"
+  ],
+  "entryPointStrategy": "expand"
+}
