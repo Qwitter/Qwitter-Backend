@@ -290,6 +290,7 @@ export const postTweet = catchAsync(
         qouteTweetedId: true,
         qouteCount: true,
         likesCount: true,
+        readCount:true,
         sensitive: true,
         deletedAt: true,
         author: {
@@ -1129,6 +1130,7 @@ export const likeTweet = catchAsync(
         qouteTweetedId: true,
         qouteCount: true,
         likesCount: true,
+        readCount:true,
         sensitive: true,
         deletedAt: true,
         author: {
