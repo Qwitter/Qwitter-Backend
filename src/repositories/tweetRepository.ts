@@ -4,6 +4,9 @@ import { getTweetEntities } from './entityRepository';
 import { Tweet, User } from '@prisma/client';
 import { isUserFollowing, isUserMuted } from './userRepository';
 
+/**
+ * return tweet and tweet author objects
+ */
 export const getTweetAndUserById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
     where: {
@@ -25,6 +28,9 @@ export const getTweetAndUserById = async (tweetId: string) => {
   return { tweet: tweet, tweetingUser: user };
 };
 
+/**
+ * get formated tweet with entities
+ */
 export const getTweetAndEntitiesById = async (
   tweetId: string,
   userId: string,
@@ -58,6 +64,10 @@ export const getTweetAndEntitiesById = async (
     liked,
   };
 };
+
+/**
+ * get tweet object by Id
+ */
 export const getTweetById = async (tweetId: string) => {
   const tweet = await prisma.tweet.findUnique({
     where: {
@@ -75,6 +85,11 @@ export const getTweetById = async (tweetId: string) => {
   return null;
 };
 
+/**
+ * get ranked tweets that matches the query string or hashtags
+ * @param {*} query - This is the text we search with
+ * @param {*} hashtag - This is hashtags to search with
+ */
 export const searchTweet = async (
   query: string | null,
   hashtag: string | null,
@@ -199,6 +214,11 @@ export const searchTweet = async (
 
   return Querytweets;
 };
+
+/**
+ * delete tweet by id
+ * @param {*} tweetId - This is the id of the tweet to be deleted
+ */
 export const deleteTweetById = async (tweetId: string) => {
   const tweet = await prisma.tweet.update({
     where: {
@@ -226,6 +246,10 @@ export const deleteTweetById = async (tweetId: string) => {
   }
 };
 
+/**
+ * get tweets a user like by user id
+ * @param {*} Id - This is the id of the user to get tweet liked by
+ */
 export const getTweetsLikedById = async (
   Id: string,
   skip: number,
@@ -281,6 +305,11 @@ export const getTweetsLikedById = async (
 
   return likedTweets;
 };
+
+/**
+ * get tweets a user mentioned in by id
+ * @param {*} Id - This is the id of the user to get tweet mentioned in
+ */
 export const getTweetsMentionedById = async (
   Id: string,
   skip: number,
@@ -334,6 +363,10 @@ export const getTweetsMentionedById = async (
   return mentionedTweets;
 };
 
+/**
+ * get tweets a user posted that have media by user id
+ * @param {*} Id - This is the id of the user to get tweets media in
+ */
 export const getTweetsMediaById = async (
   Id: string,
   skip: number,
@@ -388,6 +421,12 @@ export const getTweetsMediaById = async (
 
   return mediaTweets;
 };
+
+/**
+ * increment like count of a tweet by id
+ * @param {*} id - Tweet id
+ * @param {*} val - increment value
+ */
 export const incrementLikes = async (id: string, val: number = 1) => {
   await prisma.tweet.update({
     where: { id },
@@ -396,6 +435,12 @@ export const incrementLikes = async (id: string, val: number = 1) => {
     },
   });
 };
+
+/**
+ * increment reply count of a tweet by id
+ * @param {*} id - Tweet id
+ * @param {*} val - increment value
+ */
 export const incrementReplies = async (id: string, val: number = 1) => {
   await prisma.tweet.update({
     where: { id },
@@ -404,6 +449,12 @@ export const incrementReplies = async (id: string, val: number = 1) => {
     },
   });
 };
+
+/**
+ * increment reply count of a tweet by id
+ * @param {*} id - Tweet id
+ * @param {*} val - increment value
+ */
 export const incrementRetweet = async (id: string, val: number = 1) => {
   await prisma.tweet.update({
     where: { id },
@@ -412,6 +463,11 @@ export const incrementRetweet = async (id: string, val: number = 1) => {
     },
   });
 };
+
+/**
+ * get orignal tweet replies or retweets point to
+ * @param {*} tweets - Tweet object
+ */
 export const getTweetsRepliesRetweets = async (
   tweets: any[],
   userId: string,
@@ -438,6 +494,11 @@ export const getTweetsRepliesRetweets = async (
   }
   return newTweets;
 };
+
+/**
+ * get tweet that this reply is pointing to
+ * @param {*} tweet - Tweet object
+ */
 export const getTweetReply = async (tweet: any, userId: string) => {
   const replyToTweet = await getTweetAndEntitiesById(
     tweet.replyToTweetId as string,
@@ -445,6 +506,11 @@ export const getTweetReply = async (tweet: any, userId: string) => {
   );
   return { ...tweet, replyToTweet };
 };
+
+/**
+ * get tweet that this retweet is pointing to
+ * @param {*} tweet - Tweet object
+ */
 export const getTweetRetweet = async (tweet: any, userId: string) => {
   const retweetedTweet = await getTweetAndEntitiesById(
     tweet.retweetedId as string,
@@ -453,6 +519,11 @@ export const getTweetRetweet = async (tweet: any, userId: string) => {
   return { ...tweet, retweetedTweet };
 };
 
+/**
+ * check if tweet is retweeted ot not
+ * @param {*} tweet - Tweet object
+ * @param {*} userId - User Id
+ */
 export const isRetweeted = async (userId: string, tweet: Tweet) => {
   // If the tweet was a retweet, we refer to the original tweet, because retweeting a tweet means retweeting the original tweet
   const retweetedId = tweet?.retweetedId ? tweet.retweetedId : tweet?.id;
@@ -466,6 +537,12 @@ export const isRetweeted = async (userId: string, tweet: Tweet) => {
   });
   return retweeted?.id;
 };
+
+/**
+ * check if user liked this tweet
+ * @param {*} tweetId - Tweet Id
+ * @param {*} userId - User Id
+ */
 export const isLiked = async (userId: string, tweetId: string) => {
   if (!tweetId || !userId) return false;
   const liked = await prisma.like.findFirst({
