@@ -50,11 +50,13 @@ export const sendConversationUpdate = async (
       },
     },
   });
-  const users = conversation?.UserConversations.map((el) => {
+  let users = conversation?.UserConversations.map((el) => {
     return el.User;
   });
+  users = users?.filter((user) => user.userName !== userName);
   const usersCount = users ? users.length : 0;
   let newName, newFullName;
+
   if (conversation?.name) {
     newName = conversation.name;
     newFullName = conversation.name;
