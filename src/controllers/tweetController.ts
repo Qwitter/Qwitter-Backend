@@ -290,7 +290,7 @@ export const postTweet = catchAsync(
         qouteTweetedId: true,
         qouteCount: true,
         likesCount: true,
-        readCount:true,
+        readCount: true,
         sensitive: true,
         deletedAt: true,
         author: {
@@ -953,6 +953,11 @@ export const getUserReplies = catchAsync(
       responses.push(response);
     }
     responses = await getTweetsRepliesRetweets(responses, user.id);
+    const filteredResponses = [];
+    for (const tweet of responses) {
+      if (tweet.replyToTweetId && !tweet.replyToTweet) continue;
+      filteredResponses.push(tweet);
+    }
     return res.status(200).json({
       tweets: responses,
     });
@@ -1130,7 +1135,7 @@ export const likeTweet = catchAsync(
         qouteTweetedId: true,
         qouteCount: true,
         likesCount: true,
-        readCount:true,
+        readCount: true,
         sensitive: true,
         deletedAt: true,
         author: {

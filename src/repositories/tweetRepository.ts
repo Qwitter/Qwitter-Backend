@@ -127,7 +127,7 @@ export const searchTweet = async (
           retweetCount: true,
           qouteTweetedId: true,
           qouteCount: true,
-          readCount:true,
+          readCount: true,
           likesCount: true,
           sensitive: true,
         },
@@ -167,7 +167,7 @@ export const searchTweet = async (
           retweetedId: true,
           retweetCount: true,
           qouteTweetedId: true,
-          readCount:true,
+          readCount: true,
           qouteCount: true,
           likesCount: true,
           sensitive: true,
@@ -238,6 +238,14 @@ export const deleteTweetById = async (tweetId: string) => {
     },
     data: {
       deletedAt: new Date(),
+    },
+  });
+  await prisma.notification.updateMany({
+    where: {
+      objectId: tweetId,
+    },
+    data: {
+      deleted: true,
     },
   });
   if (tweet.replyToTweetId) {

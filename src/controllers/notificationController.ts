@@ -34,7 +34,12 @@ export const getNotification = catchAsync(
 
     const notifications =
       (await prisma.recieveNotification.findMany({
-        where: { recieverId: authUser.id },
+        where: {
+          recieverId: authUser.id,
+          Notification: {
+            deleted: false,
+          },
+        },
         orderBy: {
           Notification: {
             createdAt: 'desc',
@@ -104,9 +109,9 @@ export const getNotification = catchAsync(
           [returnedTweet],
           authUser.id,
         );
-        const tempUser = await prisma.user.findUnique({
+        const tempUser = await prisma.user.findFirst({
           where: {
-            userName: structuredTweets[0].retweetedTweet.author.userName,
+            userName: structuredTweets[0].retweetedTweet?.author.userName,
           },
         });
         const isFollowing = await isUserFollowing(
