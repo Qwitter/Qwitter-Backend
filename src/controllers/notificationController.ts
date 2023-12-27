@@ -14,6 +14,15 @@ import {
 import { authorSelectOptions } from '../types/user';
 import { catchAsync } from '../utils/catchAsync';
 
+/***
+ * Get User Notifications & Parse it & Return arrays of notifications
+  * If Reply Notification, get reply tweet & user info
+  * If Retweet Notification, get original tweet & user info
+  * If Like Notification, get tweet & user info
+  * If Follow Notification, get user info
+  * If Mention Notification, get user info & menton tweet
+  * If New Login, Provide the login info
+ */
 export const getNotification = catchAsync(
   async (req: Request, res: Response, __: NextFunction) => {
     const authUser = req.user as User;
@@ -33,7 +42,7 @@ export const getNotification = catchAsync(
       include: { Notification: true },
       skip,
       take: parsedLimit,
-    });
+    }) || [];
 
     const parsedNotifications = [];
 

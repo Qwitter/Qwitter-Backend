@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../client';
 
+/***
+ * Get Top 20 Trends worldwide & count of each trend from the extracted hashtags
+ */
 export const getTrends = async (_: Request, res: Response, __: NextFunction) => {
     const topHashtags = await prisma.hashtag.findMany({
         take: 20,
