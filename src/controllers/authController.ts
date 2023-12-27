@@ -12,6 +12,11 @@ import moment from 'moment-timezone';
 import { getNumOfTweets } from '../repositories/userRepository';
 import { sendNotification } from '../utils/notifications';
 
+/**
+ * check on the credientials of the user for login
+ * if valid sends notification for a log in and return sends the token and user details with status code 200
+ * else return 400 status code (wrong password or email) if not valid
+ */
 export const login = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email_or_username, password } = req.body;
@@ -81,6 +86,11 @@ export const login = catchAsync(
   },
 );
 
+/**
+ * sends a reset email to user when forgeting the password
+ * if user is not found returns status code 404 (User not found)
+ * else password reset email is sent and returns status code 200
+ */
 export const forgotPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
@@ -125,6 +135,12 @@ export const forgotPassword = catchAsync(
   },
 );
 
+/**
+ * reset password using a token
+ * if token is invalid return status code 400 (Invalid Token)
+ * if token is expired return status code 400 (Token expired. Request another token)
+ * else changes the password and return the token with status code 200
+ */
 export const resetPassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // 1) Check that user exists
@@ -169,6 +185,11 @@ export const resetPassword = catchAsync(
   },
 );
 
+/**
+ * changes password
+ * if password == passwordConfirmation returns status code 200 and update the password
+ * if password != passwordConfirmation returns status code 400 (The passwords do not match)
+ */
 export const changePassword = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     // Check that the passwords match
@@ -193,6 +214,11 @@ export const changePassword = catchAsync(
   },
 );
 
+/**
+ * update password
+ * if old password is incorrect return status code 401 (Incorrect old password)
+ * else change password and send status code 200 (Password changed successfully)
+ */
 export const updatePassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { oldPassword, newPassword } = req.body;
@@ -226,6 +252,12 @@ const hashPassword = async (password: string) => {
   return await hash(password, process.env.SALT as string);
 };
 
+/**
+ * creates account
+ * if user already exists return status code 409 (User already exists)
+ * if email not verified return status code 403 (Email is not Verified)
+ * else create account and send token and user details with status code 200
+ */
 export const signUp = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const user = await prisma.user.findFirst({
@@ -305,6 +337,13 @@ export const signUp = catchAsync(
   },
 );
 
+/**
+ * creates account
+ * if missing token return status code 401 (Unauthorized access)
+ * if user already exists return status code 409 (User already exists)
+ * if missing credentails return status code 403 (Invalid access credentials)
+ * else create account and send token and user details with status code 200
+ */
 export const signUpGoogle = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const auth_header: string = req.headers.authorization as string;
@@ -372,6 +411,13 @@ export const signUpGoogle = catchAsync(
     }
   },
 );
+
+/**
+ * log in the user using google
+ * sends notification for a log in
+ * and
+ * sends the token and user details with status code 200
+ */
 export const logInGoogle = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const user = req.user as User;
@@ -402,6 +448,11 @@ export const logInGoogle = catchAsync(
   },
 );
 
+/**
+ * takes userName or password and checks its availability
+ * if not available returns status code 404
+ * if available returns status code 200
+ */
 export const checkExistence = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const qualifier: string = req.body.userNameOrEmail.toLowerCase();
@@ -441,6 +492,9 @@ export const checkExistence = catchAsync(
   },
 );
 
+/**
+ * check if the string is a valid email format
+ */
 export const isEmail = (email: string) => {
   return String(email)
     .toLowerCase()
@@ -451,6 +505,10 @@ export const isEmail = (email: string) => {
     : false;
 };
 
+/**
+ * send verification email to the user email to check authentication
+ * and return with status codde 200(Sent Verification Email Successfully )
+ */
 export const sendVerificationEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     // Generate the random token
@@ -503,6 +561,13 @@ export const sendVerificationEmail = catchAsync(
   },
 );
 
+/**
+ * verify email using the token
+ * if user already exists return status code 409 (User already exists)
+ * if no validation code is sent return status code 409 (Please request Verification first)
+ * if wrong token return status code 409 (Wrong Token. Please check again)
+ * else verify email and return status code 200
+ */
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     // Check if user already exists
@@ -557,6 +622,10 @@ export const verifyEmail = catchAsync(
   },
 );
 
+/**
+ * generates [countOfUniqueUserNames] usernames using the string [name] given
+ * returns array of strings with the unique usernames
+ */
 export async function createUniqueUserName(
   name: string,
   countOfUniqueUserNames: number,
@@ -586,12 +655,19 @@ export async function createUniqueUserName(
   return suggestions;
 }
 
+/**
+ * returns a token for a certain userId
+ */
 export const generateJWTToken = (userId: string) => {
   return sign({ id: userId }, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
+/**
+ * generates unique usernames
+ * returns response of array of strings with the unique usernames with status code 200
+ */
 export const userNameSuggestions = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const user = req.user;
@@ -605,6 +681,10 @@ export const userNameSuggestions = catchAsync(
   },
 );
 
+/**
+ * checks if password is valid
+ * returns status code 200 with response of validity
+ */
 export const checkPassword = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { password } = req.body;
@@ -619,6 +699,12 @@ export const checkPassword = catchAsync(
   },
 );
 
+/**
+ * check if the email is available
+ * if used returns status code 404 (email is already used)
+ * if not verified returns status code 404 (email not verified)
+ * else it updates the email and returns user data with status code 200
+ */
 export const changeEmail = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as User;
@@ -675,11 +761,18 @@ export const changeEmail = catchAsync(
   },
 );
 
+/**
+ * generate token from the userId
+ */
 export const signJWT = (id: string) => {
   return sign({ id: id }, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+
+/**
+ * send token to the user
+ */
 const sendToken = (
   token: string,
   statusCode: number,
