@@ -40,8 +40,8 @@ export const getUserBlocked = async (
   });
 };
 /**
-* blocks user and removes from following or followers list if he exists
-*/
+ * blocks user and removes from following or followers list if he exists
+ */
 
 export const blockUserByIDs = async (
   blockingUser: string,
@@ -111,8 +111,8 @@ export const blockUserByIDs = async (
   });
 };
 /**
-* unblocks a user
-*/
+ * unblocks a user
+ */
 export const unblockUserByIDs = async (
   blockingUser: string,
   blockedUser: string,
@@ -124,8 +124,8 @@ export const unblockUserByIDs = async (
   });
 };
 /**
-* gets the users blocked by a specific user and makes sure ther exist
-*/
+ * gets the users blocked by a specific user and makes sure ther exist
+ */
 
 export const getBlockedUsersByID = async (blockingUser: string) => {
   const user = await prisma.user.findUnique({
@@ -169,8 +169,8 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
 };
 
 /**
-* gets tweets created by user in paginated form and chronological order and fetches relevant entities
-*/
+ * gets tweets created by user in paginated form and chronological order and fetches relevant entities
+ */
 export const getTweetsCreatedByUser = async (
   userId: string,
   skip: number = 0,
@@ -201,8 +201,8 @@ export const getTweetsCreatedByUser = async (
   return tweetWithEntities;
 };
 /**
-* checks if user1 follows user2
-*/
+ * checks if user1 follows user2
+ */
 
 export const isUserFollowing = async (
   userid1: string,
@@ -224,8 +224,8 @@ export const isUserFollowing = async (
   }
 };
 /**
-* checks if user1 blocked user2
-*/
+ * checks if user1 blocked user2
+ */
 export const isUserBlocked = async (
   userid1: string,
   userid2: string,
@@ -246,8 +246,8 @@ export const isUserBlocked = async (
   }
 };
 /**
-* checks if user1 muted user2
-*/
+ * checks if user1 muted user2
+ */
 export const isUserMuted = async (
   userid1: string,
   userid2: string,
@@ -268,8 +268,8 @@ export const isUserMuted = async (
   }
 };
 /**
-* gets users whose name or username are relevant to a query and returns them sorted according to their relevancy to the query
-*/
+ * gets users whose name or username are relevant to a query and returns them sorted according to their relevancy to the query
+ */
 
 export const getUsersByName = async (
   query: string,
@@ -330,19 +330,21 @@ export const getUsersByName = async (
 };
 
 /**
-* gets the number of tweets for a certain user if he was not deleted
-*/
-
+ * gets the number of tweets for a certain user if he was not deleted
+ */
 
 export const getNumOfTweets = async (userName: string) => {
   if (!userName) return 0;
   const user = await prisma.user.findFirst({
     where: {
       userName: userName.toLowerCase(),
-      Tweet: { some: { deletedAt: null } },
     },
     include: {
-      Tweet: {},
+      Tweet: {
+        where: {
+          deletedAt: null,
+        },
+      },
     },
   });
   if (!user) return 0;
