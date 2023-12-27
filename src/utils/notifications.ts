@@ -43,6 +43,7 @@ export const sendConversationUpdate = async (
             select: {
               userName: true,
               name: true,
+              profileImageUrl: true,
             },
           },
           dateJoined: true,

@@ -393,7 +393,7 @@ export const postMessage = catchAsync(
     for (const tempUser of users) {
       // Incrementing the count of seen conversations
       const seen = await isConversationSeen(id, tempUser.userId);
-      if (!seen) {
+      if (seen) {
         // It should be seen to update it to unseen
         if (tempUser.userId !== user.id)
           await incrementSeenConversation(tempUser.userId, 1);
