@@ -37,6 +37,12 @@ import {
 import { authorSelectOptions } from '../types/user';
 import { newTweetNotification, sendNotification } from '../utils/notifications';
 
+
+/**
+ * gets the timeline tweets for users in paginated form by checking on the followings list of the user
+ * orders the tweets in chronological order
+ */
+
 const getTimeline = async (req: Request) => {
   const currentUser = req.user as User;
   const userId = currentUser.id;
@@ -115,6 +121,12 @@ const getTimeline = async (req: Request) => {
   // return responses;
   return getTweetsRepliesRetweets(responses, userId);
 };
+
+
+/**
+ * get the tweets of for you page the difference with respect to getTimeline is that the tweets are independent somewhat of the user follow list
+ * return status 200 and a list of tweets
+ */
 
 export const getForYouTimeline = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -208,6 +220,21 @@ export const getForYouTimeline = catchAsync(
     return res.status(200).json(responseBody);
   },
 );
+
+
+
+/**
+ * for tweet creation
+ * checks the request body in case the send object had replyToTweetId and retweetedId if so it returns status 401 and message Can not retweet and reply together
+ * checks the request body in case it was a reply for a non existing tweet if so it returns 401 and message Invalid replyToTweetId
+ * checks the request body in case it was a retweet for a non existing tweet if so it returns 401 and message Invalid replyToTweetId
+ * checks if the user is retweeting a retweet if so returns 401 and message Can not retweet twice
+ * if the request passed all the previous conditions it starts the tweet creation process by first querying the database
+ * then it fetches the attached files with the request body and links the tweet with its files
+ * after creating the tweet, creating the right notification process commences
+ * for example in case of retweet and reply it notifies the original tweeter
+ * in case of mention it notifies the mentioned
+ */
 
 export const postTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -434,6 +461,14 @@ export const postTweet = catchAsync(
 //   return urls ? urls : [];
 // }
 
+
+/**
+ * for getting the replies of the indicated tweet
+ * check that the passed tweetID refers to an actual tweet if not it send status 404 and message Tweet not found
+ * if it passed the checked it fetches the corresponding replies in chronological order with their corresponding authors
+ * then it send the replies with status 200
+ */
+
 export const getTweetReplies = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const tweetId = req.params.id;
@@ -510,6 +545,14 @@ export const getTweetReplies = catchAsync(
   },
 );
 
+
+
+/**
+ * for getting the retweeters of the indicated tweet
+ * check that the passed tweetID refers to an actual tweet if not it send status 404 and message Tweet not found
+ * if it passed it fetches the retweeters with code 200
+ */
+
 export const getTweetRetweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const tweetId = req.params.id;
@@ -563,7 +606,14 @@ export const getTweetRetweets = catchAsync(
     });
   },
 );
-
+/**
+ * for fetching a specific tweet
+ * it checks first if the tweet exists or the authinticating user is blocked by the author or vice versa if any of these conditions are true it returns status 404 and message Tweet Not Found
+ * it further checks if the tweet was deleted it return status 410 and Tweet was deleted
+ * it checks that the user was not deleted if so it return 404 and message user account was deleted
+ * if it passed the previous conditions it returns the tweet with additional information including whether the auth user is followed or muted by the requesting user
+ * it also returns whether the tweet was retweed is so it returns the correct authors
+ */
 export const getTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let { tweetingUser } = await getTweetAndUserById(req.params.id);
@@ -636,6 +686,11 @@ export const getTweet = catchAsync(
   },
 );
 
+/**
+ * for deleting a specific tweet
+ * it simply deletes the tweet 
+ */
+
 export const deleteTweet = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     await deleteTweetById(req.params.id);
@@ -644,6 +699,14 @@ export const deleteTweet = catchAsync(
     });
   },
 );
+
+
+/**
+ * get the likers of a certian tweet
+ * it checks whether the tweet really exists if not it sends 404 with message Tweet is not Found
+ * if it passed it send the likers with relevant information with status 200
+ */
+
 
 export const getTweetLikers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -716,6 +779,12 @@ export const getTweetLikers = catchAsync(
   },
 );
 
+/**
+ * for search for tweets with relevant content to that of the queried word
+ * it returns the relevant tweets in paginated form with the corresponding relevant data
+ */
+
+
 export const searchTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { q, hashtag, page = '1', limit = '10' } = req.query;
@@ -773,6 +842,13 @@ export const searchTweets = catchAsync(
     res.status(200).json({ tweets: responses, resultsCount: tweets.length });
   },
 );
+
+
+/**
+ * for getting that tweets authored by a specific user it first checks that the user actually exists if not it send 404 with error message
+ * it also makes sure there is no block relation between the two users the requesting one and the requested one
+ * if it passed it gets the corresponding tweets in paginated form and status 200
+ */
 export const getUserTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;
@@ -831,6 +907,13 @@ export const getUserTweets = catchAsync(
   },
 );
 
+
+
+/**
+ * for getting that replies authored by a specific user it first checks that the user actually exists if not it send 404 with error message
+ * it also makes sure there is no block relation between the two users the requesting one and the requested one
+ * if it passed it gets the corresponding tweets in paginated form and status 200
+ */
 export const getUserReplies = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { userName } = req.params;
@@ -888,6 +971,13 @@ export const getUserReplies = catchAsync(
   },
 );
 
+
+/**
+ * gets hashtag that are relevenat to the queried word
+ * it returns an list of hashtags with status 200
+ */
+
+
 export const searchHastags = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { q } = req.query;
@@ -895,6 +985,14 @@ export const searchHastags = catchAsync(
     return res.status(200).json(hashtags);
   },
 );
+
+
+/**
+ * for getting that likes done by a specific user it first checks that the user actually exists if not it send 404 with error message
+ * it also makes sure there is no block relation between the two users the requesting one and the requested one
+ * if it passed it gets the corresponding tweets in paginated form and status 200
+ */
+
 export const getUserLikedTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
@@ -947,6 +1045,12 @@ export const getUserMentionedTweets = catchAsync(
     return res.status(200).json({ tweets: responses });
   },
 );
+/**
+ * for getting the media created by a specific user it first checks that the user actually exists if not it send 404 with error message
+ * it also makes sure there is no block relation between the two users the requesting one and the requested one
+ * if it passed it gets the corresponding tweets in paginated form and status 200
+ */
+
 
 export const getUserMediaTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -985,6 +1089,13 @@ export const getUserMediaTweets = catchAsync(
     return res.status(200).json({ tweets: responses });
   },
 );
+
+/**
+ * for liking a tweet
+ * it checks if the tweet is deleted or already liked if so it return 400 and error message
+ * else it creates the tweet and notifies the author of the tweet
+ */
+
 
 export const likeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -1119,6 +1230,13 @@ export const likeTweet = catchAsync(
     res.status(200).json({ status: 'success' });
   },
 );
+
+
+/**
+ * for removing a like of a tweet
+ * it checks if the tweet is deleted or already not liked if so it return 400 and error message
+ * it returns 200 success message
+ */
 
 export const unlikeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
