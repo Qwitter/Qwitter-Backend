@@ -28,7 +28,6 @@ export const sendUnseenConversationCount = (
 
 // Sends update to all the people in the conversation in the page of the conversations
 export const sendConversationUpdate = async (
-  userName: string,
   lastMessage: any,
   conversationId: string,
 ) => {
@@ -54,38 +53,44 @@ export const sendConversationUpdate = async (
   let users = conversation?.UserConversations.map((el) => {
     return el.User;
   });
-  users = users?.filter((user) => user.userName !== userName);
-  const usersCount = users ? users.length : 0;
-  let newName, newFullName;
 
-  if (conversation?.name) {
-    newName = conversation.name;
-    newFullName = conversation.name;
-  } else {
-    newName =
-      users
-        ?.slice(0, 3)
-        .map((user: any) => user.name)
-        .join(', ') +
-      `${usersCount - 3 > 0 ? ` and ${usersCount - 3} and more` : ''}`;
-    newFullName = users?.map((user) => user.name).join(', ');
-  }
-  const formattedConversationDetails = {
-    id: conversation?.id,
-    name: newName,
-    fullName: newFullName,
-    isGroup: conversation?.isGroup,
-    photo: conversation?.photo,
-    users: users,
-    dateJoined: conversation?.isGroup
-      ? conversation?.UserConversations.find((u) => u.User.userName == userName)
-          ?.dateJoined
-      : '',
-    seen: true,
-  };
   if (conversation) {
     for (const user of conversation.UserConversations) {
       const currentUsername = user.User.userName;
+
+      const filteredUsers = users?.filter(
+        (user) => user.userName !== currentUsername,
+      );
+      const usersCount = filteredUsers ? filteredUsers.length : 0;
+      let newName, newFullName;
+
+      if (conversation?.name) {
+        newName = conversation.name;
+        newFullName = conversation.name;
+      } else {
+        newName =
+          filteredUsers
+            ?.slice(0, 3)
+            .map((user: any) => user.name)
+            .join(', ') +
+          `${usersCount - 3 > 0 ? ` and ${usersCount - 3} and more` : ''}`;
+        newFullName = filteredUsers?.map((user) => user.name).join(', ');
+      }
+      const formattedConversationDetails = {
+        id: conversation?.id,
+        name: newName,
+        fullName: newFullName,
+        isGroup: conversation?.isGroup,
+        photo: conversation?.photo,
+        users: users,
+        dateJoined: conversation?.isGroup
+          ? conversation?.UserConversations.find(
+              (u) => u.User.userName == currentUsername,
+            )?.dateJoined
+          : '',
+        seen: true,
+      };
+
       io.to(currentUsername).emit(EVENTS.SERVER.CONVERSATION, {
         ...formattedConversationDetails,
         lastMessage,

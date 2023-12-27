@@ -386,7 +386,7 @@ export const postMessage = catchAsync(
       req.body.replyId,
       photoName,
     );
-    sendConversationUpdate(user.userName, createdMessage, id);
+    sendConversationUpdate(createdMessage, id);
 
     // Incrementing the count of unseen conversations for users in the conversation
     const users = await findConversationPeople(id);
