@@ -28,6 +28,7 @@ export const sendUnseenConversationCount = (
 
 // Sends update to all the people in the conversation in the page of the conversations
 export const sendConversationUpdate = async (
+  userName: string,
   lastMessage: any,
   conversationId: string,
 ) => {
@@ -41,17 +42,49 @@ export const sendConversationUpdate = async (
           User: {
             select: {
               userName: true,
+              name: true,
             },
           },
+          dateJoined: true,
         },
       },
     },
   });
+  const users = conversation?.UserConversations.map((el) => {
+    return el.User;
+  });
+  const usersCount = users ? users.length : 0;
+  let newName, newFullName;
+  if (conversation?.name) {
+    newName = conversation.name;
+    newFullName = conversation.name;
+  } else {
+    newName =
+      users
+        ?.slice(0, 3)
+        .map((user: any) => user.name)
+        .join(', ') +
+      `${usersCount - 3 > 0 ? ` and ${usersCount - 3} and more` : ''}`;
+    newFullName = users?.map((user) => user.name).join(', ');
+  }
+  const formattedConversationDetails = {
+    id: conversation?.id,
+    name: newName,
+    fullName: newFullName,
+    isGroup: conversation?.isGroup,
+    photo: conversation?.photo,
+    users: users,
+    dateJoined: conversation?.isGroup
+      ? conversation?.UserConversations.find((u) => u.User.userName == userName)
+          ?.dateJoined
+      : '',
+    seen: true,
+  };
   if (conversation) {
     for (const user of conversation.UserConversations) {
       const currentUsername = user.User.userName;
       io.to(currentUsername).emit(EVENTS.SERVER.CONVERSATION, {
-        ...conversation,
+        ...formattedConversationDetails,
         lastMessage,
       });
     }
