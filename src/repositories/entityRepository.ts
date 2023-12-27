@@ -9,47 +9,47 @@ export const getMention = async (userId: string) => {
     },
   });
 };
-export const getTweetEntities2 = async (tweetId: string) => {
-  let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
-  const relations =
-    (await prisma.tweetEntity.findMany({
-      where: {
-        tweetId: tweetId,
-      },
-    })) || [];
-  for (const relation of relations) {
-    const entity = await prisma.entity.findUnique({
-      where: {
-        id: relation.entityId,
-      },
-      include: {
-        Mention: {
-          include: {
-            mentionedUser: {
-              select: {
-                userName: true,
-              },
-            },
-          },
-        },
-        Hashtag: true,
-        Url: true,
-        Media: true,
-      },
-    });
-    if (entity?.Mention) {
-      entities.mentions.push(entity.Mention.mentionedUser.userName as string);
-    } else if (entity?.Hashtag) {
-      entities.hashtags.push(entity.Hashtag);
-    } else if (entity?.Url) {
-      entities.urls.push(entity.Url);
-    } else if (entity?.Media) {
-      const newMedia = { value: entity.Media.url, type: entity.Media.type };
-      entities.media.push(newMedia);
-    }
-  }
-  return entities;
-};
+// export const getTweetEntities2 = async (tweetId: string) => {
+//   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
+//   const relations =
+//     (await prisma.tweetEntity.findMany({
+//       where: {
+//         tweetId: tweetId,
+//       },
+//     })) || [];
+//   for (const relation of relations) {
+//     const entity = await prisma.entity.findUnique({
+//       where: {
+//         id: relation.entityId,
+//       },
+//       include: {
+//         Mention: {
+//           include: {
+//             mentionedUser: {
+//               select: {
+//                 userName: true,
+//               },
+//             },
+//           },
+//         },
+//         Hashtag: true,
+//         Url: true,
+//         Media: true,
+//       },
+//     });
+//     if (entity?.Mention) {
+//       entities.mentions.push(entity.Mention.mentionedUser.userName as string);
+//     } else if (entity?.Hashtag) {
+//       entities.hashtags.push(entity.Hashtag);
+//     } else if (entity?.Url) {
+//       entities.urls.push(entity.Url);
+//     } else if (entity?.Media) {
+//       const newMedia = { value: entity.Media.url, type: entity.Media.type };
+//       entities.media.push(newMedia);
+//     }
+//   }
+//   return entities;
+// };
 export const getTweetEntities = async (tweetId: string) => {
   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations =
@@ -81,7 +81,7 @@ export const getTweetEntities = async (tweetId: string) => {
       Url: true,
       Media: true,
     },
-  });
+  }) || [];
   for (const entity of relationEntities) {
     if (entity?.Mention) {
       entities.mentions.push(entity.Mention.mentionedUser.userName as string);

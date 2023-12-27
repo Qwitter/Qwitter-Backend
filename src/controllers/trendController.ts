@@ -7,7 +7,7 @@ export const getTrends = async (_: Request, res: Response, __: NextFunction) => 
         orderBy: {
             count: 'desc',
         },
-    });
+    }) || [];
 
     res.status(200).json({
         status: 'success',
