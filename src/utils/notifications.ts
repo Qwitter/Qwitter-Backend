@@ -82,7 +82,7 @@ export const sendConversationUpdate = async (
         fullName: newFullName,
         isGroup: conversation?.isGroup,
         photo: conversation?.photo,
-        users: users,
+        users: filteredUsers,
         dateJoined: conversation?.isGroup
           ? conversation?.UserConversations.find(
               (u) => u.User.userName == currentUsername,
