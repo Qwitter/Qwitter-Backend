@@ -187,20 +187,6 @@ export const createMessage = async (
 };
 
 /**
- * get message by Id
- * return the message and its entities
- */
-export const getMessageById = async (id: string) => {
-  const entities = await getMessageEntities(id);
-  const message = await prisma.message.findUnique({
-    where: {
-      id,
-    },
-  });
-  return { ...message, ...entities };
-};
-
-/**
  * get conversation by Id
  * return the conversation object
  */
