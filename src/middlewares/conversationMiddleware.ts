@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
-import {
-  getConvsersationById,
-  userConversationExists,
-} from '../repositories/conversationRepository';
+import { userConversationExists } from '../repositories/conversationRepository';
 import { User } from '@prisma/client';
 
 /***
@@ -24,6 +20,7 @@ export const conversationExists = catchAsync(
 /***
  * Middleware used to check if user is member in a given conversation given user & conversation ID
  */
+
 export const userInConversation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;

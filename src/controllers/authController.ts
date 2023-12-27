@@ -346,8 +346,8 @@ export const signUp = catchAsync(
  */
 export const signUpGoogle = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
-    const auth_header: string = req.headers.authorization as string;
-
+    const auth_header: string =
+      req.cookies.qwitter_jwt || (req.headers.authorization as string);
     if (!auth_header || !auth_header.startsWith('Bearer')) {
       return _next(new AppError('Unauthorized access', 401));
     }

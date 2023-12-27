@@ -79,7 +79,6 @@ export const editConversation = catchAsync(
  * if he is a member it returns all details of the conversation including the members, messages, name of the group and photo of conversation with status 200
  *  */
 
-
 export const getConversationDetails = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { id } = req.params;
@@ -273,7 +272,7 @@ export const getConversationDetails = catchAsync(
           .slice(0, 3)
           .map((user) => user.name)
           .join(', ') +
-        `${users.length - 3 > 0 ? ` and ${users.length - 3}Â more` : ''}`;
+        `${users.length - 3 > 0 ? ` and ${users.length - 3} and more` : ''}`;
       newFullName = users.map((user) => user.name).join(', ');
     }
 
@@ -303,7 +302,7 @@ export const getConversationDetails = catchAsync(
  * Searching for a member in a specific conversation
  * if the user is not found or the conversation is not found it return 400 status code with message bad request
  * else it return a list of users wich might be relevant to the query word
- *  
+ *
  */
 
 export const searchForMembers = catchAsync(
@@ -341,7 +340,7 @@ export const searchForMembers = catchAsync(
 /**
  * Searching for a member to add to conversation
  * it returns all users that are relavent to the query and status of 200
- *  
+ *
  */
 
 export const searchForMembersForNewConversation = catchAsync(
@@ -387,7 +386,7 @@ export const postMessage = catchAsync(
       req.body.replyId,
       photoName,
     );
-    sendConversationUpdate(createMessage, id);
+    sendConversationUpdate(user.userName, createMessage, id);
 
     // Incrementing the count of unseen conversations for users in the conversation
     const users = await findConversationPeople(id);
@@ -434,7 +433,6 @@ export const postMessage = catchAsync(
  * if it passed all the previous checks it simply creates the conversation and creates a message declaring the creation of the conversation
  * it returns the conversation and status 200
  */
-
 
 export const createConversation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -580,8 +578,6 @@ export const createConversation = catchAsync(
   },
 );
 
-
-
 /**
  * for deleting conversation meaning the user leaving the conversation
  * it starts off by making sure that the conversation exists relavant to the user if not it send 401 and message conversation not found
@@ -623,7 +619,6 @@ export const deleteConversation = catchAsync(
   },
 );
 
-
 /**
  * for deleting a message it simplu deletes the message if found and return 200 status code
  * if not found it return 404 and message Message not found
@@ -653,7 +648,6 @@ export const deleteMessage = catchAsync(
  * for deleting a message it simply deletes the message if found and return 200 status code
  * if not found it return 404 and message Message not found
  */
-
 
 export const getConversation = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -857,7 +851,6 @@ export const getConversation = catchAsync(
  * else it adds all of the users to the group
  */
 
-
 export const postConversationUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const conversationId = req.params.id;
@@ -922,7 +915,6 @@ export const postConversationUsers = catchAsync(
  * then it proceeds to fetch the last messages of each conversation
  * it formats the response and returns all relavant conversations with status 200
  */
-
 
 export const searchConversations = catchAsync(
   async (req: Request, res: Response, _: NextFunction) => {

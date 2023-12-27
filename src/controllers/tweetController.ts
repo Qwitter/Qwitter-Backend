@@ -37,7 +37,6 @@ import {
 import { authorSelectOptions } from '../types/user';
 import { newTweetNotification, sendNotification } from '../utils/notifications';
 
-
 /**
  * gets the timeline tweets for users in paginated form by checking on the followings list of the user
  * orders the tweets in chronological order
@@ -121,7 +120,6 @@ const getTimeline = async (req: Request) => {
   // return responses;
   return getTweetsRepliesRetweets(responses, userId);
 };
-
 
 /**
  * get the tweets of for you page the difference with respect to getTimeline is that the tweets are independent somewhat of the user follow list
@@ -220,8 +218,6 @@ export const getForYouTimeline = catchAsync(
     return res.status(200).json(responseBody);
   },
 );
-
-
 
 /**
  * for tweet creation
@@ -461,7 +457,6 @@ export const postTweet = catchAsync(
 //   return urls ? urls : [];
 // }
 
-
 /**
  * for getting the replies of the indicated tweet
  * check that the passed tweetID refers to an actual tweet if not it send status 404 and message Tweet not found
@@ -545,8 +540,6 @@ export const getTweetReplies = catchAsync(
   },
 );
 
-
-
 /**
  * for getting the retweeters of the indicated tweet
  * check that the passed tweetID refers to an actual tweet if not it send status 404 and message Tweet not found
@@ -596,7 +589,7 @@ export const getTweetRetweets = catchAsync(
         authUser.id as string,
         retweetUser?.id as string,
       );
-      return { retweeter, isFollowing: isFollowing };
+      return { ...retweeter, isFollowing: isFollowing };
     });
 
     let retweetersRes = await Promise.all(retweetersPromises);
@@ -688,7 +681,7 @@ export const getTweet = catchAsync(
 
 /**
  * for deleting a specific tweet
- * it simply deletes the tweet 
+ * it simply deletes the tweet
  */
 
 export const deleteTweet = catchAsync(
@@ -700,13 +693,11 @@ export const deleteTweet = catchAsync(
   },
 );
 
-
 /**
  * get the likers of a certian tweet
  * it checks whether the tweet really exists if not it sends 404 with message Tweet is not Found
  * if it passed it send the likers with relevant information with status 200
  */
-
 
 export const getTweetLikers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -784,7 +775,6 @@ export const getTweetLikers = catchAsync(
  * it returns the relevant tweets in paginated form with the corresponding relevant data
  */
 
-
 export const searchTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { q, hashtag, page = '1', limit = '10' } = req.query;
@@ -842,7 +832,6 @@ export const searchTweets = catchAsync(
     res.status(200).json({ tweets: responses, resultsCount: tweets.length });
   },
 );
-
 
 /**
  * for getting that tweets authored by a specific user it first checks that the user actually exists if not it send 404 with error message
@@ -907,8 +896,6 @@ export const getUserTweets = catchAsync(
   },
 );
 
-
-
 /**
  * for getting that replies authored by a specific user it first checks that the user actually exists if not it send 404 with error message
  * it also makes sure there is no block relation between the two users the requesting one and the requested one
@@ -971,12 +958,10 @@ export const getUserReplies = catchAsync(
   },
 );
 
-
 /**
  * gets hashtag that are relevenat to the queried word
  * it returns an list of hashtags with status 200
  */
-
 
 export const searchHastags = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
@@ -985,7 +970,6 @@ export const searchHastags = catchAsync(
     return res.status(200).json(hashtags);
   },
 );
-
 
 /**
  * for getting that likes done by a specific user it first checks that the user actually exists if not it send 404 with error message
@@ -1051,7 +1035,6 @@ export const getUserMentionedTweets = catchAsync(
  * if it passed it gets the corresponding tweets in paginated form and status 200
  */
 
-
 export const getUserMediaTweets = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
@@ -1095,7 +1078,6 @@ export const getUserMediaTweets = catchAsync(
  * it checks if the tweet is deleted or already liked if so it return 400 and error message
  * else it creates the tweet and notifies the author of the tweet
  */
-
 
 export const likeTweet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -1230,7 +1212,6 @@ export const likeTweet = catchAsync(
     res.status(200).json({ status: 'success' });
   },
 );
-
 
 /**
  * for removing a like of a tweet

@@ -2,6 +2,9 @@ import { authorSelectOptions } from '../types/user';
 import prisma from '../client';
 import { getTweetEntities } from './entityRepository';
 
+/**
+ * get the user by its username and makes sure it is not deleted
+ */
 export const getUserByUsername = async (user_name: string) => {
   if (!user_name) return null;
   return await prisma.user.findUnique({
@@ -11,7 +14,9 @@ export const getUserByUsername = async (user_name: string) => {
     },
   });
 };
-
+/**
+ * get the user by its id and makes sure it is not deleted
+ */
 export const getUserByID = async (id: string) => {
   return await prisma.user.findUnique({
     where: {
@@ -20,6 +25,9 @@ export const getUserByID = async (id: string) => {
     },
   });
 };
+/**
+ * gets whether a blockedUser is blocked by blocking user
+ */
 
 export const getUserBlocked = async (
   blockingUser: string,
@@ -31,6 +39,9 @@ export const getUserBlocked = async (
     },
   });
 };
+/**
+* blocks user and removes from following or followers list if he exists
+*/
 
 export const blockUserByIDs = async (
   blockingUser: string,
@@ -99,7 +110,9 @@ export const blockUserByIDs = async (
     },
   });
 };
-
+/**
+* unblocks a user
+*/
 export const unblockUserByIDs = async (
   blockingUser: string,
   blockedUser: string,
@@ -110,6 +123,9 @@ export const unblockUserByIDs = async (
     },
   });
 };
+/**
+* gets the users blocked by a specific user and makes sure ther exist
+*/
 
 export const getBlockedUsersByID = async (blockingUser: string) => {
   const user = await prisma.user.findUnique({
@@ -152,6 +168,9 @@ export const getBlockedUsersByID = async (blockingUser: string) => {
   return blockedUsers;
 };
 
+/**
+* gets tweets created by user in paginated form and chronological order and fetches relevant entities
+*/
 export const getTweetsCreatedByUser = async (
   userId: string,
   skip: number = 0,
@@ -181,6 +200,9 @@ export const getTweetsCreatedByUser = async (
   }
   return tweetWithEntities;
 };
+/**
+* checks if user1 follows user2
+*/
 
 export const isUserFollowing = async (
   userid1: string,
@@ -201,7 +223,9 @@ export const isUserFollowing = async (
     return false;
   }
 };
-
+/**
+* checks if user1 blocked user2
+*/
 export const isUserBlocked = async (
   userid1: string,
   userid2: string,
@@ -221,7 +245,9 @@ export const isUserBlocked = async (
     return false;
   }
 };
-
+/**
+* checks if user1 muted user2
+*/
 export const isUserMuted = async (
   userid1: string,
   userid2: string,
@@ -241,6 +267,9 @@ export const isUserMuted = async (
     return false;
   }
 };
+/**
+* gets users whose name or username are relevant to a query and returns them sorted according to their relevancy to the query
+*/
 
 export const getUsersByName = async (
   query: string,
@@ -299,6 +328,11 @@ export const getUsersByName = async (
     return rest;
   });
 };
+
+/**
+* gets the number of tweets for a certain user if he was not deleted
+*/
+
 
 export const getNumOfTweets = async (userName: string) => {
   if (!userName) return 0;
