@@ -670,6 +670,113 @@ describe('getNotification Function', () => {
           expect(response.status).toBe(200);
           expect(response.body.notifications).toHaveLength(1);
         });
+        test('mention should respond with status 200', async () => {
+          const user = {
+            unSeenConversation: 0,
+            notificationCount: 0,
+            id: 'eac0ece1',
+            name: 'Zahran',
+            birthDate: new Date(),
+            location: null,
+            url: null,
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 0,
+            followingCount: 0,
+            createdAt: new Date(),
+            deletedAt: null,
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@gmail.com',
+            userName: 'ahmedzahran12364',
+            password:
+              '$2b$12$k8Y1THPD8MUJYkyFmdzAvOGhld7d0ZshTGk.b8kJIoaoGEIR47VMu',
+            passwordChangedAt: null,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+            google_id: null,
+          };
+          prismaMock.user.findFirst.mockResolvedValueOnce(user);
+          const Notifications = [
+            {
+              notificationId: '08b44192-e506-4f94-ad4a-a80256891013',
+              recieverId: '840b3ffc-6258-498c-824d-14dab46633ac',
+              Notification: {
+                id: '08b44192-e506-4f94-ad4a-a80256891013',
+                objectId: '83275aa1-f93e-4972-a368-7e8d99c4ac1f',
+                deleted: false,
+                seen: false,
+                createdAt: '2023-12-22T00:16:54.390Z',
+                senderId: '840b3ffc-6258-498c-824d-14dab46633ac',
+                type: 'mention',
+              },
+            },
+          ];
+          prismaMock.recieveNotification.findMany.mockResolvedValue(
+            Notifications,
+          );
+
+          const author = {
+            name: 'AOZ 2025',
+            location: 'i am here',
+            url: 'https://www.google.com',
+            description: null,
+            protected: false,
+            verified: false,
+            followersCount: 1,
+            followingCount: 0,
+            createdAt: new Date(),
+            profileBannerUrl: null,
+            profileImageUrl: null,
+            email: 'ahmed@qwitter.com',
+            userName: 'ahmedzahran715b86',
+            birthDate: new Date(),
+          };
+          const tweet = {
+            createdAt: new Date(),
+            id: '351f773f-f284-4522-8e55-a17b6ddb63ef',
+            text: 'Hello',
+            userId: '251f773f-f284-4522-8e55-a17b6ddb63ef',
+            readCount: 1,
+            replyCount: 1,
+            retweetCount: 0,
+            qouteCount: 0,
+            likesCount: 0,
+            sensitive: false,
+            source: null,
+            coordinates: null,
+            replyToTweetId: null,
+            retweetedId: null,
+            qouteTweetedId: null,
+            deletedAt: null,
+            author: author,
+          };
+          prismaMock.tweet.findFirst.mockResolvedValue(tweet);
+          prismaMock.tweetEntity.findMany.mockResolvedValue([
+            {
+              tweetId: '123',
+              entityId: '234234',
+            },
+          ]);
+          const entity = {
+            id: '234234',
+            type: 'media',
+          };
+          prismaMock.entity.findUnique.mockResolvedValue(entity);
+          prismaMock.tweet.findUnique.mockResolvedValue(tweet);
+          prismaMock.user.findUnique.mockResolvedValue(user);
+          prismaMock.block.findUnique.mockResolvedValue(null);
+          prismaMock.like.findFirst.mockResolvedValue(null);
+          prismaMock.follow.findUnique.mockResolvedValue(null);
+          prismaMock.user.findFirst.mockResolvedValue(user);
+
+          const response = await Request(app)
+            .get('/api/v1/notifications/')
+            .set('authorization', 'Bearer abc123');
+          expect(response.status).toBe(200);
+          expect(response.body.notifications).toHaveLength(1);
+        });
         test('unknown type is skipped should respond with status 200', async () => {
           const user = {
             unSeenConversation: 0,

@@ -2,7 +2,6 @@ import { User } from '@prisma/client';
 import prisma from '../client';
 import { io } from '../socketServer';
 import { EVENTS } from './socket';
-import { incrementNotification } from '../controllers/notificationController';
 
 export const sendNotification = (user: User, notification: object): void => {
   io.to(user.userName).emit(EVENTS.SERVER.NOTIFICATION, notification);
@@ -97,4 +96,12 @@ export const sendConversationUpdate = async (
       });
     }
   }
+};
+export const incrementNotification = async (userName: string) => {
+  await prisma.user.update({
+    where: { userName: userName },
+    data: {
+      notificationCount: { increment: 1 },
+    },
+  });
 };

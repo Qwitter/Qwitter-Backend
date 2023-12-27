@@ -650,14 +650,7 @@ export const getNotification = catchAsync(
 //     res.status(200).json({ notifications: parsedNotifications });
 //   },
 // );
-export const incrementNotification = async (userName: string) => {
-  await prisma.user.update({
-    where: { userName: userName },
-    data: {
-      notificationCount: { increment: 1 },
-    },
-  });
-};
+
 export const resetNotification = async (userName: string) => {
   await prisma.user.update({
     where: { userName: userName },
