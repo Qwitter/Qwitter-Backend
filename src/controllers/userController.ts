@@ -20,6 +20,11 @@ import prisma from '../client';
 import { sendNotification } from '../utils/notifications';
 import { deleteImage, uploadImage } from '../middlewares/uploadMiddleware';
 
+/**
+ * upload profile picture
+ * if photo not found return with status code 500 (An error occurred while uploading profile picture)
+ * else upload the image and return status code 200
+ */
 export const uploadProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const photoName = _req.file?.filename;
@@ -47,6 +52,12 @@ export const uploadProfilePicture = catchAsync(
     });
   },
 );
+
+/**
+ * upload profile banner
+ * if photo not found return with status code 500 (An error occurred while uploading profile picture)
+ * else upload the image and return status code 200
+ */
 export const uploadProfileBanner = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const photoName = _req.file?.filename;
@@ -74,6 +85,11 @@ export const uploadProfileBanner = catchAsync(
     });
   },
 );
+
+/**
+ * delete profile banner
+ * remove image and return status code 200
+ */
 export const deleteProfileBanner = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
@@ -92,6 +108,11 @@ export const deleteProfileBanner = catchAsync(
     });
   },
 );
+
+/**
+ * delete profile picture
+ * remove image and return status code 200
+ */
 export const deleteProfilePicture = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const user = _req.user as User;
@@ -110,6 +131,12 @@ export const deleteProfilePicture = catchAsync(
     });
   },
 );
+
+/**
+ * get a user
+ * if user not found return status code 404 (User not found)
+ * else return user details with status code 200
+ */
 export const getUser = catchAsync(
   async (_req: Request, res: Response, next: NextFunction) => {
     const user = (await prisma.user.findUnique({
@@ -156,6 +183,10 @@ export const getUser = catchAsync(
   },
 );
 
+/**
+ * get current user details
+ * return user details with status code 200
+ */
 export const getRequestingUser = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const user = req.user as User;
@@ -182,6 +213,10 @@ export const getRequestingUser = catchAsync(
   },
 );
 
+/**
+ * search users by a word
+ * return users ranked list with name or username that match the search with a status code 200
+ */
 export const getUsers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const query = req.query.q;
@@ -228,6 +263,11 @@ export const getUsers = catchAsync(
   },
 );
 
+/**
+ * change userName
+ * if userName already exists return status code 409 (UserName already exists)
+ * else update userName and return status code 200
+ */
 export const changeUserName = catchAsync(
   async (req: Request, _res: Response, _next: NextFunction) => {
     const newUserName = req.body.userName;
@@ -254,6 +294,10 @@ export const changeUserName = catchAsync(
     });
   },
 );
+
+/**
+ * reset profile photos to a default one with a status code 200
+ */
 export const resetProfilePhotos = catchAsync(
   async (_req: Request, _res: Response, _next: NextFunction) => {
     await prisma.user.updateMany({
@@ -286,6 +330,11 @@ export const resetProfilePhotos = catchAsync(
   },
 );
 
+/**
+ * get user followers
+ * if user not found return status code 404 (user not found)
+ * else return user followers with status code 200
+ */
 export const getUserFollowers = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username;
@@ -352,6 +401,11 @@ export const getUserFollowers = catchAsync(
   },
 );
 
+/**
+ * get user following
+ * if user not found return status code 404 (user not found)
+ * else return user followings with status code 200
+ */
 export const getUserFollowings = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const userName = req.params.username.toLowerCase();
@@ -415,6 +469,11 @@ export const getUserFollowings = catchAsync(
   },
 );
 
+/**
+ * put a profile picture
+ * if url is invalid return status code 401 (invalid url)
+ * else update profile picture and return with status code 200
+ */
 export const putUserProfile = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     if (_req.body.url) {
@@ -457,6 +516,10 @@ export const putUserProfile = catchAsync(
   },
 );
 
+/**
+ * get blocked user
+ * return blocked user list with status code 200
+ */
 export const getBlockedUsers = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const blockedUsers = await getBlockedUsersByID((_req.user as User).id);
@@ -472,6 +535,13 @@ export const getBlockedUsers = catchAsync(
   },
 );
 
+/**
+ * block user
+ * if user is not found return status code 404 (user not found)
+ * if user is already blocked return status code 404 (user already blocked)
+ * if block suceeded return status code 200
+ * if block failed return status code 404
+ */
 export const blockUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const blockingUser = _req.user as User;
@@ -493,6 +563,13 @@ export const blockUser = catchAsync(
   },
 );
 
+/**
+ * unblock user
+ * if user is not found return status code 404 (user not found)
+ * if user is already unblocked return status code 404 (user not blocked)
+ * if unblock suceeded return status code 200
+ * if unblock failed return status code 404
+ */
 export const unblockUser = catchAsync(
   async (_req: Request, res: Response, _next: NextFunction) => {
     const blockingUser = _req.user as User;
@@ -512,6 +589,13 @@ export const unblockUser = catchAsync(
   },
 );
 
+/**
+ * mute a user
+ * if user not found return with status code 404 (User to mute not found)
+ * if client mute himself return status code 401 (Can't Mute Yourself)
+ * if user is already muted return status code 400 (User is already muted)
+ * else mute the user and return status code 200
+ */
 export const muteUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
@@ -550,6 +634,13 @@ export const muteUser = catchAsync(
   },
 );
 
+/**
+ * unmute a user
+ * if user not found return with status code 404 (User to unmute not found)
+ * if client unmute himself return status code 401 (Can't Unmute Yourself)
+ * if user is already unmuted return status code 400 (User is not muted)
+ * else unmute the user and return status code 200
+ */
 export const unmuteUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
@@ -585,6 +676,10 @@ export const unmuteUser = catchAsync(
   },
 );
 
+/**
+ * get muted users
+ * return muted users list with status code 200
+ */
 export const getUsersMutedByCurrentUser = catchAsync(
   async (req: Request, res: Response, _: NextFunction) => {
     const muterId = (req.user as User).id;
@@ -625,6 +720,14 @@ export const getUsersMutedByCurrentUser = catchAsync(
   },
 );
 
+/**
+ * follow user
+ * if user not found return status code 404 (User to follow not found)
+ * if client follow himself return code 401 (Can't follow youself)
+ * if user blocked or blocking return status code 401 (Blocked)
+ * if user is already followed return status code 400 (User is already followed)
+ * else follow and send notification if not muted and return status code 200
+ */
 export const followUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
@@ -736,6 +839,13 @@ export const followUser = catchAsync(
   },
 );
 
+/**
+ * unfollow user
+ * if user not found return status code 404 (User to unfollow not found)
+ * if client unfollow himself return code 401 (Can't unfollow youself)
+ * if user is not followed return status code 400 (User is not followed)
+ * else unfollow and return status code 200
+ */
 export const unfollowUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params;
@@ -796,6 +906,9 @@ export const unfollowUser = catchAsync(
   },
 );
 
+/**
+ * return user suggestions of users that u dont follow with status code 200
+ */
 export const getUserSuggestions = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const currentUser = req.user as User;
