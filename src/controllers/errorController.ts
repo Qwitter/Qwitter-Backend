@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
+/**
+ * send error while running server as development
+ * @param err error happened
+ * @param _req request sent from user
+ * @param res response to be returned
+ */
 const sendErrorDev = async (err: any, _req: Request, res: Response) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Something went wrong';
@@ -15,6 +21,13 @@ const sendErrorDev = async (err: any, _req: Request, res: Response) => {
   }
   return;
 };
+
+/**
+ * send error while running server as production
+ * @param err error happened
+ * @param _req request sent from user
+ * @param res response to be returned
+ */
 const sendErrorProd = async (err: any, _req: Request, res: Response) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Something went wrong';
@@ -24,6 +37,10 @@ const sendErrorProd = async (err: any, _req: Request, res: Response) => {
   });
 };
 
+
+/**
+ * global error handler that chooses between development & production
+ */
 export default function globalErrorHandler(
   err: any,
   req: Request,
