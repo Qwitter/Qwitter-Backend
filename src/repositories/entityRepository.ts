@@ -2,6 +2,9 @@ import { uploadImage } from '../middlewares/uploadMiddleware';
 import prisma from '../client';
 import { Entities } from '../types/entities';
 import { getUserByUsername } from './userRepository';
+/**
+ * returns mention object of the user
+ */
 export const getMention = async (userId: string) => {
   return await prisma.mention.findUnique({
     where: {
@@ -9,6 +12,7 @@ export const getMention = async (userId: string) => {
     },
   });
 };
+
 // export const getTweetEntities2 = async (tweetId: string) => {
 //   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
 //   const relations =
@@ -50,6 +54,10 @@ export const getMention = async (userId: string) => {
 //   }
 //   return entities;
 // };
+
+/**
+ * get all entities of a tweet
+ */
 export const getTweetEntities = async (tweetId: string) => {
   let entities: Entities = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations =
@@ -61,27 +69,28 @@ export const getTweetEntities = async (tweetId: string) => {
   const entitiesIds = relations.map((relation) => {
     return relation.entityId;
   }) as string[];
-  const relationEntities = await prisma.entity.findMany({
-    where: {
-      id: {
-        in: entitiesIds,
+  const relationEntities =
+    (await prisma.entity.findMany({
+      where: {
+        id: {
+          in: entitiesIds,
+        },
       },
-    },
-    include: {
-      Mention: {
-        include: {
-          mentionedUser: {
-            select: {
-              userName: true,
+      include: {
+        Mention: {
+          include: {
+            mentionedUser: {
+              select: {
+                userName: true,
+              },
             },
           },
         },
+        Hashtag: true,
+        Url: true,
+        Media: true,
       },
-      Hashtag: true,
-      Url: true,
-      Media: true,
-    },
-  }) || [];
+    })) || [];
   for (const entity of relationEntities) {
     if (entity?.Mention) {
       entities.mentions.push(entity.Mention.mentionedUser.userName as string);
@@ -96,6 +105,10 @@ export const getTweetEntities = async (tweetId: string) => {
   }
   return entities;
 };
+
+/**
+ * get all message entities by message id
+ */
 export const getMessageEntities = async (messageId: string) => {
   let entities: any = { hashtags: [], mentions: [], urls: [], media: [] };
   const relations = await prisma.messageEntity.findMany({
@@ -147,6 +160,10 @@ export const getMessageEntities = async (messageId: string) => {
 // export const getHashtag = async (type: string) => {};
 // export const getUrl = async (type: string) => {};
 
+/**
+ * check if tweet is retweeted ot not
+ * @param {*} type - entity type {"mention" | "media" | "url" | "hashtag"}
+ */
 export const createEntity = async (type: string) => {
   const newEntity = await prisma.entity.create({
     data: {
@@ -155,6 +172,12 @@ export const createEntity = async (type: string) => {
   });
   return newEntity;
 };
+
+/**
+ * create a relation of entity for a tweet
+ * @param {*} tweet - Tweet Id
+ * @param {*} entity - Entity Id
+ */
 export const createEntityTweet = async (tweet: string, entity: string) => {
   const newRelation = await prisma.tweetEntity.create({
     data: {
@@ -164,6 +187,12 @@ export const createEntityTweet = async (tweet: string, entity: string) => {
   });
   return newRelation;
 };
+
+/**
+ * create a relation of entity for a message
+ * @param {*} messageId - message Id
+ * @param {*} entity - Entity Id
+ */
 export const createEntityMessage = async (
   messageId: string,
   entity: string,
@@ -176,6 +205,12 @@ export const createEntityMessage = async (
   });
   return newRelation;
 };
+
+/**
+ * create a hashtag entity
+ * @param {*} entityId - Entity Id
+ * @param {*} text - hashtag text
+ */
 export const createHashtag = async (entityId: string, text: string) => {
   const createdHashtag = await prisma.hashtag.create({
     data: {
@@ -186,6 +221,11 @@ export const createHashtag = async (entityId: string, text: string) => {
   });
   return createdHashtag;
 };
+
+/**
+ * create a mention entity
+ * @param {*} userId - User Id
+ */
 export const createMention = async (userId: string) => {
   const createdEntity = await createEntity('mention');
   const createdmention = await prisma.mention.create({
@@ -196,6 +236,12 @@ export const createMention = async (userId: string) => {
   });
   return createdmention;
 };
+
+/**
+ * create a media entity
+ * @param {*} mediaName - Media name
+ * @param {*} folder - folder name
+ */
 export const createMedia = async (mediaName: string, folder: string) => {
   const createdEntity = await createEntity('media');
   const url = await uploadImage('public/imgs/' + folder, mediaName);
@@ -208,12 +254,23 @@ export const createMedia = async (mediaName: string, folder: string) => {
   });
   return createdMedia;
 };
+
+/**
+ * get image path
+ * @param {*} fileName - file name
+ * @param {*} domain - domain of imgs server
+ */
 export const getImagePath = (fileName: string, domain: string) => {
   const url = process.env.url?.startsWith('http')
     ? process.env.URL
     : 'http://' + process.env.URL;
   return `${url}/imgs/${domain}/${fileName}`;
 };
+
+/**
+ * get file type from the extention
+ * @param {*} filename - File name
+ */
 function getFileTypeByExtension(filename: string): string {
   const extension = filename.split('.').pop()?.toLowerCase();
 
@@ -231,6 +288,11 @@ function getFileTypeByExtension(filename: string): string {
       return 'media'; // Unknown extension
   }
 }
+
+/**
+ * increment hashtag count by hashtag text
+ * @param {*} text - hashtag text
+ */
 export const incrementHashtagCount = async (text: string) => {
   await prisma.hashtag.update({
     where: {
@@ -242,6 +304,10 @@ export const incrementHashtagCount = async (text: string) => {
   });
 };
 
+/**
+ * search hashtags by word return hashtag object array
+ * @param {*} text - hashtag text (if not defined will return all hashtags)
+ */
 export const searchHastagsByWord = async (text: string | null) => {
   if (!text) {
     return await prisma.hashtag.findMany();
@@ -256,6 +322,10 @@ export const searchHastagsByWord = async (text: string | null) => {
   });
 };
 
+/**
+ * extract entities from a string return entities id array
+ * @param {*} text - string to be searched
+ */
 export const extractEntities = async (text: string) => {
   // Extracting entities
   const hashtags = extractHashtags(text);
@@ -304,6 +374,10 @@ export const extractEntities = async (text: string) => {
   return entitiesId;
 };
 
+/**
+ * extract hashtags from a string return hashtags text array
+ * @param {*} inputString - string to be searched
+ */
 function extractHashtags(inputString: string): string[] {
   // Regular expression to find hashtags
   const hashtagRegex = /#(\w+)/g;
@@ -315,6 +389,11 @@ function extractHashtags(inputString: string): string[] {
   });
   return [...new Set(hashtags)];
 }
+
+/**
+ * extract mentions from a string return mentions text array
+ * @param {*} inputString - string to be searched
+ */
 function extractMentions(inputString: string): string[] {
   const mentionRegex = /@(\w+)/g;
   // Use match() to find all occurrences of the mention pattern in the input string
