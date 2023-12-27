@@ -109,28 +109,40 @@ export const getNotification = catchAsync(
           [returnedTweet],
           authUser.id,
         );
-        const tempUser = await prisma.user.findFirst({
-          where: {
-            userName: structuredTweets[0].retweetedTweet?.author.userName,
-          },
-        });
-        const isFollowing = await isUserFollowing(
-          authUser.id,
-          (tempUser as User).id,
-        );
-        const liked = await prisma.like.findFirst({
-          where: {
-            userId: authUser.id,
-            tweetId: structuredTweets[0].id,
-          },
-        });
-        const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
-        const structuredTweet = {
+        let structuredTweet = {
           ...structuredTweets[0],
-          liked: liked ? true : false,
-          currentUserRetweetId: IsRetweeted,
-          isFollowing,
+          liked: false,
+          currentUserRetweetId: null,
+          isFollowing: false,
         };
+        if (structuredTweets[0].retweetedTweet) {
+          const tempUser = await prisma.user.findFirst({
+            where: {
+              userName: structuredTweets[0].retweetedTweet.author?.userName,
+            },
+          });
+          const isFollowing = await isUserFollowing(
+            authUser.id,
+            (tempUser as User).id,
+          );
+          const liked = await prisma.like.findFirst({
+            where: {
+              userId: authUser.id,
+              tweetId: structuredTweets[0].id,
+            },
+          });
+          const IsRetweeted = await isRetweeted(
+            authUser.id,
+            structuredTweets[0],
+          );
+          structuredTweet = {
+            ...structuredTweets[0],
+            liked: liked ? true : false,
+            currentUserRetweetId: IsRetweeted,
+            isFollowing,
+          };
+        }
+
         const retweetNotificationObject = {
           type: notification.Notification.type,
           createdAt: notification.Notification.createdAt,
