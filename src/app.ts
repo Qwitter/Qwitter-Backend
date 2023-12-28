@@ -41,6 +41,8 @@ app.use(express.json({ limit: '100kb' })); // Maximum request size
 
 // Static files middlewares
 app.use('/imgs', express.static(path.resolve('./public/imgs/')));
+app.use('/doc', express.static(path.resolve('./public/doc/')));
+
 app.use(express.urlencoded({ extended: true }));
 
 // oAuth Headers
