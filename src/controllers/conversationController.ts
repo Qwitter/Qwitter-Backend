@@ -599,18 +599,15 @@ export const deleteConversation = catchAsync(
     });
     if (!conv) return next(new AppError('conversation not found', 401));
 
-    const deletedConv = await prisma.userConversations.delete({
-      where: {
-        userId_conversationId: { userId: authUser.id, conversationId: conv.id },
-      },
+    await prisma.userConversations.deleteMany({
+      where: { userId: authUser.id, conversationId: conv.id },
     });
-    if (!deletedConv) return res.status(404).json({ operationSuccess: false });
     await prisma.message.create({
       data: {
         text: authUser.userName + ' left this group',
         userId: authUser.id,
         date: new Date(),
-        conversationId: deletedConv.conversationId,
+        conversationId: conv.id,
         isMessage: false,
       },
     });
@@ -768,19 +765,19 @@ export const getConversation = catchAsync(
           );
           const isMuted = await isUserMuted(
             authUser.id,
-            tempConv.Conversation.UserConversations[i].User.id,
+            tempConv.Conversation.UserConversations[i]?.User.id,
           );
           const user = {
-            name: tempConv.Conversation.UserConversations[i].User.name,
-            userName: tempConv.Conversation.UserConversations[i].User.userName,
+            name: tempConv.Conversation.UserConversations[i]?.User.name,
+            userName: tempConv.Conversation.UserConversations[i]?.User.userName,
             description:
-              tempConv.Conversation.UserConversations[i].User.description,
+              tempConv.Conversation.UserConversations[i]?.User.description,
             followersCount:
-              tempConv.Conversation.UserConversations[i].User.followersCount,
+              tempConv.Conversation.UserConversations[i]?.User.followersCount,
             followingCount:
-              tempConv.Conversation.UserConversations[i].User.followingCount,
+              tempConv.Conversation.UserConversations[i]?.User.followingCount,
             profileImageUrl:
-              tempConv.Conversation.UserConversations[i].User.profileImageUrl,
+              tempConv.Conversation.UserConversations[i]?.User.profileImageUrl,
           };
           users.push({
             ...user,
