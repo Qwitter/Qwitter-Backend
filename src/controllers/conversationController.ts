@@ -599,17 +599,18 @@ export const deleteConversation = catchAsync(
     });
     if (!conv) return next(new AppError('conversation not found', 401));
 
-    await prisma.userConversations.delete({
+    const deletedConv = await prisma.userConversations.delete({
       where: {
         userId_conversationId: { userId: authUser.id, conversationId: conv.id },
       },
     });
+    if (!deletedConv) return res.status(404).json({ operationSuccess: false });
     await prisma.message.create({
       data: {
         text: authUser.userName + ' left this group',
         userId: authUser.id,
         date: new Date(),
-        conversationId: conv.id,
+        conversationId: deletedConv.conversationId,
         isMessage: false,
       },
     });
