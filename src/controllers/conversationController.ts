@@ -599,8 +599,10 @@ export const deleteConversation = catchAsync(
     });
     if (!conv) return next(new AppError('conversation not found', 401));
 
-    await prisma.userConversations.deleteMany({
-      where: { userId: authUser.id, conversationId: conv.id },
+    await prisma.userConversations.delete({
+      where: {
+        userId_conversationId: { userId: authUser.id, conversationId: conv.id },
+      },
     });
     await prisma.message.create({
       data: {
