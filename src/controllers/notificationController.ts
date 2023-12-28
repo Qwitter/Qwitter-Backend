@@ -63,32 +63,45 @@ export const getNotification = catchAsync(
           ...createdTweet,
           entities,
         };
+
         const structuredTweets = await getTweetsRepliesRetweets(
           [returnedTweet],
           authUser.id,
         );
-        const tempUser = await prisma.user.findUnique({
-          where: {
-            userName: structuredTweets[0].replyToTweet.author.userName,
-          },
-        });
-        const isFollowing = await isUserFollowing(
-          authUser.id,
-          (tempUser as User).id,
-        );
-        const liked = await prisma.like.findFirst({
-          where: {
-            userId: authUser.id,
-            tweetId: structuredTweets[0].id,
-          },
-        });
-        const IsRetweeted = await isRetweeted(authUser.id, structuredTweets[0]);
-        const structuredTweet = {
+        let structuredTweet = {
           ...structuredTweets[0],
-          liked: liked ? true : false,
-          currentUserRetweetId: IsRetweeted,
-          isFollowing,
+          liked: false,
+          currentUserRetweetId: false,
+          isFollowing: false,
         };
+        if (structuredTweets[0].replyToTweet) {
+          const tempUser = await prisma.user.findUnique({
+            where: {
+              userName: structuredTweets[0].replyToTweet.author.userName,
+            },
+          });
+          const isFollowing = await isUserFollowing(
+            authUser.id,
+            (tempUser as User).id,
+          );
+          const liked = await prisma.like.findFirst({
+            where: {
+              userId: authUser.id,
+              tweetId: structuredTweets[0].id,
+            },
+          });
+          const IsRetweeted = await isRetweeted(
+            authUser.id,
+            structuredTweets[0],
+          );
+          structuredTweet = {
+            ...structuredTweets[0],
+            liked: liked ? true : false,
+            currentUserRetweetId: IsRetweeted,
+            isFollowing,
+          };
+        }
+
         const replyNotificationObject = {
           type: notification.Notification.type,
           createdAt: notification.Notification.createdAt,
