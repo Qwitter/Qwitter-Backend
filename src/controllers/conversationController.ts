@@ -188,7 +188,7 @@ export const getConversationDetails = catchAsync(
       }
       isBlocked = await isUserBlocked(
         authUser.id,
-        conversationDetails?.UserConversations[i].User.id as string,
+        conversationDetails?.UserConversations[i]?.User?.id as string,
       );
       isBlocker = await isUserBlocked(
         conversationDetails?.UserConversations[i].User.id as string,
@@ -236,7 +236,7 @@ export const getConversationDetails = catchAsync(
           );
           const isBlocked = await isUserBlocked(
             authUser.id,
-            conversationDetails.UserConversations[i].User.id,
+            conversationDetails.UserConversations[i]?.User?.id,
           );
           const isMuted = await isUserMuted(
             authUser.id,
@@ -750,20 +750,21 @@ export const getConversation = catchAsync(
       let users = [];
       for (let i = 0; i < tempConv.Conversation.UserConversations.length; i++) {
         if (
+          tempConv.Conversation.UserConversations[i].User &&
           tempConv.Conversation.UserConversations[i].User.userName !=
-          authUser.userName
+            authUser.userName
         ) {
           const isFollowed = await isUserFollowing(
             authUser.id,
-            tempConv.Conversation.UserConversations[i].User.id,
+            tempConv.Conversation.UserConversations[i]?.User?.id,
           );
           const isFollowing = await isUserFollowing(
-            tempConv.Conversation.UserConversations[i].User.id,
+            tempConv.Conversation.UserConversations[i]?.User?.id,
             authUser.id,
           );
           const isBlocked = await isUserBlocked(
             authUser.id,
-            tempConv.Conversation.UserConversations[i].User.id,
+            tempConv.Conversation?.UserConversations[i]?.User.id,
           );
           const isMuted = await isUserMuted(
             authUser.id,
@@ -805,17 +806,18 @@ export const getConversation = catchAsync(
       }
       let i = 0;
       if (
+        tempConv.Conversation.UserConversations[i].User &&
         tempConv.Conversation.UserConversations[i].User.userName ==
-        authUser.userName
+          authUser.userName
       ) {
         i++;
       }
       const isBlocked = await isUserBlocked(
         authUser.id,
-        tempConv.Conversation.UserConversations[i].User.id,
+        tempConv.Conversation.UserConversations[i]?.User?.id,
       );
       const isBlocker = await isUserBlocked(
-        tempConv.Conversation.UserConversations[i].User.id,
+        tempConv.Conversation.UserConversations[i]?.User?.id,
         authUser.id,
       );
       let tempResponse = {
