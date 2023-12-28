@@ -4,7 +4,7 @@ const prisma = new PrismaClient().$extends({
   name: 'incrementReadCount',
   query: {
     tweet: {
-      async findUnique({ args, query }) {
+      async findUnique({ args, query }: { args: any; query: any }) {
         if (args.where?.id)
           await prisma.tweet.update({
             where: {
