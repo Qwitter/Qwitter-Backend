@@ -2458,7 +2458,14 @@ describe('GET /tweet/:id', () => {
     };
 
     prismaMock.tweet.create.mockResolvedValue(tweetCreated);
-
+    prismaMock.mention.findUnique.mockResolvedValue(null);
+    prismaMock.mention.create.mockResolvedValue({
+      entityId: '1',
+      userId: '1',
+      id: '1',
+    });
+    prismaMock.user.findUnique.mockResolvedValue(user);
+    prismaMock.entity.create.mockResolvedValue({ id: '1', type: '1' });
     const notificationResponse = {
       id: '251f773f-f284-4522-8e55-a17b6ddb63aa',
       createdAt: new Date(),
@@ -2474,7 +2481,7 @@ describe('GET /tweet/:id', () => {
       .post('/api/v1/tweets')
       .set('authorization', 'Bearer abc123')
       .send({
-        text: 'hello',
+        text: 'hello @ahmed',
         source: 'IPhone',
         replyToTweetId: '351f773f-f284-4522-8e55-a17b6ddb63ef',
         // retweetedId:"351f773f-f284-4522-8e55-a17b6ddb63ef",
