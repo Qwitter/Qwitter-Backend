@@ -37,7 +37,6 @@ export function sendRoomMessage(
 
 function socket({ io }: { io: Server }) {
   io.on(EVENTS.connection, (socket: CustomSocket) => {
-    console.log('Hamada connected');
     try {
       socket.on(EVENTS.CLIENT.SEND_ROOM_MESSAGE, (message) => {
         let JSONMessage = message;
@@ -52,6 +51,7 @@ function socket({ io }: { io: Server }) {
       });
       socket.on(EVENTS.CLIENT.JOIN_ROOM, (roomId) => {
         socket.join(roomId);
+        console.log(roomId);
       });
       // This is for the client side to calculate the time taken to connect to the socket
       socket.on('ping', (callback) => {
