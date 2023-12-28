@@ -183,7 +183,7 @@ export const getConversationDetails = catchAsync(
 
     if (!conversationDetails?.isGroup) {
       let i = 0;
-      if (conversationDetails?.UserConversations[i].User.id == authUser.id) {
+      if (conversationDetails?.UserConversations[i]?.User?.id == authUser.id) {
         i++;
       }
       isBlocked = await isUserBlocked(
@@ -243,16 +243,16 @@ export const getConversationDetails = catchAsync(
             conversationDetails.UserConversations[i].User.id,
           );
           const user = {
-            name: conversationDetails.UserConversations[i].User.name,
-            userName: conversationDetails.UserConversations[i].User.userName,
+            name: conversationDetails.UserConversations[i]?.User?.name,
+            userName: conversationDetails.UserConversations[i]?.User?.userName,
             description:
-              conversationDetails.UserConversations[i].User.description,
+              conversationDetails.UserConversations[i]?.User?.description,
             followersCount:
-              conversationDetails.UserConversations[i].User.followersCount,
+              conversationDetails.UserConversations[i]?.User?.followersCount,
             followingCount:
-              conversationDetails.UserConversations[i].User.followingCount,
+              conversationDetails.UserConversations[i]?.User?.followingCount,
             profileImageUrl:
-              conversationDetails.UserConversations[i].User.profileImageUrl,
+              conversationDetails.UserConversations[i]?.User?.profileImageUrl,
           };
           users.push({
             ...user,
@@ -764,23 +764,24 @@ export const getConversation = catchAsync(
           );
           const isBlocked = await isUserBlocked(
             authUser.id,
-            tempConv.Conversation?.UserConversations[i]?.User.id,
+            tempConv.Conversation?.UserConversations[i]?.User?.id,
           );
           const isMuted = await isUserMuted(
             authUser.id,
-            tempConv.Conversation.UserConversations[i]?.User.id,
+            tempConv.Conversation.UserConversations[i]?.User?.id,
           );
           const user = {
-            name: tempConv.Conversation.UserConversations[i]?.User.name,
-            userName: tempConv.Conversation.UserConversations[i]?.User.userName,
+            name: tempConv.Conversation.UserConversations[i]?.User?.name,
+            userName:
+              tempConv.Conversation.UserConversations[i]?.User?.userName,
             description:
-              tempConv.Conversation.UserConversations[i]?.User.description,
+              tempConv.Conversation.UserConversations[i]?.User?.description,
             followersCount:
-              tempConv.Conversation.UserConversations[i]?.User.followersCount,
+              tempConv.Conversation.UserConversations[i]?.User?.followersCount,
             followingCount:
-              tempConv.Conversation.UserConversations[i]?.User.followingCount,
+              tempConv.Conversation.UserConversations[i]?.User?.followingCount,
             profileImageUrl:
-              tempConv.Conversation.UserConversations[i]?.User.profileImageUrl,
+              tempConv.Conversation.UserConversations[i]?.User?.profileImageUrl,
           };
           users.push({
             ...user,
