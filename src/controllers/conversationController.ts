@@ -813,14 +813,7 @@ export const getConversation = catchAsync(
       ) {
         i++;
       }
-      const isBlocked = await isUserBlocked(
-        authUser.id,
-        tempConv.Conversation.UserConversations[i]?.User?.id,
-      );
-      const isBlocker = await isUserBlocked(
-        tempConv.Conversation.UserConversations[i]?.User?.id,
-        authUser.id,
-      );
+
       let tempResponse = {
         id: tempConv.Conversation.id,
         name: newName,
@@ -835,7 +828,6 @@ export const getConversation = catchAsync(
           : '',
         users: users,
         seen: status?.seen || false,
-        blocked: !tempConv.Conversation.isGroup && (isBlocked || isBlocker),
       };
       responseConvs.push(tempResponse);
     }
