@@ -27,6 +27,7 @@ export const sendUnseenConversationCount = (
 
 // Sends update to all the people in the conversation in the page of the conversations
 export const sendConversationUpdate = async (
+  senderUsername: string,
   lastMessage: any,
   conversationId: string,
 ) => {
@@ -87,7 +88,7 @@ export const sendConversationUpdate = async (
               (u) => u.User.userName == currentUsername,
             )?.dateJoined
           : '',
-        seen: true,
+        seen: currentUsername == senderUsername,
       };
 
       io.to(currentUsername).emit(EVENTS.SERVER.CONVERSATION, {
