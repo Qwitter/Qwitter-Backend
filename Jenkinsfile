@@ -8,13 +8,12 @@ pipeline {
         stage('Install Dependencies') {  
             steps {  
                 sh 'npm install'
-               // sh 'cp /home/fares/.env /var/lib/jenkins/workspace/Qwitter_Back_pipeline_production'
             }
         }  
         stage('Test') {  
             steps {  
                 sh 'npm run prisma:generate'
-                //sh 'npm run test'
+                sh 'npm run test'
             }
         }
         stage('Build') {  
