@@ -1,5 +1,5 @@
 {
-  "out": "./docs",
+  "out": "./public/doc",
   "exclude": [
     "node_modules",
     "coverage",
@@ -8,10 +8,17 @@
     "public",
     "dist",
     "src/tests",
+    "src/database",
     "src/types",
     "src/schemas",
     "src/config",
-    "src/routes"
+    "src/routes",
+    "src/utils",
+    "src/app.ts",
+    "src/client.ts",
+    "src/index.ts",
+    "src/singleton.ts",
+    "src/socketServer.ts"
   ],
   "entryPointStrategy": "expand"
 }
